@@ -1,0 +1,21 @@
+diff -up ./client/cjdroute2.c.genconf ./client/cjdroute2.c
+--- ./client/cjdroute2.c.genconf	2016-01-19 15:19:10.084151612 -0500
++++ ./client/cjdroute2.c	2016-01-19 15:21:18.035546520 -0500
+@@ -323,7 +323,7 @@ static int genconf(struct Random* rand,
+            "        // and ETHInterface will be unable to hot-add new interfaces\n"
+            "        // Use { \"setuser\": 0 } to disable.\n"
+            "        // Default: enabled with keepNetAdmin\n"
+-           "        { \"setuser\": \"nobody\", \"keepNetAdmin\": 1 },\n"
++           "        { \"setuser\": \"cjdns\", \"keepNetAdmin\": 1 },\n"
+            "\n"
+            "        // Chroot changes the filesystem root directory which cjdns sees, blocking it\n"
+            "        // from accessing files outside of the chroot sandbox, if the user does not\n"
+@@ -335,7 +335,7 @@ static int genconf(struct Random* rand,
+           }
+           else {
+     printf("        // Default: enabled (using \"/var/run\")\n"
+-           "        { \"chroot\": \"/var/run/\" },\n");
++           "        { \"chroot\": \"/var/empty/cjdns\" },\n");
+           }
+     printf("\n"
+            "        // Nofiles is a deprecated security feature which prevents cjdns from opening\n"

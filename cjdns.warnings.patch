@@ -1,0 +1,65 @@
+diff -up ./dht/CJDHTConstants.h.warnings ./dht/CJDHTConstants.h
+--- ./dht/CJDHTConstants.h.warnings	2016-01-27 03:07:49.000000000 -0500
++++ ./dht/CJDHTConstants.h	2016-02-02 21:42:27.810535881 -0500
+@@ -17,7 +17,9 @@
+ 
+ #include "benc/String.h"
+ #include "util/version/Version.h"
+-
++#pragma GCC diagnostic push
++#pragma GCC diagnostic ignored "-Wpragmas"
++#pragma GCC diagnostic ignored "-Wunused-const-variable"
+ // Signifying that this message is a query and defining the query type.
+ static String* const CJDHTConstants_QUERY = String_CONST_SO("q");
+ 
+@@ -61,5 +63,5 @@ static String* const CJDHTConstants_ENC_
+ // Encoding scheme and index for the closest peer along the path.
+ static String* const CJDHTConstants_PEER_ENC_SCHEME = String_CONST_SO("pes");
+ static String* const CJDHTConstants_PEER_ENC_INDEX = String_CONST_SO("pei");
+-
++#pragma GCC diagnostic pop
+ #endif
+diff -up ./node_build/dependencies/libuv/test/test-getsockname.c.warnings ./node_build/dependencies/libuv/test/test-getsockname.c
+--- ./node_build/dependencies/libuv/test/test-getsockname.c.warnings	2016-01-27 03:07:49.000000000 -0500
++++ ./node_build/dependencies/libuv/test/test-getsockname.c	2016-02-02 19:53:49.293769496 -0500
+@@ -18,7 +18,7 @@
+  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+  * IN THE SOFTWARE.
+  */
+-
++#pragma GCC diagnostic ignored "-Wstrict-aliasing"
+ #include "uv.h"
+ #include "task.h"
+ 
+diff -up ./util/platform/netdev/NetPlatform_linux.c.warnings ./util/platform/netdev/NetPlatform_linux.c
+--- ./util/platform/netdev/NetPlatform_linux.c.warnings	2016-01-27 03:07:49.000000000 -0500
++++ ./util/platform/netdev/NetPlatform_linux.c	2016-02-02 19:53:49.293769496 -0500
+@@ -142,7 +142,7 @@ void NetPlatform_addAddress(const char*
+             Except_throw(eh, "ioctl(SIOCSIFADDR) failed: [%s]", strerror(err));
+         }
+ 
+-        uint32_t x = ~0 << (32 - prefixLen);
++        uint32_t x = ~0U << (32 - prefixLen);
+         x = Endian_hostToBigEndian32(x);
+         memcpy(&sin.sin_addr, &x, 4);
+         memcpy(&ifRequest.ifr_addr, &sin, sizeof(struct sockaddr_in));
+@@ -213,7 +213,7 @@ void NetPlatform_addRoute(const char* in
+         struct sockaddr_in sin = { .sin_family = AF_INET, .sin_port = 0 };
+         memcpy(&sin.sin_addr.s_addr, address, 4);
+         memcpy(&rt.rt_dst, &sin, sizeof(struct sockaddr));
+-        sin.sin_addr.s_addr = Endian_hostToBigEndian32(~0 << (32 - prefixLen));
++        sin.sin_addr.s_addr = Endian_hostToBigEndian32(~0U << (32 - prefixLen));
+         memcpy(&rt.rt_genmask, &sin, sizeof(struct sockaddr));
+         rt.rt_dev = (char *) interfaceName;
+ 
+diff -up ./util/platform/Sockaddr.c.warnings ./util/platform/Sockaddr.c
+--- ./util/platform/Sockaddr.c.warnings	2016-01-27 03:07:49.000000000 -0500
++++ ./util/platform/Sockaddr.c	2016-02-02 19:53:49.294769524 -0500
+@@ -12,6 +12,7 @@
+  * You should have received a copy of the GNU General Public License
+  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  */
++#pragma GCC diagnostic ignored "-Wstrict-aliasing"
+ #include "util/events/libuv/UvWrapper.h"
+ #include "benc/String.h"
+ #include "memory/Allocator.h"

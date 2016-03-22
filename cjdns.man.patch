@@ -1,0 +1,253 @@
+diff -up ./contrib/doc/cjdns-online.md.man ./contrib/doc/cjdns-online.md
+--- ./contrib/doc/cjdns-online.md.man	2016-03-08 18:57:49.297123587 -0500
++++ ./contrib/doc/cjdns-online.md	2016-03-08 18:56:28.344871576 -0500
+@@ -0,0 +1,33 @@
++cjdns-online(1) -- check whether cjdns tunnel devices are available
++=============================================
++
++## SYNOPSIS
++
++`cjdns-online` [<options>...]
++
++## DESCRIPTION
++
++Cjdns-online waits for cjdns to make its tunnel device available so 
++that services that listen on the cjdns IP can start.  If you have
++configured services to listen on the cjdns IP, then you can use:
++
++    systemctl enable cjdns-wait-online
++
++to wait until this IP is available before starting network services.
++This will increase your boot time somewhat, but is needed to launch
++thttpd at boot, for example.
++
++##OPTIONS
++
++  * `-t`, `--timeout` <timeout_value>:	
++    time to wait in seconds, default 30
++
++  * `-x`, `--exit`:		
++    Exit immediately if cjdns is not online
++
++  * `-q`, `--quiet`:
++    Don't print anything
++
++  * `-s`, `--wait-for-startup`:
++    Wait for full startup instead of just tun dev.  This is not implemented.
++
+diff -up ./contrib/doc/cjdroute.md.man ./contrib/doc/cjdroute.md
+--- ./contrib/doc/cjdroute.md.man	2016-03-08 18:47:02.960143140 -0500
++++ ./contrib/doc/cjdroute.md	2016-03-08 18:47:02.960143140 -0500
+@@ -0,0 +1,76 @@
++cjdroute(1) -- Cjdns packet switch
++=============================================
++
++## SYNOPSIS
++
++`/usr/sbin/cjdroute` [<options>...]
++
++## DESCRIPTION
++
++Cjdns implements an encrypted IPv6 network using public-key cryptography for
++address allocation and a distributed hash table for routing. This provides
++near-zero-configuration networking, and prevents many of the security and
++scalability issues that plague existing networks.
++
++cjdroute runs in the background and either decrypts packets addressed to
++this node, or sends them on to the next node in the route.
++
++##OPTIONS
++
++  * `--help`:
++    Print usage summary.
++
++  * `--genconf` [--no-eth]:
++    Generate a configuration file, write it to stdout.
++    If --no-eth is specified then ethernet beaconing will be disabled.
++
++  * `--bench`:
++    Run some cryptography performance benchmarks.
++
++  * `--version`:             
++    Print cjdroute version and the protocol version which this node speaks.
++
++  * `--cleanconf` < conf:
++    Print a clean (valid json) version of the config.
++
++  * `--nobg`                
++    Never fork to the background no matter the config.
++
++##USAGE
++
++To get the router up and running:
++
++  * Step 1:
++    Generate a new configuration file if one doesn't already exist.
++
++      cjdroute --genconf > /etc/cjdroute.conf
++
++    You can also simply:
++
++      systemctl start cjdns
++
++    which will tell cjdroute to generate a new config if needed.
++
++  * Step 2:
++    Find somebody to connect to.
++    Check out the IRC channel or http://hyperboria.net/
++    for information about how to meet new people and make connect to them.
++    Read more here: https://github.com/cjdelisle/cjdns/#2-find-a-friend
++
++    By default, cjdroute will find any cjdns nodes on your local LAN
++    without any configuration.
++
++  * Step 3:
++    Add that somebody's node to your cjdroute.conf file.
++    https://github.com/cjdelisle/cjdns/#3-connect-your-node-to-your-friends-node
++
++  * Step 4:
++    Fire it up!
++
++      systemctl start cjdns
++
++    Or if you had already started cjdns:
++
++      systemctl restart cjdns
++
++For more information about other functions and non-standard setups, see README.md
+diff -up ./contrib/doc/makekeys.md.man ./contrib/doc/makekeys.md
+--- ./contrib/doc/makekeys.md.man	2016-03-08 18:47:02.960143140 -0500
++++ ./contrib/doc/makekeys.md	2016-03-08 18:47:02.960143140 -0500
+@@ -0,0 +1,18 @@
++makekeys(1) -- write cjdns keys generated via libnacl to stdout
++=============================================
++
++## SYNOPSIS
++
++`makekeys`
++
++## DESCRIPTION
++
++Generates cjdns private keys and writes them to stdout forever with
++corresponding IP6 address and public key.  Sample:
++
++    9b5520e11b4e1aac4e54cf8382ca219b6942f75519dbe7cc71fc6c4bb636a2db fca1:43dc:9e20:68dc:df3f:6bf1:fbf9:37ab x70u0x6sfh0yuushlq7wvcdxj8rgb8lvss9t6f42zp60ftq71cm0.k
++    579db68cfdeaeda1ff7f365c73e620bedb0f68cb443a0cd7ef6bae16d0e1e12e fc68:b272:3aa3:cb4a:a686:dab0:7df5:2fb5 fmurp2qrb0yqmcjmbjtuhuxuf6v3rgmdn9hgsfh47k20h68y2lz0.k
++
++## SEE ALSO
++
++publictoip6(1)
+diff -up ./contrib/doc/privatetopublic.md.man ./contrib/doc/privatetopublic.md
+--- ./contrib/doc/privatetopublic.md.man	2016-03-08 18:47:02.961143168 -0500
++++ ./contrib/doc/privatetopublic.md	2016-03-08 22:34:30.532757463 -0500
+@@ -0,0 +1,25 @@
++privatetopublic(8) -- convert cjdns private keys to public keys and IP6
++=============================================
++
++## SYNOPSIS
++
++`/usr/libexec/cjdns/privatetopublic`
++
++## DESCRIPTION
++
++As private keys are very sensitive, /usr/libexec/cjdns/privatetopublic reads
++them from stdin.  If your shell, terminal, or other program keeps history,
++please avoid `echo 'key' | /usr/libexec/cjdns/privatetopublic`, or similar
++constructs.  A heredoc is suitable for use in scripts, and will avoid
++unwanted revealing of the key in process lists, like so:
++
++    /usr/libexec/cjdns/privatetopublic <<EOF
++    key
++    EOF
++
++Key should be in hex form, maximum 64 characters.  Extra characters will be
++silently ignored.
++
++## SEE ALSO
++
++publictoip6(1)
+diff -up ./contrib/doc/publictoip6.md.man ./contrib/doc/publictoip6.md
+--- ./contrib/doc/publictoip6.md.man	2016-03-08 18:47:02.961143168 -0500
++++ ./contrib/doc/publictoip6.md	2016-03-08 18:47:02.961143168 -0500
+@@ -0,0 +1,14 @@
++publictoip6(1) -- write random bytes generated via libnacl to stdout
++=============================================
++
++## SYNOPSIS
++
++`publictoip6` <public key>
++
++## DESCRIPTION
++Get a cjdns IPv6 address from a public key and write to stdout.
++The key should be in Base32 and end in '.k'.
++
++## SEE ALSO
++
++randombytes(1)
+diff -up ./contrib/doc/randombytes.md.man ./contrib/doc/randombytes.md
+--- ./contrib/doc/randombytes.md.man	2016-03-08 18:47:02.961143168 -0500
++++ ./contrib/doc/randombytes.md	2016-03-08 18:47:02.961143168 -0500
+@@ -0,0 +1,16 @@
++randombytes(1) -- write random bytes generated via libnacl to stdout
++=============================================
++
++## SYNOPSIS
++
++`randombytes`
++
++## DESCRIPTION
++
++Writes random bytes to stdout forever using the cryptographically secure
++random generator in libnacl.  In practice, the output is piped
++to a program like dd(1) or base64(1).
++
++## SEE ALSO
++
++makekeys(1)
+diff -up ./contrib/doc/sybilsim.md.man ./contrib/doc/sybilsim.md
+--- ./contrib/doc/sybilsim.md.man	2016-03-08 18:47:02.962143196 -0500
++++ ./contrib/doc/sybilsim.md	2016-03-08 18:47:02.962143196 -0500
+@@ -0,0 +1,43 @@
++sybilsim(8) -- Cjdns packet switch
++=============================================
++
++## SYNOPSIS
++
++`/usr/libexec/cjdns/sybilsim < config.json`
++
++## DESCRIPTION
++
++Sybilsim reads a list of nodes and peers from stdin and simulates the
++corresponding mesh without any actual networking using the same code
++as cjdroute.  This is useful for testing and optimizing cjdroute.
++Every node must have a valid cjdns private key. The makekeys(1) utility can be
++useful for scripts that generate the config.  
++
++##USAGE
++
++Example config:
++
++    {
++      "nodes": {
++	"alice": {
++	  "privateKey":
++	    "5e2295679394e5e1db67c238abbc10292ad9b127904394c52cc5fff39383e920",
++	  "peers": []
++	},
++	"bob": {
++	  "privateKey":
++	    "6569bf3f0d168faa6dfb2912f8ee5ee9b938319e97618fdf06caed73b1aad1cc",
++	  "peers": [ "alice" ]
++	}
++      }
++    }
++
++Example use:
++
++    makekeys | head -20 >keys.txt
++    node /usr/libexec/cjdns/tools/lib/makesim.js keys.txt |
++    /usr/libexec/cjdns/sybilsim
++
++## SEE ALSO
++
++makekeys(1), cjdroute(1)
