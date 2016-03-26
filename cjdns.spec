@@ -88,6 +88,8 @@ Requires(postun): systemd
 %endif
 Requires(pre): shadow-utils
 Provides: bundled(libuv) = 0.11.4
+# build system requires nodejs, unfortunately
+ExclusiveArch: %{nodejs_arches}
 
 %description
 Cjdns implements an encrypted IPv6 network using public-key cryptography for
