@@ -281,6 +281,7 @@ for m in *.md; do
     ronn-nodejs $m >%{buildroot}%{_mandir}/man$M/cjdns-${m%.md}.$M
     continue ;;
   cjdroute|publictoip6|randombytes|makekeys|cjdns-online) M="1" ;;
+  sessionStats) M="1" ;;
   *) M="8" ;;
   esac
   ronn-nodejs $m >%{buildroot}%{_mandir}/man$M/${m%.md}.$M
@@ -408,6 +409,7 @@ fi
 %{_bindir}/search
 %{_bindir}/cjdns-traceroute
 %{_mandir}/man1/cjdns-traceroute.1.gz
+%{_mandir}/man1/sessionStats.1.gz
 
 %files python
 %doc contrib/python/README.md contrib/python/cjdns-dynamic.conf
