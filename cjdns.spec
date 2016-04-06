@@ -27,7 +27,7 @@
 Name:           cjdns
 # major version is cjdns protocol version:
 Version:        17.3
-Release:        10%{?dist}
+Release:        11%{?dist}
 Summary:        The privacy-friendly network without borders
 Group:          System Environment/Base
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
@@ -68,6 +68,8 @@ Patch7:  cjdns.cap3.patch
 Patch8:  cjdns.warnings.patch
 # Man pages
 Patch9:  cjdns.man.patch
+# Patch some bugs in nodejs tools
+Patch10: cjdns.tools.patch
 
 BuildRequires:  nodejs, nodejs-ronn
 
@@ -76,7 +78,7 @@ BuildRequires:  make
 
 %if !%{use_embedded}
 # x86_64 and ARM libnacl are not compiled with -fPIC before Fedora release 11.
-BuildRequires:  nacl-devel >= 20110221-11
+BuildRequires:  libsodium-devel >= 1.0.5
 %endif
 %if %{use_systemd}
 # systemd macros are not defined unless systemd is present
@@ -88,8 +90,6 @@ Requires(postun): systemd
 %endif
 Requires(pre): shadow-utils
 Provides: bundled(libuv) = 0.11.4
-# build system requires nodejs, unfortunately
-ExclusiveArch: %{nodejs_arches}
 
 %description
 Cjdns implements an encrypted IPv6 network using public-key cryptography for
@@ -110,13 +110,17 @@ Targeted SELinux policy module for cjdns.
 
 # FIXME: keep C tools separate?
 %package tools
-Summary: nodejs tools for cjdns
+Summary: Nodejs tools for cjdns
 Group: System Environment/Base
 Requires: nodejs, %{name} = %{version}-%{release}
 BuildArch: noarch
 
 %description tools
-C language and nodejs tools for cjdns.
+Nodejs tools for cjdns. Highlights:
+peerStats          show current peer status
+cjdnslog           display cjdroute log
+cjdns-traceroute   trace route to cjdns IP
+sessionStats       show current crypto sessions
 
 %package python
 Summary: Python tools for cjdns
@@ -149,7 +153,7 @@ Python graphing tools for cjdns.
 
 %if !%{use_embedded}
 # use system nacl library if provided.  
-if test -x %{_libdir}/libnacl.so; then
+if test -x %{_libdir}/libsodium.so; then
 %patch6 -b .dyn
   rm -rf node_build/dependencies/cnacl
 # use static library if system nacl doesn't provide dynamic
@@ -170,6 +174,7 @@ fi
 %endif
 
 %patch9 -b .man
+%patch10 -b .tools
 
 cp %{SOURCE1} README_Fedora.md
 
@@ -251,6 +256,9 @@ for t in peerStats sessionStats cjdnslog search dumpLinks dumptable \
          dumpRumorMill pathfinderTree pingAll; do
   ln -sf %{_libexecdir}/cjdns/tools/$t %{buildroot}%{_bindir}
 done
+for t in traceroute; do
+  ln -sf %{_libexecdir}/cjdns/tools/$t %{buildroot}%{_bindir}/cjdns-$t
+done
 
 # symlinks for selected C tools
 for t in publictoip6 randombytes makekeys; do
@@ -269,6 +277,9 @@ install -pm 644 doc/man/cjdroute.conf.5 %{buildroot}%{_mandir}/man5
 cd contrib/doc
 for m in *.md; do
   case ${m%.md} in
+  traceroute) M="1"
+    ronn-nodejs $m >%{buildroot}%{_mandir}/man$M/cjdns-${m%.md}.$M
+    continue ;;
   cjdroute|publictoip6|randombytes|makekeys|cjdns-online) M="1" ;;
   *) M="8" ;;
   esac
@@ -325,6 +336,11 @@ done
 %{_mandir}/man1/*
 %{_mandir}/man5/*
 %{_mandir}/man8/*
+%{_mandir}/man1/cjdns-online.1.gz
+%{_mandir}/man1/cjdroute.1.gz
+%{_mandir}/man1/makekeys.1.gz
+%{_mandir}/man1/publictoip6.1.gz
+%{_mandir}/man1/randombytes.1.gz
 
 %pre
 getent group cjdns > /dev/null || groupadd -r cjdns
@@ -390,6 +406,8 @@ fi
 %{_bindir}/dumptable
 %{_bindir}/pingAll
 %{_bindir}/search
+%{_bindir}/cjdns-traceroute
+%{_mandir}/man1/cjdns-traceroute.1.gz
 
 %files python
 %doc contrib/python/README.md contrib/python/cjdns-dynamic.conf
@@ -429,6 +447,11 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Thu Mar 10 2016 Stuart D. Gathman <stuart@gathman.org> 17.3-11
+- Patch some bugs in traceroute and symlink to /usr/bin/cjdns-traceroute
+- man page for cjdns-traceroute
+- switch to libsodium instead of nacl
+
 * Thu Mar 10 2016 Stuart D. Gathman <stuart@gathman.org> 17.3-10
 - Mark nodejs and selinux noarch
 - Remove _isa from noarch subpackages.

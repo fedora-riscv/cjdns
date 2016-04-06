@@ -40,9 +40,9 @@ diff -up ./node_build/make.js.dyn ./node_build/make.js
 -                process.chdir(cwd);
 -            }));
 -        }));
-+        builder.config.libs.push('-lnacl');
++        builder.config.libs.push('-lsodium');
 +        builder.config.libs.push('-lstdc++');
-+        builder.config.includeDirs.push('/usr/include/nacl/');
++        builder.config.includeDirs.push('/usr/include/sodium/');
  
      }).nThen(function (waitFor) {
  
