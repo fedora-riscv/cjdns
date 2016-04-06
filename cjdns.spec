@@ -447,7 +447,7 @@ fi
 %{_bindir}/graphStats
 
 %changelog
-* Thu Mar 10 2016 Stuart D. Gathman <stuart@gathman.org> 17.3-11
+* Tue Apr  5 2016 Stuart D. Gathman <stuart@gathman.org> 17.3-11
 - Patch some bugs in traceroute and symlink to /usr/bin/cjdns-traceroute
 - man page for cjdns-traceroute
 - switch to libsodium instead of nacl
