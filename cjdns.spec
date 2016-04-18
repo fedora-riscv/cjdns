@@ -39,7 +39,7 @@
 Name:           cjdns
 # major version is cjdns protocol version:
 Version:        17.3
-Release:        11%{?dist}
+Release:        12%{?dist}
 Summary:        The privacy-friendly network without borders
 Group:          System Environment/Base
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
@@ -471,6 +471,7 @@ fi
 - Run modprobe only if /dev/tun not present - fixes running on openVZ
 - Select nacl/libsodium with a macro
 - Switch back to nacl for platforms that support it
+- man page for peerStats
 
 * Tue Apr  5 2016 Stuart D. Gathman <stuart@gathman.org> 17.3-11
 - Patch some bugs in traceroute and symlink to /usr/bin/cjdns-traceroute
