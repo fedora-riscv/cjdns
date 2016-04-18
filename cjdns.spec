@@ -467,7 +467,7 @@ fi
 %{_bindir}/graphStats
 
 %changelog
-* Tue Apr 18 2016 Stuart D. Gathman <stuart@gathman.org> 17.3-12
+* Mon Apr 18 2016 Stuart D. Gathman <stuart@gathman.org> 17.3-12
 - Run modprobe only if /dev/tun not present - fixes running on openVZ
 - Select nacl/libsodium with a macro
 - Switch back to nacl for platforms that support it
