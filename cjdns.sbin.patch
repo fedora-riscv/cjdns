@@ -1,6 +1,6 @@
 diff -up ./contrib/systemd/cjdns-online.sh.sbin ./contrib/systemd/cjdns-online.sh
---- ./contrib/systemd/cjdns-online.sh.sbin	2016-03-08 18:47:02.883140998 -0500
-+++ ./contrib/systemd/cjdns-online.sh	2016-03-10 17:16:45.909853618 -0500
+--- ./contrib/systemd/cjdns-online.sh.sbin	2016-04-18 15:53:17.316245094 -0400
++++ ./contrib/systemd/cjdns-online.sh	2016-04-18 15:53:17.316245094 -0400
 @@ -0,0 +1,75 @@
 +#!/bin/sh
 +#   Check whether cjdns IPs are available
@@ -78,8 +78,8 @@ diff -up ./contrib/systemd/cjdns-online.sh.sbin ./contrib/systemd/cjdns-online.s
 +  cjdns_ips
 +fi
 diff -up ./contrib/systemd/cjdns-resume.service.sbin ./contrib/systemd/cjdns-resume.service
---- ./contrib/systemd/cjdns-resume.service.sbin	2016-03-08 18:47:02.883140998 -0500
-+++ ./contrib/systemd/cjdns-resume.service	2016-03-08 18:47:02.883140998 -0500
+--- ./contrib/systemd/cjdns-resume.service.sbin	2016-04-18 15:53:17.316245094 -0400
++++ ./contrib/systemd/cjdns-resume.service	2016-04-18 15:53:17.316245094 -0400
 @@ -0,0 +1,10 @@
 +[Unit]
 +Description=Restart cjdns on resume from sleep
@@ -93,7 +93,7 @@ diff -up ./contrib/systemd/cjdns-resume.service.sbin ./contrib/systemd/cjdns-res
 +WantedBy=sleep.target
 diff -up ./contrib/systemd/cjdns.service.sbin ./contrib/systemd/cjdns.service
 --- ./contrib/systemd/cjdns.service.sbin	2016-01-27 03:07:49.000000000 -0500
-+++ ./contrib/systemd/cjdns.service	2016-03-08 18:47:02.884141026 -0500
++++ ./contrib/systemd/cjdns.service	2016-04-18 15:55:59.579483155 -0400
 @@ -9,10 +9,10 @@ ProtectSystem=true
  SyslogIdentifier=cjdroute
  ExecStartPre=/bin/sh -ec "if ! test -s /etc/cjdroute.conf; \
@@ -103,14 +103,14 @@ diff -up ./contrib/systemd/cjdns.service.sbin ./contrib/systemd/cjdns.service
                  echo 'WARNING: A new /etc/cjdroute.conf file has been generated.'; \
 -            fi"
 -ExecStart=/bin/sh -c "exec cjdroute --nobg < /etc/cjdroute.conf"
-+            fi; /usr/sbin/modprobe tun"
++            fi; test -c /dev/net/tun || /usr/sbin/modprobe tun"
 +ExecStart=/bin/sh -c "exec /usr/sbin/cjdroute --nobg < /etc/cjdroute.conf"
  Restart=always
  
  [Install]
 diff -up ./contrib/systemd/cjdns-wait-online.service.sbin ./contrib/systemd/cjdns-wait-online.service
---- ./contrib/systemd/cjdns-wait-online.service.sbin	2016-03-08 18:47:02.885141054 -0500
-+++ ./contrib/systemd/cjdns-wait-online.service	2016-03-08 23:49:38.996469685 -0500
+--- ./contrib/systemd/cjdns-wait-online.service.sbin	2016-04-18 15:53:17.317245114 -0400
++++ ./contrib/systemd/cjdns-wait-online.service	2016-04-18 15:53:17.317245114 -0400
 @@ -0,0 +1,13 @@
 +[Unit]
 +Description=CJDNS Wait Online
@@ -127,7 +127,7 @@ diff -up ./contrib/systemd/cjdns-wait-online.service.sbin ./contrib/systemd/cjdn
 +WantedBy=multi-user.target
 diff -up ./contrib/upstart/cjdns.conf.sbin ./contrib/upstart/cjdns.conf
 --- ./contrib/upstart/cjdns.conf.sbin	2016-01-27 03:07:49.000000000 -0500
-+++ ./contrib/upstart/cjdns.conf	2016-03-08 18:47:02.885141054 -0500
++++ ./contrib/upstart/cjdns.conf	2016-04-18 15:55:07.845450771 -0400
 @@ -13,10 +13,13 @@ pre-start script
      if ! [ -s /etc/cjdroute.conf ]; then
          ( # start a subshell to avoid side effects of umask later on
@@ -139,7 +139,7 @@ diff -up ./contrib/upstart/cjdns.conf.sbin ./contrib/upstart/cjdns.conf
          echo 'WARNING: A new cjdns cjdroute.conf file has been generated.'
      fi
 +    # preload tun driver, since we prevent module_request
-+    /sbin/modprobe tun
++    test -c /dev/net/tun || /sbin/modprobe tun
  
      # If you need a non-standard setup, as described in
      # https://github.com/cjdelisle/cjdns#non-standard-setups,

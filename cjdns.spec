@@ -449,6 +449,9 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Tue Apr 18 2016 Stuart D. Gathman <stuart@gathman.org> 17.3-12
+- Run modprobe only if /dev/tun not present - fixes running on openVZ
+
 * Tue Apr  5 2016 Stuart D. Gathman <stuart@gathman.org> 17.3-11
 - Patch some bugs in traceroute and symlink to /usr/bin/cjdns-traceroute
 - man page for cjdns-traceroute, sessionStats
