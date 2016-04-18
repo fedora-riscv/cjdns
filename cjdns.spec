@@ -3,6 +3,18 @@
 
 # Use the optimized libnacl embedded with cjdns
 %global use_embedded 0
+# Use libsodium instead of nacl
+%global use_libsodium 0
+
+%if 0%{use_libsodium}
+%global nacl_name libsodium
+%global nacl_version 1.0.5
+%global nacl_lib %{_libdir}/libsodium.so
+%else
+%global nacl_name nacl
+%global nacl_version 20110221
+%global nacl_lib %{_libdir}/libnacl.so
+%endif
 
 %if 0%{?rhel} >= 5 && 0%{?rhel} < 7
 %global use_systemd 0
@@ -70,6 +82,8 @@ Patch8:  cjdns.warnings.patch
 Patch9:  cjdns.man.patch
 # Patch some bugs in nodejs tools
 Patch10: cjdns.tools.patch
+# Alternate dynamic library patch to use libsodium
+Patch11: cjdns.sodium.patch
 
 BuildRequires:  nodejs, nodejs-ronn
 
@@ -78,7 +92,7 @@ BuildRequires:  make
 
 %if !%{use_embedded}
 # x86_64 and ARM libnacl are not compiled with -fPIC before Fedora release 11.
-BuildRequires:  libsodium-devel >= 1.0.5
+BuildRequires:  %{nacl_name}-devel >= %{nacl_version}
 %endif
 %if %{use_systemd}
 # systemd macros are not defined unless systemd is present
@@ -153,8 +167,12 @@ Python graphing tools for cjdns.
 
 %if !%{use_embedded}
 # use system nacl library if provided.  
-if test -x %{_libdir}/libsodium.so; then
+if test -x %{nacl_lib}; then
+%if 0%{use_libsodium}
+%patch11 -b .sodium
+%else
 %patch6 -b .dyn
+%endif
   rm -rf node_build/dependencies/cnacl
 # use static library if system nacl doesn't provide dynamic
 elif test -d %{_includedir}/nacl && test -r %{_libdir}/libnacl.a; then
@@ -451,6 +469,8 @@ fi
 %changelog
 * Tue Apr 18 2016 Stuart D. Gathman <stuart@gathman.org> 17.3-12
 - Run modprobe only if /dev/tun not present - fixes running on openVZ
+- Select nacl/libsodium with a macro
+- Switch back to nacl for platforms that support it
 
 * Tue Apr  5 2016 Stuart D. Gathman <stuart@gathman.org> 17.3-11
 - Patch some bugs in traceroute and symlink to /usr/bin/cjdns-traceroute

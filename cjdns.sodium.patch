@@ -1,7 +1,7 @@
 diff -up ./node_build/make.js.dyn ./node_build/make.js
---- ./node_build/make.js.dyn	2016-01-27 03:07:49.000000000 -0500
-+++ ./node_build/make.js	2016-04-18 16:17:04.052719207 -0400
-@@ -250,41 +250,9 @@ Builder.configure({
+--- ./node_build/make.js.dyn	2015-11-02 17:59:41.000000000 -0500
++++ ./node_build/make.js	2015-11-04 19:57:49.961155943 -0500
+@@ -238,41 +238,9 @@ Builder.configure({
  
      }).nThen(function (waitFor) {
  
@@ -40,13 +40,13 @@ diff -up ./node_build/make.js.dyn ./node_build/make.js
 -                process.chdir(cwd);
 -            }));
 -        }));
-+        builder.config.libs.push('-lnacl');
++        builder.config.libs.push('-lsodium');
 +        builder.config.libs.push('-lstdc++');
-+        builder.config.includeDirs.push('/usr/include/nacl/');
++        builder.config.includeDirs.push('/usr/include/sodium/');
  
      }).nThen(function (waitFor) {
  
-@@ -423,7 +391,7 @@ Builder.configure({
+@@ -411,7 +379,7 @@ Builder.configure({
      builder.buildExecutable('crypto/random/randombytes.c');
  
      builder.lintFiles(function (fileName, file, callback) {
