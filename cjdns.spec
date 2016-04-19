@@ -427,6 +427,7 @@ fi
 %{_bindir}/cjdns-traceroute
 %{_mandir}/man1/cjdns-traceroute.1.gz
 %{_mandir}/man1/sessionStats.1.gz
+%{_mandir}/man1/peerStats.1.gz
 
 %files python
 %doc contrib/python/README.md contrib/python/cjdns-dynamic.conf
