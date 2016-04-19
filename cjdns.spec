@@ -298,9 +298,8 @@ for m in *.md; do
   traceroute) M="1"
     ronn-nodejs $m >%{buildroot}%{_mandir}/man$M/cjdns-${m%.md}.$M
     continue ;;
-  cjdroute|publictoip6|randombytes|makekeys|cjdns-online) M="1" ;;
-  sessionStats) M="1" ;;
-  *) M="8" ;;
+  privatetopublic|sybilsim) M="8" ;;
+  *) M="1" ;;
   esac
   ronn-nodejs $m >%{buildroot}%{_mandir}/man$M/${m%.md}.$M
 done
