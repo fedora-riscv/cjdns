@@ -1,6 +1,26 @@
+diff -up ./crypto/CryptoAuth.c.warnings ./crypto/CryptoAuth.c
+--- ./crypto/CryptoAuth.c.warnings	2016-04-06 00:40:48.537753854 -0400
++++ ./crypto/CryptoAuth.c	2016-04-06 00:52:00.506042569 -0400
+@@ -77,6 +77,8 @@ static inline void getSharedSecret(uint8
+                                    uint8_t passwordHash[32],
+                                    struct Log* logger)
+ {
++#pragma GCC diagnostic push
++#pragma GCC diagnostic ignored "-Wunused-result"
+     if (passwordHash == NULL) {
+         crypto_box_curve25519xsalsa20poly1305_beforenm(outputSecret, herPublicKey, myPrivateKey);
+     } else {
+@@ -92,6 +94,7 @@ static inline void getSharedSecret(uint8
+         Bits_memcpy(buff.components.passwd, passwordHash, 32);
+         crypto_hash_sha256(outputSecret, buff.bytes, 64);
+     }
++#pragma GCC diagnostic pop
+     if (Defined(Log_KEYS)) {
+         uint8_t myPublicKeyHex[65];
+         printHexPubKey(myPublicKeyHex, myPrivateKey);
 diff -up ./dht/CJDHTConstants.h.warnings ./dht/CJDHTConstants.h
 --- ./dht/CJDHTConstants.h.warnings	2016-01-27 03:07:49.000000000 -0500
-+++ ./dht/CJDHTConstants.h	2016-02-02 21:42:27.810535881 -0500
++++ ./dht/CJDHTConstants.h	2016-04-06 00:23:39.784334020 -0400
 @@ -17,7 +17,9 @@
  
  #include "benc/String.h"
@@ -21,7 +41,7 @@ diff -up ./dht/CJDHTConstants.h.warnings ./dht/CJDHTConstants.h
  #endif
 diff -up ./node_build/dependencies/libuv/test/test-getsockname.c.warnings ./node_build/dependencies/libuv/test/test-getsockname.c
 --- ./node_build/dependencies/libuv/test/test-getsockname.c.warnings	2016-01-27 03:07:49.000000000 -0500
-+++ ./node_build/dependencies/libuv/test/test-getsockname.c	2016-02-02 19:53:49.293769496 -0500
++++ ./node_build/dependencies/libuv/test/test-getsockname.c	2016-04-06 00:23:39.784334020 -0400
 @@ -18,7 +18,7 @@
   * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
   * IN THE SOFTWARE.
@@ -33,7 +53,7 @@ diff -up ./node_build/dependencies/libuv/test/test-getsockname.c.warnings ./node
  
 diff -up ./util/platform/netdev/NetPlatform_linux.c.warnings ./util/platform/netdev/NetPlatform_linux.c
 --- ./util/platform/netdev/NetPlatform_linux.c.warnings	2016-01-27 03:07:49.000000000 -0500
-+++ ./util/platform/netdev/NetPlatform_linux.c	2016-02-02 19:53:49.293769496 -0500
++++ ./util/platform/netdev/NetPlatform_linux.c	2016-04-06 00:23:39.784334020 -0400
 @@ -142,7 +142,7 @@ void NetPlatform_addAddress(const char*
              Except_throw(eh, "ioctl(SIOCSIFADDR) failed: [%s]", strerror(err));
          }
@@ -54,7 +74,7 @@ diff -up ./util/platform/netdev/NetPlatform_linux.c.warnings ./util/platform/net
  
 diff -up ./util/platform/Sockaddr.c.warnings ./util/platform/Sockaddr.c
 --- ./util/platform/Sockaddr.c.warnings	2016-01-27 03:07:49.000000000 -0500
-+++ ./util/platform/Sockaddr.c	2016-02-02 19:53:49.294769524 -0500
++++ ./util/platform/Sockaddr.c	2016-04-06 00:23:39.785334040 -0400
 @@ -12,6 +12,7 @@
   * You should have received a copy of the GNU General Public License
   * along with this program.  If not, see <http://www.gnu.org/licenses/>.

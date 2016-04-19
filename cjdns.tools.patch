@@ -1,0 +1,30 @@
+diff -up ./tools/traceroute.tools ./tools/traceroute
+--- ./tools/traceroute.tools	2016-03-13 21:23:01.529922250 -0400
++++ ./tools/traceroute	2016-03-13 21:27:38.006631098 -0400
+@@ -83,6 +83,11 @@ var main = function (target) {
+ 
+         cjdns.RouterModule_getPeers("0000.0000.0000.0001", waitFor(function (err, ret) {
+             if (err) { throw err; }
++	    if (!ret.peers) {
++                console.error('missing CJDNS admin password');
++                cjdns.disconnect();
++                process.exit(0);
++            }
+             self = ret.peers[0];
+         }));
+ 
+@@ -101,12 +106,13 @@ var main = function (target) {
+ 
+     }).nThen(function (waitFor) {
+ 
+-        if (!lastRet || lastRet.nodes[0] !== lastRet.from) { return; }
++        if (!lastRet || !lastRet.nodes || lastRet.nodes[0] !== lastRet.from) { return; }
+         console.log('success, trying reverse trace');
+         process.stdout.write(lastRet.from);
+         tracePath(nodeToIP6(self), lastRet.from, cjdns, function (ret) {
+             lastRet = ret;
+             process.stdout.write('  ' + ret.ms + 'ms\n');
++            if (!ret || !ret.nodes) { return; }
+             if (ret.nodes.length === 0) {
+                 console.log('cornered');
+             } else if (ret.nodes[0] !== ret.from) {
