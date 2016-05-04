@@ -39,7 +39,7 @@
 Name:           cjdns
 # major version is cjdns protocol version:
 Version:        17.3
-Release:        12%{?dist}
+Release:        13%{?dist}
 Summary:        The privacy-friendly network without borders
 Group:          System Environment/Base
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
@@ -469,6 +469,10 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Tue May  3 2016 Stuart D. Gathman <stuart@gathman.org> 17.3-13
+- man page for cjdnslog
+- Fix running on Fedora as well as openVZ. :-P
+
 * Mon Apr 18 2016 Stuart D. Gathman <stuart@gathman.org> 17.3-12
 - Run modprobe only if /dev/tun not present - fixes running on openVZ
 - Select nacl/libsodium with a macro
