@@ -39,7 +39,7 @@
 Name:           cjdns
 # major version is cjdns protocol version:
 Version:        17.3
-Release:        12%{?dist}
+Release:        13%{?dist}
 Summary:        The privacy-friendly network without borders
 Group:          System Environment/Base
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
@@ -104,6 +104,8 @@ Requires(postun): systemd
 %endif
 Requires(pre): shadow-utils
 Provides: bundled(libuv) = 0.11.4
+# build system requires nodejs, unfortunately
+ExclusiveArch: %{nodejs_arches}
 
 %description
 Cjdns implements an encrypted IPv6 network using public-key cryptography for
@@ -428,6 +430,7 @@ fi
 %{_mandir}/man1/cjdns-traceroute.1.gz
 %{_mandir}/man1/sessionStats.1.gz
 %{_mandir}/man1/peerStats.1.gz
+%{_mandir}/man1/cjdnslog.1.gz
 
 %files python
 %doc contrib/python/README.md contrib/python/cjdns-dynamic.conf
@@ -467,6 +470,10 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Tue May  3 2016 Stuart D. Gathman <stuart@gathman.org> 17.3-13
+- man page for cjdnslog
+- Fix running on Fedora as well as openVZ. :-P
+
 * Mon Apr 18 2016 Stuart D. Gathman <stuart@gathman.org> 17.3-12
 - Run modprobe only if /dev/tun not present - fixes running on openVZ
 - Select nacl/libsodium with a macro
