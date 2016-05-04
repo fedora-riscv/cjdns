@@ -1,6 +1,6 @@
 diff -up ./contrib/doc/cjdnslog.md.man ./contrib/doc/cjdnslog.md
 --- ./contrib/doc/cjdnslog.md.man	2016-05-03 22:57:12.839792004 -0400
-+++ ./contrib/doc/cjdnslog.md	2016-05-03 23:32:31.331738554 -0400
++++ ./contrib/doc/cjdnslog.md	2016-05-03 23:57:42.922419017 -0400
 @@ -0,0 +1,43 @@
 +cjdnslog(1) -- display cjdroute log messages
 +=============================================
@@ -18,17 +18,17 @@ diff -up ./contrib/doc/cjdnslog.md.man ./contrib/doc/cjdnslog.md
 +
 +With no options, cjdnslog logs everything.
 +
-+  * `--help`:
++  * `--help`
 +    Print usage summary.
 +
-+  * `-f` source_file.c
++  * `-f source_file.c`
 +    Restrict output to log messages generated in source_file.c.
 +
-+  * `-v` log_level:
++  * `-v log_level`
 +    Restrict output to messages at log_level or higher.  Log levels 
 +    include DEBUG, INFO, WARN, ERROR.
 +
-+  * `-l` lineno:             
++  * `-l lineno`
 +    Restrict output to message generated on source line lineno.  Normally
 +    used in conjunction with `-f`.
 +
