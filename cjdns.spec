@@ -3,8 +3,8 @@
 
 # Use the optimized libnacl embedded with cjdns
 %global use_embedded 0
-# Use libsodium instead of nacl
-%global use_libsodium 0
+# Use libsodium instead of nacl (f22,f23)
+%global use_libsodium 1
 
 %if 0%{use_libsodium}
 %global nacl_name libsodium
