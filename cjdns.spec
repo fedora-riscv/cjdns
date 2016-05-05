@@ -4,7 +4,7 @@
 # Use the optimized libnacl embedded with cjdns
 %global use_embedded 0
 # Use libsodium instead of nacl
-%global use_libsodium 0
+%global use_libsodium 1
 
 %if 0%{use_libsodium}
 %global nacl_name libsodium
@@ -39,7 +39,7 @@
 Name:           cjdns
 # major version is cjdns protocol version:
 Version:        17.3
-Release:        13%{?dist}.1
+Release:        13%{?dist}
 Summary:        The privacy-friendly network without borders
 Group:          System Environment/Base
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
