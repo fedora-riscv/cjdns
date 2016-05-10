@@ -1,6 +1,6 @@
 diff -up ./crypto/CryptoAuth.c.warnings ./crypto/CryptoAuth.c
---- ./crypto/CryptoAuth.c.warnings	2016-04-06 00:40:48.537753854 -0400
-+++ ./crypto/CryptoAuth.c	2016-04-06 00:52:00.506042569 -0400
+--- ./crypto/CryptoAuth.c.warnings	2016-01-27 03:07:49.000000000 -0500
++++ ./crypto/CryptoAuth.c	2016-05-03 22:06:45.842528947 -0400
 @@ -77,6 +77,8 @@ static inline void getSharedSecret(uint8
                                     uint8_t passwordHash[32],
                                     struct Log* logger)
@@ -20,7 +20,7 @@ diff -up ./crypto/CryptoAuth.c.warnings ./crypto/CryptoAuth.c
          printHexPubKey(myPublicKeyHex, myPrivateKey);
 diff -up ./dht/CJDHTConstants.h.warnings ./dht/CJDHTConstants.h
 --- ./dht/CJDHTConstants.h.warnings	2016-01-27 03:07:49.000000000 -0500
-+++ ./dht/CJDHTConstants.h	2016-04-06 00:23:39.784334020 -0400
++++ ./dht/CJDHTConstants.h	2016-05-03 22:06:45.842528947 -0400
 @@ -17,7 +17,9 @@
  
  #include "benc/String.h"
@@ -41,7 +41,7 @@ diff -up ./dht/CJDHTConstants.h.warnings ./dht/CJDHTConstants.h
  #endif
 diff -up ./node_build/dependencies/libuv/test/test-getsockname.c.warnings ./node_build/dependencies/libuv/test/test-getsockname.c
 --- ./node_build/dependencies/libuv/test/test-getsockname.c.warnings	2016-01-27 03:07:49.000000000 -0500
-+++ ./node_build/dependencies/libuv/test/test-getsockname.c	2016-04-06 00:23:39.784334020 -0400
++++ ./node_build/dependencies/libuv/test/test-getsockname.c	2016-05-03 22:06:45.842528947 -0400
 @@ -18,7 +18,7 @@
   * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
   * IN THE SOFTWARE.
@@ -51,9 +51,43 @@ diff -up ./node_build/dependencies/libuv/test/test-getsockname.c.warnings ./node
  #include "uv.h"
  #include "task.h"
  
+diff -up ./util/Constant.js.warnings ./util/Constant.js
+--- ./util/Constant.js.warnings	2016-05-09 16:26:54.865933415 -0400
++++ ./util/Constant.js	2016-05-09 16:30:00.541056943 -0400
+@@ -62,20 +62,23 @@ var base2 = module.exports.base2 = funct
+     return '((' + type + ') 0x' + base2ToHex(numStr) + ((type === 'uint64_t') ? 'ull' : 'ul') + ')';
+ };
+ 
++var randomHex = function (bytes) {
++    var hex = '';
++    var len = Number(bytes * 2); // One byte is two hex digits
++    while (hex.length < len) { hex += Math.random().toString(16).substring(2); }
++    return hex.substring(0,len);
++};
++
+ var rand64 = module.exports.rand64 = function () {
+-    return '((uint64_t) 0x' +
+-        (Math.random().toString(16) + Math.random().toString(16)).replace(/0\./g, '') + 'ull)';
++    return '((uint64_t) 0x' + randomHex(64 / 8) + 'ull)';
+ };
+ 
+ var rand32 = module.exports.rand32 = function () {
+-    return '((uint32_t) 0x' + Math.random().toString(16).replace(/0\./g, '') + 'ul)';
++    return '((uint32_t) 0x' + randomHex(32 / 8) + 'ul)';
+ };
+ 
+ var randHexString = module.exports.randHexString = function (lenStr) {
+-    var hex = '';
+-    var len = Number(lenStr);
+-    while (hex.length < len) { hex += Math.random().toString(16).substring(2); }
+-    return '"' + hex.substring(0,len) + '"';
++    return '"' + randomHex(lenStr / 2) + '"';
+ };
+ 
+ var log2 = module.exports.log2 = function (val) {
 diff -up ./util/platform/netdev/NetPlatform_linux.c.warnings ./util/platform/netdev/NetPlatform_linux.c
 --- ./util/platform/netdev/NetPlatform_linux.c.warnings	2016-01-27 03:07:49.000000000 -0500
-+++ ./util/platform/netdev/NetPlatform_linux.c	2016-04-06 00:23:39.784334020 -0400
++++ ./util/platform/netdev/NetPlatform_linux.c	2016-05-03 22:06:45.842528947 -0400
 @@ -142,7 +142,7 @@ void NetPlatform_addAddress(const char*
              Except_throw(eh, "ioctl(SIOCSIFADDR) failed: [%s]", strerror(err));
          }
@@ -74,7 +108,7 @@ diff -up ./util/platform/netdev/NetPlatform_linux.c.warnings ./util/platform/net
  
 diff -up ./util/platform/Sockaddr.c.warnings ./util/platform/Sockaddr.c
 --- ./util/platform/Sockaddr.c.warnings	2016-01-27 03:07:49.000000000 -0500
-+++ ./util/platform/Sockaddr.c	2016-04-06 00:23:39.785334040 -0400
++++ ./util/platform/Sockaddr.c	2016-05-03 22:06:45.842528947 -0400
 @@ -12,6 +12,7 @@
   * You should have received a copy of the GNU General Public License
   * along with this program.  If not, see <http://www.gnu.org/licenses/>.
