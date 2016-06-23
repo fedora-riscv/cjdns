@@ -39,7 +39,7 @@
 Name:           cjdns
 # major version is cjdns protocol version:
 Version:        17.4
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        The privacy-friendly network without borders
 Group:          System Environment/Base
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
@@ -351,7 +351,6 @@ done
 %{_bindir}/publictoip6
 %{_bindir}/makekeys
 %{_bindir}/cjdns-online
-%{_mandir}/man1/*
 %{_mandir}/man5/*
 %{_mandir}/man8/*
 %{_mandir}/man1/cjdns-online.1.gz
@@ -468,6 +467,9 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Thu Jun 23 2016 Stuart D. Gathman <stuart@gathman.org> 17.4-2
+- Move tool manpages to tool subpackage.
+
 * Thu Jun 23 2016 Stuart D. Gathman <stuart@gathman.org> 17.4-1
 - Update to 17.4 upstream release
 - Remove cap3 patch, as it is incorporated upstream
