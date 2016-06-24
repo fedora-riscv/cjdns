@@ -11,7 +11,7 @@ diff -up ./contrib/selinux/cjdns.te.selinux ./contrib/selinux/cjdns.te
  }
  
  type cjdns_t;
-@@ -18,12 +18,13 @@ init_daemon_domain(cjdns_t,cjdns_exec_t)
+@@ -18,23 +18,23 @@ init_daemon_domain(cjdns_t,cjdns_exec_t)
  #============= cjdns_t ==============
  # Let master process run further restricted subprocess
  allow cjdns_t cjdns_exec_t:file { execute_no_trans execmod };
@@ -27,8 +27,9 @@ diff -up ./contrib/selinux/cjdns.te.selinux ./contrib/selinux/cjdns.te
  # allow network access
  allow cjdns_t node_t:udp_socket node_bind;
  allow cjdns_t port_t:udp_socket name_bind;
-@@ -31,10 +32,9 @@ allow cjdns_t unreserved_port_t:udp_sock
- allow cjdns_t self:netlink_route_socket { bind create getattr nlmsg_read read write };
+ allow cjdns_t unreserved_port_t:udp_socket name_bind;
+-allow cjdns_t self:netlink_route_socket { bind create getattr nlmsg_read read write };
++allow cjdns_t self:netlink_route_socket { bind create getattr nlmsg_read read write nlmsg_write };
  allow cjdns_t self:packet_socket { bind create ioctl read write };
  allow cjdns_t self:tun_socket create;
 -allow cjdns_t self:udp_socket { create setopt bind ioctl getattr read write };
