@@ -1,7 +1,7 @@
 diff -up ./contrib/systemd/cjdns-online.sh.sbin ./contrib/systemd/cjdns-online.sh
---- ./contrib/systemd/cjdns-online.sh.sbin	2016-05-03 22:06:45.820528693 -0400
-+++ ./contrib/systemd/cjdns-online.sh	2016-05-03 22:06:45.820528693 -0400
-@@ -0,0 +1,75 @@
+--- ./contrib/systemd/cjdns-online.sh.sbin	2016-06-23 22:49:23.703114380 -0400
++++ ./contrib/systemd/cjdns-online.sh	2016-06-23 22:51:50.666731442 -0400
+@@ -0,0 +1,90 @@
 +#!/bin/sh
 +#   Check whether cjdns IPs are available
 +#   Copyright (C) 2016  Stuart D. Gathman <stuart@gathman.org>
@@ -27,6 +27,14 @@ diff -up ./contrib/systemd/cjdns-online.sh.sbin ./contrib/systemd/cjdns-online.s
 +  done
 +}
 +
++cjdns_dev() {
++  ip -6 -o addr | while read i dev fam ip rem; do
++    case "$ip" in
++    fc*:*/8) echo "${dev}";;
++    esac
++  done
++}
++
 +die() {
 +  echo "$1" >&2
 +  exit 1
@@ -34,8 +42,8 @@ diff -up ./contrib/systemd/cjdns-online.sh.sbin ./contrib/systemd/cjdns-online.s
 +
 +PROGRAM_NAME="/usr/bin/cjdns-online"
 +
-+ARGS=$(getopt -n $PROGRAM_NAME -o t:xqsh \
-+	--long timeout:,exit,quiet,wait-for-startup,help -- "$@")
++ARGS=$(getopt -n $PROGRAM_NAME -o t:xiqsh \
++	--long timeout:,exit,interface,quiet,wait-for-startup,help -- "$@")
 +
 +# Die if they fat finger arguments, this program may be run as root
 +[ $? = 0 ] || die "Error parsing arguments. Try $PROGRAM_NAME --help"
@@ -44,6 +52,7 @@ diff -up ./contrib/systemd/cjdns-online.sh.sbin ./contrib/systemd/cjdns-online.s
 +        cat <<EOH
 +Usage: $PROGRAM_NAME [options]
 +        -t, --timeout <timeout_value>	time to wait in seconds, default 30
++        -i, --interface 	output interface name instead of ip
 +        -x, --exit		exit immediately if cjdns is not online
 +        -q, --quiet		don't print anything
 +        -s, --wait-for-startup	wait for full startup instead of just tun dev
@@ -55,11 +64,13 @@ diff -up ./contrib/systemd/cjdns-online.sh.sbin ./contrib/systemd/cjdns-online.s
 +let nowait="0"
 +let quiet="0"
 +let startup="0"
++let interface="0"
 +
 +eval set -- "$ARGS"
 +while true; do
 +  case "$1" in
 +    -t|--timeout)	   let timeout="$2" || help; shift 2; continue;;
++    -i|--interface)	   let interface="1"; shift;;
 +    -x|--exit)		   let nowait="1"; shift;;
 +    -q|--quiet)		   let quiet="1"; shift;;
 +    -s|--wait-for-startup) let startup="1"; shift;;
@@ -75,25 +86,15 @@ diff -up ./contrib/systemd/cjdns-online.sh.sbin ./contrib/systemd/cjdns-online.s
 +  sleep 2
 +done
 +if [ "$quiet" -eq 0 ]; then
-+  cjdns_ips
++  if [ "$interface" -eq 0 ]; then
++    cjdns_ips
++  else
++    cjdns_dev
++  fi
 +fi
-diff -up ./contrib/systemd/cjdns-resume.service.sbin ./contrib/systemd/cjdns-resume.service
---- ./contrib/systemd/cjdns-resume.service.sbin	2016-05-03 22:06:45.820528693 -0400
-+++ ./contrib/systemd/cjdns-resume.service	2016-05-03 22:06:45.820528693 -0400
-@@ -0,0 +1,10 @@
-+[Unit]
-+Description=Restart cjdns on resume from sleep
-+After=sleep.target
-+
-+[Service]
-+Type=oneshot
-+ExecStart=/usr/bin/systemctl restart cjdns
-+
-+[Install]
-+WantedBy=sleep.target
 diff -up ./contrib/systemd/cjdns.service.sbin ./contrib/systemd/cjdns.service
---- ./contrib/systemd/cjdns.service.sbin	2016-01-27 03:07:49.000000000 -0500
-+++ ./contrib/systemd/cjdns.service	2016-05-03 22:50:07.241986902 -0400
+--- ./contrib/systemd/cjdns.service.sbin	2016-06-14 17:58:54.000000000 -0400
++++ ./contrib/systemd/cjdns.service	2016-06-23 22:49:23.703114380 -0400
 @@ -9,10 +9,11 @@ ProtectSystem=true
  SyslogIdentifier=cjdroute
  ExecStartPre=/bin/sh -ec "if ! test -s /etc/cjdroute.conf; \
@@ -110,8 +111,8 @@ diff -up ./contrib/systemd/cjdns.service.sbin ./contrib/systemd/cjdns.service
  
  [Install]
 diff -up ./contrib/systemd/cjdns-wait-online.service.sbin ./contrib/systemd/cjdns-wait-online.service
---- ./contrib/systemd/cjdns-wait-online.service.sbin	2016-05-03 22:06:45.820528693 -0400
-+++ ./contrib/systemd/cjdns-wait-online.service	2016-05-03 22:06:45.820528693 -0400
+--- ./contrib/systemd/cjdns-wait-online.service.sbin	2016-06-23 22:49:23.703114380 -0400
++++ ./contrib/systemd/cjdns-wait-online.service	2016-06-23 22:49:23.703114380 -0400
 @@ -0,0 +1,13 @@
 +[Unit]
 +Description=CJDNS Wait Online
@@ -127,8 +128,8 @@ diff -up ./contrib/systemd/cjdns-wait-online.service.sbin ./contrib/systemd/cjdn
 +[Install]
 +WantedBy=multi-user.target
 diff -up ./contrib/upstart/cjdns.conf.sbin ./contrib/upstart/cjdns.conf
---- ./contrib/upstart/cjdns.conf.sbin	2016-01-27 03:07:49.000000000 -0500
-+++ ./contrib/upstart/cjdns.conf	2016-05-03 22:45:32.931860381 -0400
+--- ./contrib/upstart/cjdns.conf.sbin	2016-06-14 17:58:54.000000000 -0400
++++ ./contrib/upstart/cjdns.conf	2016-06-23 22:49:23.703114380 -0400
 @@ -13,10 +13,16 @@ pre-start script
      if ! [ -s /etc/cjdroute.conf ]; then
          ( # start a subshell to avoid side effects of umask later on
