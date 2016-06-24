@@ -24,7 +24,7 @@ diff -up ./contrib/selinux/cjdns.te.el6 ./contrib/selinux/cjdns.te
  allow cjdns_t node_t:udp_socket node_bind;
  allow cjdns_t port_t:udp_socket name_bind;
 -allow cjdns_t unreserved_port_t:udp_socket name_bind;
- allow cjdns_t self:netlink_route_socket { bind create getattr nlmsg_read read write };
+ allow cjdns_t self:netlink_route_socket { bind create getattr nlmsg_read read write nlmsg_write };
  allow cjdns_t self:packet_socket { bind create ioctl read write };
  allow cjdns_t self:tun_socket create;
 diff -up ./node_build/FindPython2.js.el6 ./node_build/FindPython2.js
