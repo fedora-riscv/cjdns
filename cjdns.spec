@@ -39,7 +39,7 @@
 Name:           cjdns
 # major version is cjdns protocol version:
 Version:        17.4
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        The privacy-friendly network without borders
 Group:          System Environment/Base
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
@@ -467,6 +467,9 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Thu Jun 23 2016 Stuart D. Gathman <stuart@gathman.org> 17.4-4
+- cjdns-selinux: allow cjdroute to manipulate route table
+
 * Thu Jun 23 2016 Stuart D. Gathman <stuart@gathman.org> 17.4-3
 - Remove cjdns-resume.service patch, incorporated upstream
 - Add --interface option to cjdns-online.sh
