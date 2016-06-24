@@ -1,6 +1,6 @@
 diff -up ./contrib/doc/cjdnslog.md.man ./contrib/doc/cjdnslog.md
---- ./contrib/doc/cjdnslog.md.man	2016-05-03 22:57:12.839792004 -0400
-+++ ./contrib/doc/cjdnslog.md	2016-05-03 23:57:42.922419017 -0400
+--- ./contrib/doc/cjdnslog.md.man	2016-05-10 18:55:17.289488599 -0400
++++ ./contrib/doc/cjdnslog.md	2016-05-10 18:55:17.289488599 -0400
 @@ -0,0 +1,43 @@
 +cjdnslog(1) -- display cjdroute log messages
 +=============================================
@@ -46,8 +46,8 @@ diff -up ./contrib/doc/cjdnslog.md.man ./contrib/doc/cjdnslog.md
 +
 +cjdroute(1)
 diff -up ./contrib/doc/cjdns-online.md.man ./contrib/doc/cjdns-online.md
---- ./contrib/doc/cjdns-online.md.man	2016-05-03 22:06:45.843528959 -0400
-+++ ./contrib/doc/cjdns-online.md	2016-05-03 22:06:45.843528959 -0400
+--- ./contrib/doc/cjdns-online.md.man	2016-05-10 18:55:17.289488599 -0400
++++ ./contrib/doc/cjdns-online.md	2016-05-10 18:55:17.289488599 -0400
 @@ -0,0 +1,33 @@
 +cjdns-online(1) -- check whether cjdns tunnel devices are available
 +=============================================
@@ -83,8 +83,8 @@ diff -up ./contrib/doc/cjdns-online.md.man ./contrib/doc/cjdns-online.md
 +    Wait for full startup instead of just tun dev.  This is not implemented.
 +
 diff -up ./contrib/doc/cjdroute.md.man ./contrib/doc/cjdroute.md
---- ./contrib/doc/cjdroute.md.man	2016-05-03 22:06:45.844528970 -0400
-+++ ./contrib/doc/cjdroute.md	2016-05-03 22:06:45.843528959 -0400
+--- ./contrib/doc/cjdroute.md.man	2016-05-10 18:55:17.289488599 -0400
++++ ./contrib/doc/cjdroute.md	2016-05-10 18:55:17.289488599 -0400
 @@ -0,0 +1,76 @@
 +cjdroute(1) -- Cjdns packet switch
 +=============================================
@@ -163,9 +163,9 @@ diff -up ./contrib/doc/cjdroute.md.man ./contrib/doc/cjdroute.md
 +
 +For more information about other functions and non-standard setups, see README.md
 diff -up ./contrib/doc/makekeys.md.man ./contrib/doc/makekeys.md
---- ./contrib/doc/makekeys.md.man	2016-05-03 22:06:45.844528970 -0400
-+++ ./contrib/doc/makekeys.md	2016-05-03 22:06:45.844528970 -0400
-@@ -0,0 +1,18 @@
+--- ./contrib/doc/makekeys.md.man	2016-05-10 18:55:17.289488599 -0400
++++ ./contrib/doc/makekeys.md	2016-05-10 18:58:51.521907178 -0400
+@@ -0,0 +1,24 @@
 +makekeys(1) -- write cjdns keys generated via libnacl to stdout
 +=============================================
 +
@@ -181,12 +181,18 @@ diff -up ./contrib/doc/makekeys.md.man ./contrib/doc/makekeys.md
 +    9b5520e11b4e1aac4e54cf8382ca219b6942f75519dbe7cc71fc6c4bb636a2db fca1:43dc:9e20:68dc:df3f:6bf1:fbf9:37ab x70u0x6sfh0yuushlq7wvcdxj8rgb8lvss9t6f42zp60ftq71cm0.k
 +    579db68cfdeaeda1ff7f365c73e620bedb0f68cb443a0cd7ef6bae16d0e1e12e fc68:b272:3aa3:cb4a:a686:dab0:7df5:2fb5 fmurp2qrb0yqmcjmbjtuhuxuf6v3rgmdn9hgsfh47k20h68y2lz0.k
 +
++##USAGE
++
++Example use:
++
++    makekeys | head -20 >keys.txt
++
 +## SEE ALSO
 +
 +publictoip6(1)
 diff -up ./contrib/doc/peerStats.md.man ./contrib/doc/peerStats.md
---- ./contrib/doc/peerStats.md.man	2016-05-03 22:06:45.844528970 -0400
-+++ ./contrib/doc/peerStats.md	2016-05-03 22:06:45.844528970 -0400
+--- ./contrib/doc/peerStats.md.man	2016-05-10 18:55:17.289488599 -0400
++++ ./contrib/doc/peerStats.md	2016-05-10 18:55:17.289488599 -0400
 @@ -0,0 +1,25 @@
 +peerStats(1) -- show cjdns peers
 +=============================================
@@ -214,8 +220,8 @@ diff -up ./contrib/doc/peerStats.md.man ./contrib/doc/peerStats.md
 +
 +cjdroute(1), sessionStats(1)
 diff -up ./contrib/doc/privatetopublic.md.man ./contrib/doc/privatetopublic.md
---- ./contrib/doc/privatetopublic.md.man	2016-05-03 22:06:45.844528970 -0400
-+++ ./contrib/doc/privatetopublic.md	2016-05-03 22:06:45.844528970 -0400
+--- ./contrib/doc/privatetopublic.md.man	2016-05-10 18:55:17.290488610 -0400
++++ ./contrib/doc/privatetopublic.md	2016-05-10 18:55:17.290488610 -0400
 @@ -0,0 +1,25 @@
 +privatetopublic(8) -- convert cjdns private keys to public keys and IP6
 +=============================================
@@ -243,10 +249,10 @@ diff -up ./contrib/doc/privatetopublic.md.man ./contrib/doc/privatetopublic.md
 +
 +publictoip6(1)
 diff -up ./contrib/doc/publictoip6.md.man ./contrib/doc/publictoip6.md
---- ./contrib/doc/publictoip6.md.man	2016-05-03 22:06:45.844528970 -0400
-+++ ./contrib/doc/publictoip6.md	2016-05-03 22:06:45.844528970 -0400
+--- ./contrib/doc/publictoip6.md.man	2016-05-10 18:55:17.290488610 -0400
++++ ./contrib/doc/publictoip6.md	2016-05-10 18:59:01.906033221 -0400
 @@ -0,0 +1,14 @@
-+publictoip6(1) -- write random bytes generated via libnacl to stdout
++publictoip6(1) -- Derive cjdns IP6 address from a public key
 +=============================================
 +
 +## SYNOPSIS
@@ -261,8 +267,8 @@ diff -up ./contrib/doc/publictoip6.md.man ./contrib/doc/publictoip6.md
 +
 +randombytes(1)
 diff -up ./contrib/doc/randombytes.md.man ./contrib/doc/randombytes.md
---- ./contrib/doc/randombytes.md.man	2016-05-03 22:06:45.844528970 -0400
-+++ ./contrib/doc/randombytes.md	2016-05-03 22:06:45.844528970 -0400
+--- ./contrib/doc/randombytes.md.man	2016-05-10 18:55:17.290488610 -0400
++++ ./contrib/doc/randombytes.md	2016-05-10 18:55:17.290488610 -0400
 @@ -0,0 +1,16 @@
 +randombytes(1) -- write random bytes generated via libnacl to stdout
 +=============================================
@@ -281,8 +287,8 @@ diff -up ./contrib/doc/randombytes.md.man ./contrib/doc/randombytes.md
 +
 +makekeys(1)
 diff -up ./contrib/doc/sessionStats.md.man ./contrib/doc/sessionStats.md
---- ./contrib/doc/sessionStats.md.man	2016-05-03 22:06:45.844528970 -0400
-+++ ./contrib/doc/sessionStats.md	2016-05-03 22:09:39.354511569 -0400
+--- ./contrib/doc/sessionStats.md.man	2016-05-10 18:55:17.290488610 -0400
++++ ./contrib/doc/sessionStats.md	2016-05-10 18:55:17.290488610 -0400
 @@ -0,0 +1,39 @@
 +sessionStats(1) -- show cjdns crypto sessions
 +=============================================
@@ -324,8 +330,8 @@ diff -up ./contrib/doc/sessionStats.md.man ./contrib/doc/sessionStats.md
 +
 +cjdroute(1), peerStats(1)
 diff -up ./contrib/doc/sybilsim.md.man ./contrib/doc/sybilsim.md
---- ./contrib/doc/sybilsim.md.man	2016-05-03 22:06:45.844528970 -0400
-+++ ./contrib/doc/sybilsim.md	2016-05-03 22:06:45.844528970 -0400
+--- ./contrib/doc/sybilsim.md.man	2016-05-10 18:55:17.290488610 -0400
++++ ./contrib/doc/sybilsim.md	2016-05-10 18:55:17.290488610 -0400
 @@ -0,0 +1,43 @@
 +sybilsim(8) -- Cjdns packet switch
 +=============================================
@@ -371,8 +377,8 @@ diff -up ./contrib/doc/sybilsim.md.man ./contrib/doc/sybilsim.md
 +
 +makekeys(1), cjdroute(1)
 diff -up ./contrib/doc/traceroute.md.man ./contrib/doc/traceroute.md
---- ./contrib/doc/traceroute.md.man	2016-05-03 22:06:45.844528970 -0400
-+++ ./contrib/doc/traceroute.md	2016-05-03 22:10:00.344748050 -0400
+--- ./contrib/doc/traceroute.md.man	2016-05-10 18:55:17.290488610 -0400
++++ ./contrib/doc/traceroute.md	2016-05-10 18:55:17.290488610 -0400
 @@ -0,0 +1,33 @@
 +cjdns-traceroute(1) -- trace cjdns packet routing
 +=============================================
