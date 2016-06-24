@@ -38,8 +38,8 @@
 
 Name:           cjdns
 # major version is cjdns protocol version:
-Version:        17.3
-Release:        13%{?dist}
+Version:        17.4
+Release:        3%{?dist}
 Summary:        The privacy-friendly network without borders
 Group:          System Environment/Base
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
@@ -75,7 +75,7 @@ Patch5:  cjdns.sbin.patch
 # Patch make.js to use dynamic nacl library
 Patch6:  cjdns.dyn.patch
 # Patch to use _LINUX_CAPABILITY_3
-Patch7:  cjdns.cap3.patch
+#Patch7:  cjdns.cap3.patch
 # Patch some source files to ignore selected warnings that break gcc6 builds
 Patch8:  cjdns.warnings.patch
 # Man pages
@@ -186,8 +186,6 @@ elif test -d %{_includedir}/nacl && test -r %{_libdir}/libnacl.a; then
   cd -
 fi
 %endif
-
-%patch7 -b .cap3
 
 %if !0%{?rhel} || 0%{?rhel} > 6
 %patch8 -b .warnings
@@ -353,7 +351,6 @@ done
 %{_bindir}/publictoip6
 %{_bindir}/makekeys
 %{_bindir}/cjdns-online
-%{_mandir}/man1/*
 %{_mandir}/man5/*
 %{_mandir}/man8/*
 %{_mandir}/man1/cjdns-online.1.gz
@@ -470,9 +467,22 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Thu Jun 23 2016 Stuart D. Gathman <stuart@gathman.org> 17.4-3
+- Remove cjdns-resume.service patch, incorporated upstream
+- Add --interface option to cjdns-online.sh
+
+* Thu Jun 23 2016 Stuart D. Gathman <stuart@gathman.org> 17.4-2
+- Move tool manpages to tool subpackage.
+
+* Thu Jun 23 2016 Stuart D. Gathman <stuart@gathman.org> 17.4-1
+- Update to 17.4 upstream release
+- Remove cap3 patch, as it is incorporated upstream
+- Remove Constant.js patch, as it is incorporated upstream
+
 * Tue May  3 2016 Stuart D. Gathman <stuart@gathman.org> 17.3-13
 - man page for cjdnslog
 - Fix running on Fedora as well as openVZ. :-P
+- Make cjdns exclusive to nodejs_arches. Rafael Fonseca <rdossant@redhat.com> 
 
 * Mon Apr 18 2016 Stuart D. Gathman <stuart@gathman.org> 17.3-12
 - Run modprobe only if /dev/tun not present - fixes running on openVZ
