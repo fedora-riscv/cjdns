@@ -5,6 +5,8 @@
 %global use_embedded 0
 # Use libsodium instead of nacl
 %global use_libsodium 0
+# Use SECCOMP
+%bcond_without seccomp
 
 %if 0%{use_libsodium}
 %global nacl_name libsodium
@@ -39,7 +41,7 @@
 Name:           cjdns
 # major version is cjdns protocol version:
 Version:        17.4
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        The privacy-friendly network without borders
 Group:          System Environment/Base
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
@@ -221,6 +223,11 @@ cd contrib/selinux
 ln -s /usr/share/selinux/devel/Makefile .
 make 
 cd -
+
+%if !0%{?seccomp}
+export Seccomp_NO=1
+%endif
+
 # nodejs based build system
 CJDNS_RELEASE_VERSION="%{name}-%{version}-%{release}" ./do
 
