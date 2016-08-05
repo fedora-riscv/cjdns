@@ -1,6 +1,6 @@
 diff -up ./contrib/systemd/cjdns-online.sh.sbin ./contrib/systemd/cjdns-online.sh
---- ./contrib/systemd/cjdns-online.sh.sbin	2016-06-23 22:49:23.703114380 -0400
-+++ ./contrib/systemd/cjdns-online.sh	2016-06-23 22:51:50.666731442 -0400
+--- ./contrib/systemd/cjdns-online.sh.sbin	2016-08-05 17:32:04.937119714 -0400
++++ ./contrib/systemd/cjdns-online.sh	2016-08-05 17:32:04.937119714 -0400
 @@ -0,0 +1,90 @@
 +#!/bin/sh
 +#   Check whether cjdns IPs are available
@@ -94,9 +94,12 @@ diff -up ./contrib/systemd/cjdns-online.sh.sbin ./contrib/systemd/cjdns-online.s
 +fi
 diff -up ./contrib/systemd/cjdns.service.sbin ./contrib/systemd/cjdns.service
 --- ./contrib/systemd/cjdns.service.sbin	2016-06-14 17:58:54.000000000 -0400
-+++ ./contrib/systemd/cjdns.service	2016-06-23 22:49:23.703114380 -0400
-@@ -9,10 +9,11 @@ ProtectSystem=true
++++ ./contrib/systemd/cjdns.service	2016-08-05 17:33:09.595862599 -0400
+@@ -7,12 +7,14 @@ After=network.target
+ ProtectHome=true
+ ProtectSystem=true
  SyslogIdentifier=cjdroute
++CapabilityBoundingSet=CAP_SETPCAP CAP_NET_BIND_SERVICE CAP_NET_BROADCAST CAP_NET_ADMIN CAP_NET_RAW CAP_SETUID CAP_SETGID CAP_SYS_CHROOT CAP_AUDIT_CONTROL
  ExecStartPre=/bin/sh -ec "if ! test -s /etc/cjdroute.conf; \
                  then umask 077; \
 -                /usr/bin/cjdroute --genconf > /etc/cjdroute.conf; \
@@ -111,8 +114,8 @@ diff -up ./contrib/systemd/cjdns.service.sbin ./contrib/systemd/cjdns.service
  
  [Install]
 diff -up ./contrib/systemd/cjdns-wait-online.service.sbin ./contrib/systemd/cjdns-wait-online.service
---- ./contrib/systemd/cjdns-wait-online.service.sbin	2016-06-23 22:49:23.703114380 -0400
-+++ ./contrib/systemd/cjdns-wait-online.service	2016-06-23 22:49:23.703114380 -0400
+--- ./contrib/systemd/cjdns-wait-online.service.sbin	2016-08-05 17:32:04.937119714 -0400
++++ ./contrib/systemd/cjdns-wait-online.service	2016-08-05 17:32:04.937119714 -0400
 @@ -0,0 +1,13 @@
 +[Unit]
 +Description=CJDNS Wait Online
@@ -129,7 +132,7 @@ diff -up ./contrib/systemd/cjdns-wait-online.service.sbin ./contrib/systemd/cjdn
 +WantedBy=multi-user.target
 diff -up ./contrib/upstart/cjdns.conf.sbin ./contrib/upstart/cjdns.conf
 --- ./contrib/upstart/cjdns.conf.sbin	2016-06-14 17:58:54.000000000 -0400
-+++ ./contrib/upstart/cjdns.conf	2016-06-23 22:49:23.703114380 -0400
++++ ./contrib/upstart/cjdns.conf	2016-08-05 17:32:04.938119725 -0400
 @@ -13,10 +13,16 @@ pre-start script
      if ! [ -s /etc/cjdroute.conf ]; then
          ( # start a subshell to avoid side effects of umask later on
