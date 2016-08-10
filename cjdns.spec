@@ -475,7 +475,7 @@ fi
 
 %changelog
 * Wed Aug 10 2016 Stuart D. Gathman <stuart@gathman.org> 17.4-6
-- Fix logic for %bcond_without seccomp
+- Fix logic for %%bcond_without seccomp
 
 * Wed Aug 10 2016 Stuart D. Gathman <stuart@gathman.org> 17.4-5
 - cjdns.service: add CapabilityBoundingSet
