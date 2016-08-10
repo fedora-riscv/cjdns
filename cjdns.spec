@@ -225,7 +225,10 @@ make
 cd -
 
 # nodejs based build system
-export Seccomp_NO=0%{?seccomp}
+
+%if 0%{?seccomp}
+export Seccomp_NO=1
+%endif
 CJDNS_RELEASE_VERSION="%{name}-%{version}-%{release}" ./do
 
 # FIXME: use system libuv on compatible systems
