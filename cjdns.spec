@@ -5,7 +5,7 @@
 %global use_embedded 0
 # Use libsodium instead of nacl
 %global use_libsodium 0
-# Use SECCOMP
+# Option to disable SECCOMP: confusing backward logic
 %bcond_without seccomp
 
 %if 0%{use_libsodium}
@@ -224,11 +224,8 @@ ln -s /usr/share/selinux/devel/Makefile .
 make 
 cd -
 
-%if !0%{?seccomp}
-export Seccomp_NO=1
-%endif
-
 # nodejs based build system
+export Seccomp_NO=0%{?seccomp}
 CJDNS_RELEASE_VERSION="%{name}-%{version}-%{release}" ./do
 
 # FIXME: use system libuv on compatible systems
