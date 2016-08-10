@@ -226,7 +226,7 @@ cd -
 
 # nodejs based build system
 
-%if 0%{?seccomp}
+%if !%{with seccomp}
 export Seccomp_NO=1
 %endif
 CJDNS_RELEASE_VERSION="%{name}-%{version}-%{release}" ./do
