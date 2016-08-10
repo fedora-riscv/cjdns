@@ -41,7 +41,7 @@
 Name:           cjdns
 # major version is cjdns protocol version:
 Version:        17.4
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        The privacy-friendly network without borders
 Group:          System Environment/Base
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
@@ -474,7 +474,10 @@ fi
 %{_bindir}/graphStats
 
 %changelog
-* Fri Jun 24 2016 Stuart D. Gathman <stuart@gathman.org> 17.4-5
+* Wed Aug 10 2016 Stuart D. Gathman <stuart@gathman.org> 17.4-6
+- Fix logic for %bcond_without seccomp
+
+* Wed Aug 10 2016 Stuart D. Gathman <stuart@gathman.org> 17.4-5
 - cjdns.service: add CapabilityBoundingSet
 
 * Fri Jun 24 2016 Stuart D. Gathman <stuart@gathman.org> 17.4-4
