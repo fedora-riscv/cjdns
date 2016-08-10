@@ -5,6 +5,8 @@
 %global use_embedded 0
 # Use libsodium instead of nacl (f22,f23)
 %global use_libsodium 1
+# Option to disable SECCOMP: confusing backward logic
+%bcond_without seccomp
 
 %if 0%{use_libsodium}
 %global nacl_name libsodium
@@ -39,7 +41,7 @@
 Name:           cjdns
 # major version is cjdns protocol version:
 Version:        17.4
-Release:        4%{?dist}
+Release:        6%{?dist}
 Summary:        The privacy-friendly network without borders
 Group:          System Environment/Base
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
@@ -221,7 +223,12 @@ cd contrib/selinux
 ln -s /usr/share/selinux/devel/Makefile .
 make 
 cd -
+
 # nodejs based build system
+
+%if !%{with seccomp}
+export Seccomp_NO=1
+%endif
 CJDNS_RELEASE_VERSION="%{name}-%{version}-%{release}" ./do
 
 # FIXME: use system libuv on compatible systems
@@ -467,6 +474,12 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Wed Aug 10 2016 Stuart D. Gathman <stuart@gathman.org> 17.4-6
+- Fix logic for %%bcond_without seccomp
+
+* Wed Aug 10 2016 Stuart D. Gathman <stuart@gathman.org> 17.4-5
+- cjdns.service: add CapabilityBoundingSet
+
 * Fri Jun 24 2016 Stuart D. Gathman <stuart@gathman.org> 17.4-4
 - cjdns-selinux: allow cjdroute to manipulate route table
 
