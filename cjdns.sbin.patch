@@ -99,7 +99,7 @@ diff -up ./contrib/systemd/cjdns.service.sbin ./contrib/systemd/cjdns.service
  ProtectHome=true
  ProtectSystem=true
  SyslogIdentifier=cjdroute
-+CapabilityBoundingSet=CAP_SETPCAP CAP_NET_BIND_SERVICE CAP_NET_BROADCAST CAP_NET_ADMIN CAP_NET_RAW CAP_SETUID CAP_SETGID CAP_SYS_CHROOT CAP_AUDIT_CONTROL
++CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_RAW CAP_SETUID CAP_SETGID CAP_SYS_CHROOT CAP_AUDIT_CONTROL
  ExecStartPre=/bin/sh -ec "if ! test -s /etc/cjdroute.conf; \
                  then umask 077; \
 -                /usr/bin/cjdroute --genconf > /etc/cjdroute.conf; \
