@@ -474,6 +474,9 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Fri Jun 24 2016 Stuart D. Gathman <stuart@gathman.org> 17.4-5
+- cjdns.service: add CapabilityBoundingSet
+
 * Fri Jun 24 2016 Stuart D. Gathman <stuart@gathman.org> 17.4-4
 - cjdns-selinux: allow cjdroute to manipulate route table
 
