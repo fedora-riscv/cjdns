@@ -2,7 +2,7 @@
 # Fedora review: http://bugzilla.redhat.com/1268716
 
 # Use the optimized libnacl embedded with cjdns
-%global use_embedded 0
+%global use_embedded 1
 # Use libsodium instead of nacl
 %global use_libsodium 0
 # Option to disable SECCOMP: confusing backward logic
@@ -40,8 +40,8 @@
 
 Name:           cjdns
 # major version is cjdns protocol version:
-Version:        17.4
-Release:        7%{?dist}
+Version:        18
+Release:        1%{?dist}
 Summary:        The privacy-friendly network without borders
 Group:          System Environment/Base
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
@@ -106,6 +106,9 @@ Requires(postun): systemd
 %endif
 Requires(pre): shadow-utils
 Provides: bundled(libuv) = 0.11.4
+%if 0%{use_embedded}
+Provides: bundled(nacl) = 20110221
+%endif
 # build system requires nodejs, unfortunately
 ExclusiveArch: %{nodejs_arches}
 
@@ -474,6 +477,9 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Wed Oct 12 2016 Stuart D. Gathman <stuart@gathman.org> 18-1
+- Update to 18 upstream release
+
 * Mon Aug 15 2016 Stuart D. Gathman <stuart@gathman.org> 17.4-7
 - Move modprobe to cjdns-loadmodules.service
 
