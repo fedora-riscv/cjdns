@@ -4,7 +4,7 @@
 # Use the optimized libnacl embedded with cjdns
 %global use_embedded 0
 # Use libsodium instead of nacl
-%global use_libsodium 1
+%global use_libsodium 0
 # Option to enable SUBNODE mode (WIP)
 %bcond_with subnode
 # Option to disable SECCOMP: confusing backward logic
