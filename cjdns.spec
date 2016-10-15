@@ -2,7 +2,7 @@
 # Fedora review: http://bugzilla.redhat.com/1268716
 
 # Use the optimized libnacl embedded with cjdns
-%global use_embedded 0
+%global use_embedded 1
 # Use libsodium instead of nacl
 %global use_libsodium 0
 # Option to enable SUBNODE mode (WIP)
