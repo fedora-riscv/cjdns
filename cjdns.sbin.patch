@@ -1,6 +1,23 @@
+diff -up ./contrib/systemd/cjdns-loadmodules.service.sbin ./contrib/systemd/cjdns-loadmodules.service
+--- ./contrib/systemd/cjdns-loadmodules.service.sbin	2016-08-15 13:39:48.892573194 -0400
++++ ./contrib/systemd/cjdns-loadmodules.service	2016-08-15 13:47:24.336772295 -0400
+@@ -0,0 +1,13 @@
++[Unit]
++Description=Load cjdns kernel modules
++# Load kernel modules needed by cjdns so that it doesn't need the privilege
++Before=cjdns.service
++# Do not try to load modules in containers like openvz
++ConditionVirtualization=!container
++
++[Service]
++Type=oneshot
++ExecStart=/usr/sbin/modprobe tun
++
++[Install]
++WantedBy=multi-user.target
 diff -up ./contrib/systemd/cjdns-online.sh.sbin ./contrib/systemd/cjdns-online.sh
---- ./contrib/systemd/cjdns-online.sh.sbin	2016-06-23 22:49:23.703114380 -0400
-+++ ./contrib/systemd/cjdns-online.sh	2016-06-23 22:51:50.666731442 -0400
+--- ./contrib/systemd/cjdns-online.sh.sbin	2016-08-15 13:33:11.356021398 -0400
++++ ./contrib/systemd/cjdns-online.sh	2016-08-15 13:33:11.356021398 -0400
 @@ -0,0 +1,90 @@
 +#!/bin/sh
 +#   Check whether cjdns IPs are available
@@ -94,25 +111,34 @@ diff -up ./contrib/systemd/cjdns-online.sh.sbin ./contrib/systemd/cjdns-online.s
 +fi
 diff -up ./contrib/systemd/cjdns.service.sbin ./contrib/systemd/cjdns.service
 --- ./contrib/systemd/cjdns.service.sbin	2016-06-14 17:58:54.000000000 -0400
-+++ ./contrib/systemd/cjdns.service	2016-06-23 22:49:23.703114380 -0400
-@@ -9,10 +9,11 @@ ProtectSystem=true
++++ ./contrib/systemd/cjdns.service	2016-08-15 13:56:20.198792714 -0400
+@@ -1,18 +1,20 @@
+ [Unit]
+ Description=cjdns: routing engine designed for security, scalability, speed and ease of use
+ Wants=network.target
+-After=network.target
++After=network.target cjdns-loadmodules.service
++Requires=cjdns-loadmodules.service
+ 
+ [Service]
+ ProtectHome=true
+ ProtectSystem=true
  SyslogIdentifier=cjdroute
++CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_RAW CAP_SETUID CAP_SETGID CAP_SYS_CHROOT CAP_AUDIT_CONTROL
  ExecStartPre=/bin/sh -ec "if ! test -s /etc/cjdroute.conf; \
                  then umask 077; \
 -                /usr/bin/cjdroute --genconf > /etc/cjdroute.conf; \
 +                /usr/sbin/cjdroute --genconf | cat > /etc/cjdroute.conf; \
                  echo 'WARNING: A new /etc/cjdroute.conf file has been generated.'; \
--            fi"
+             fi"
 -ExecStart=/bin/sh -c "exec cjdroute --nobg < /etc/cjdroute.conf"
-+            fi; case $(wc -c /proc/modules) in \
-+                0*) ;; *) /sbin/modprobe tun;; esac"
 +ExecStart=/bin/sh -c "exec /usr/sbin/cjdroute --nobg < /etc/cjdroute.conf"
  Restart=always
  
  [Install]
 diff -up ./contrib/systemd/cjdns-wait-online.service.sbin ./contrib/systemd/cjdns-wait-online.service
---- ./contrib/systemd/cjdns-wait-online.service.sbin	2016-06-23 22:49:23.703114380 -0400
-+++ ./contrib/systemd/cjdns-wait-online.service	2016-06-23 22:49:23.703114380 -0400
+--- ./contrib/systemd/cjdns-wait-online.service.sbin	2016-08-15 13:33:11.356021398 -0400
++++ ./contrib/systemd/cjdns-wait-online.service	2016-08-15 13:33:11.356021398 -0400
 @@ -0,0 +1,13 @@
 +[Unit]
 +Description=CJDNS Wait Online
@@ -129,7 +155,7 @@ diff -up ./contrib/systemd/cjdns-wait-online.service.sbin ./contrib/systemd/cjdn
 +WantedBy=multi-user.target
 diff -up ./contrib/upstart/cjdns.conf.sbin ./contrib/upstart/cjdns.conf
 --- ./contrib/upstart/cjdns.conf.sbin	2016-06-14 17:58:54.000000000 -0400
-+++ ./contrib/upstart/cjdns.conf	2016-06-23 22:49:23.703114380 -0400
++++ ./contrib/upstart/cjdns.conf	2016-08-15 13:33:11.356021398 -0400
 @@ -13,10 +13,16 @@ pre-start script
      if ! [ -s /etc/cjdroute.conf ]; then
          ( # start a subshell to avoid side effects of umask later on

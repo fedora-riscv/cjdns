@@ -4,7 +4,11 @@
 # Use the optimized libnacl embedded with cjdns
 %global use_embedded 0
 # Use libsodium instead of nacl
-%global use_libsodium 0
+%global use_libsodium 1
+# Option to enable SUBNODE mode (WIP)
+%bcond_with subnode
+# Option to disable SECCOMP: confusing backward logic
+%bcond_without seccomp
 
 %if 0%{use_libsodium}
 %global nacl_name libsodium
@@ -38,8 +42,8 @@
 
 Name:           cjdns
 # major version is cjdns protocol version:
-Version:        17.4
-Release:        4%{?dist}
+Version:        18
+Release:        3%{?dist}
 Summary:        The privacy-friendly network without borders
 Group:          System Environment/Base
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
@@ -84,6 +88,8 @@ Patch9:  cjdns.man.patch
 Patch10: cjdns.tools.patch
 # Alternate dynamic library patch to use libsodium
 Patch11: cjdns.sodium.patch
+# Disable WIP subnode code when SUBNODE not enabled
+Patch12: cjdns.sign.patch
 
 BuildRequires:  nodejs, nodejs-ronn
 
@@ -104,6 +110,9 @@ Requires(postun): systemd
 %endif
 Requires(pre): shadow-utils
 Provides: bundled(libuv) = 0.11.4
+%if 0%{use_embedded}
+Provides: bundled(nacl) = 20110221
+%endif
 # build system requires nodejs, unfortunately
 ExclusiveArch: %{nodejs_arches}
 
@@ -185,6 +194,7 @@ elif test -d %{_includedir}/nacl && test -r %{_libdir}/libnacl.a; then
   ln -s %{_includedir}/nacl cnacl/jsbuild/include
   cd -
 fi
+%patch12 -b .sign
 %endif
 
 %if !0%{?rhel} || 0%{?rhel} > 6
@@ -221,7 +231,12 @@ cd contrib/selinux
 ln -s /usr/share/selinux/devel/Makefile .
 make 
 cd -
+
 # nodejs based build system
+
+%if !%{with seccomp}
+export Seccomp_NO=1
+%endif
 CJDNS_RELEASE_VERSION="%{name}-%{version}-%{release}" ./do
 
 # FIXME: use system libuv on compatible systems
@@ -467,6 +482,25 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Fri Oct 14 2016 Stuart D. Gathman <stuart@gathman.org> 18-3
+- libstdc++ not needed with libsodium
+
+* Fri Oct 14 2016 Stuart D. Gathman <stuart@gathman.org> 18-2
+- Remove Sign.c which uses a private API and isn't needed until supernodes.
+- Use libsodium by default: seems best performance of dynamic libraries
+
+* Wed Oct 12 2016 Stuart D. Gathman <stuart@gathman.org> 18-1
+- Update to 18 upstream release
+
+* Mon Aug 15 2016 Stuart D. Gathman <stuart@gathman.org> 17.4-7
+- Move modprobe to cjdns-loadmodules.service
+
+* Wed Aug 10 2016 Stuart D. Gathman <stuart@gathman.org> 17.4-6
+- Fix logic for %%bcond_without seccomp
+
+* Wed Aug 10 2016 Stuart D. Gathman <stuart@gathman.org> 17.4-5
+- cjdns.service: add CapabilityBoundingSet
+
 * Fri Jun 24 2016 Stuart D. Gathman <stuart@gathman.org> 17.4-4
 - cjdns-selinux: allow cjdroute to manipulate route table
 
