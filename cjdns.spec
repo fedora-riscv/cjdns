@@ -43,7 +43,7 @@
 Name:           cjdns
 # major version is cjdns protocol version:
 Version:        18
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        The privacy-friendly network without borders
 Group:          System Environment/Base
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
@@ -482,6 +482,9 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Fri Oct 14 2016 Stuart D. Gathman <stuart@gathman.org> 18-3
+- libstdc++ not needed with libsodium
+
 * Fri Oct 14 2016 Stuart D. Gathman <stuart@gathman.org> 18-2
 - Remove Sign.c which uses a private API and isn't needed until supernodes.
 - Use libsodium by default: seems best performance of dynamic libraries
