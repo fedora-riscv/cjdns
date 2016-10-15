@@ -2,9 +2,11 @@
 # Fedora review: http://bugzilla.redhat.com/1268716
 
 # Use the optimized libnacl embedded with cjdns
-%global use_embedded 1
+%global use_embedded 0
 # Use libsodium instead of nacl
-%global use_libsodium 0
+%global use_libsodium 1
+# Option to enable SUBNODE mode (WIP)
+%bcond_with subnode
 # Option to disable SECCOMP: confusing backward logic
 %bcond_without seccomp
 
@@ -41,7 +43,7 @@
 Name:           cjdns
 # major version is cjdns protocol version:
 Version:        18
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        The privacy-friendly network without borders
 Group:          System Environment/Base
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
@@ -86,6 +88,8 @@ Patch9:  cjdns.man.patch
 Patch10: cjdns.tools.patch
 # Alternate dynamic library patch to use libsodium
 Patch11: cjdns.sodium.patch
+# Disable WIP subnode code when SUBNODE not enabled
+Patch12: cjdns.sign.patch
 
 BuildRequires:  nodejs, nodejs-ronn
 
@@ -190,6 +194,7 @@ elif test -d %{_includedir}/nacl && test -r %{_libdir}/libnacl.a; then
   ln -s %{_includedir}/nacl cnacl/jsbuild/include
   cd -
 fi
+%patch12 -b .sign
 %endif
 
 %if !0%{?rhel} || 0%{?rhel} > 6
@@ -477,6 +482,10 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Fri Oct 14 2016 Stuart D. Gathman <stuart@gathman.org> 18-2
+- Remove Sign.c which uses a private API and isn't needed until supernodes.
+- Use libsodium by default: seems best performance of dynamic libraries
+
 * Wed Oct 12 2016 Stuart D. Gathman <stuart@gathman.org> 18-1
 - Update to 18 upstream release
 
