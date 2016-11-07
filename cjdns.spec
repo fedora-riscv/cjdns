@@ -43,7 +43,7 @@
 Name:           cjdns
 # major version is cjdns protocol version:
 Version:        18
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        The privacy-friendly network without borders
 Group:          System Environment/Base
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
@@ -482,6 +482,9 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Sun Nov  6 2016 Stuart D. Gathman <stuart@gathman.org> 18-4
+- update cjdns-online man page
+
 * Fri Oct 14 2016 Stuart D. Gathman <stuart@gathman.org> 18-3
 - libstdc++ not needed with libsodium
 
