@@ -487,6 +487,7 @@ fi
 %changelog
 * Sun Nov  6 2016 Stuart D. Gathman <stuart@gathman.org> 18-4
 - update cjdns-online man page
+- Support ppc64, ppc64le, s390x
 
 * Fri Oct 14 2016 Stuart D. Gathman <stuart@gathman.org> 18-3
 - libstdc++ not needed with libsodium
