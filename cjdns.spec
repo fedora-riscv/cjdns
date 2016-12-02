@@ -78,7 +78,7 @@ Patch4:  cjdns.genconf.patch
 Patch5:  cjdns.sbin.patch
 # Patch make.js to use dynamic nacl library
 Patch6:  cjdns.dyn.patch
-# Patch to use _LINUX_CAPABILITY_3
+# Patch to use _LINUX_CAPABILITY_3 (cjdns < 18)
 #Patch7:  cjdns.cap3.patch
 # Patch some source files to ignore selected warnings that break gcc6 builds
 Patch8:  cjdns.warnings.patch
@@ -90,6 +90,8 @@ Patch10: cjdns.tools.patch
 Patch11: cjdns.sodium.patch
 # Disable WIP subnode code when SUBNODE not enabled
 Patch12: cjdns.sign.patch
+# Recognize ppc64, ppc64le, and s390x arches
+Patch13: cjdns.ppc64.patch
 
 BuildRequires:  nodejs, nodejs-ronn
 
@@ -203,6 +205,7 @@ fi
 
 %patch9 -b .man
 %patch10 -b .tools
+%patch13 -b .ppc64
 
 cp %{SOURCE1} README_Fedora.md
 
