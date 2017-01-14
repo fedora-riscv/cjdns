@@ -301,7 +301,7 @@ rm -f contrib/nodejs/admin/.gitignore
 cp -pr contrib/nodejs/admin %{buildroot}%{_libexecdir}/cjdns
 %endif
 
-cp -p cjdns-up.sh %{buildroot}%{_libexecdir}/cjdns-up
+cp -p cjdns-up.sh %{buildroot}%{_libexecdir}/cjdns/cjdns-up
 
 # symlinks for selected nodejs tools
 mkdir -p %{buildroot}%{_bindir}
