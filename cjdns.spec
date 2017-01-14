@@ -92,8 +92,8 @@ Patch11: cjdns.sodium.patch
 Patch12: cjdns.sign.patch
 # Recognize ppc64, ppc64le, and s390x arches
 Patch13: cjdns.ppc64.patch
-# Fix C coding errors
-Patch14: cjdns.errors.patch
+# getentropy(2) added to glibc in Fedora 26
+Patch14: cjdns.entropy.patch
 
 BuildRequires:  nodejs, nodejs-ronn, python2
 
@@ -208,7 +208,7 @@ fi
 %patch9 -b .man
 %patch10 -b .tools
 %patch13 -b .ppc64
-%patch14 -b .errors
+%patch14 -b .entropy
 
 cp %{SOURCE1} README_Fedora.md
 
