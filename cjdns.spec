@@ -93,7 +93,7 @@ Patch12: cjdns.sign.patch
 # Recognize ppc64, ppc64le, and s390x arches
 Patch13: cjdns.ppc64.patch
 
-BuildRequires:  nodejs, nodejs-ronn
+BuildRequires:  nodejs, nodejs-ronn, python2
 
 # Automated package review hates explicit BR on make, but it *is* needed
 BuildRequires:  make
