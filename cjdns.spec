@@ -43,7 +43,7 @@
 Name:           cjdns
 # major version is cjdns protocol version:
 Version:        18
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        The privacy-friendly network without borders
 Group:          System Environment/Base
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
@@ -226,6 +226,20 @@ rm -rf contrib/nodejs   # GPLv3 and ASL 2.0
 %endif
 rm -rf contrib/http     # GPLv2 and MIT
 
+cat >cjdns-up.sh <<'EOF'
+#!/bin/sh
+
+cjdev="$(cjdns-online -i)" || exit 1
+
+for s in %{_sysconfdir}/cjdns/up.d/*.sh; do
+  if test -x "$s"; then
+    "$s" up $cjdev
+  fi
+done
+EOF
+
+chmod a+x cjdns-up.sh
+
 # FIXME: grep Version_CURRENT_PROTOCOL util/version/Version.h and
 # check that it matches major %%{version}
 
@@ -264,6 +278,7 @@ install -pm 644 contrib/upstart/cjdns.conf %{buildroot}%{_sysconfdir}/init
 mkdir -p %{buildroot}%{_unitdir}
 install -pm 644 contrib/systemd/cjdns*.service %{buildroot}%{_unitdir}
 %endif
+mkdir -p %{buildroot}%{_sysconfdir}/cjdns/up.d
 
 # chroot 
 mkdir -p %{buildroot}/var/empty/cjdns
@@ -285,6 +300,8 @@ cp -pr tools node_modules %{buildroot}%{_libexecdir}/cjdns
 rm -f contrib/nodejs/admin/.gitignore
 cp -pr contrib/nodejs/admin %{buildroot}%{_libexecdir}/cjdns
 %endif
+
+cp -p cjdns-up.sh %{buildroot}%{_libexecdir}/cjdns-up
 
 # symlinks for selected nodejs tools
 mkdir -p %{buildroot}%{_bindir}
@@ -360,6 +377,8 @@ done
 %if %{use_systemd}
 %{_unitdir}/*
 %endif
+%dir %{_sysconfdir}/cjdns/up.d
+%{_libexecdir}/cjdns/cjdns-up
 %{_libexecdir}/cjdns/randombytes
 %{_libexecdir}/cjdns/publictoip6
 %{_libexecdir}/cjdns/privatetopublic
@@ -485,6 +504,9 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Sat Jan  7 2017 Stuart D. Gathman <stuart@gathman.org> 18-5
+- Run scripts in %{sysconfdir}/cjdns/up.d when cjdns comes up.
+
 * Sun Nov  6 2016 Stuart D. Gathman <stuart@gathman.org> 18-4
 - update cjdns-online man page
 - Support ppc64, ppc64le, s390x
