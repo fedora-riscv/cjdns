@@ -1,0 +1,30 @@
+diff -up ./crypto/random/seed/GetEntropyRandomSeed.c.errors ./crypto/random/seed/GetEntropyRandomSeed.c
+--- ./crypto/random/seed/GetEntropyRandomSeed.c.errors	2017-01-14 13:42:22.043640582 -0500
++++ ./crypto/random/seed/GetEntropyRandomSeed.c	2017-01-14 13:43:01.482108873 -0500
+@@ -22,7 +22,8 @@
+ #include <sys/syscall.h>
+ 
+ #ifndef __OPENBSD__
+-static int getentropy(void *buf, size_t buflen)
++/* NOTE: getentropy() is already defined in unistd.h */
++static int get_entropy(void *buf, size_t buflen)
+ {
+     int ret;
+ 
+@@ -48,7 +49,7 @@ static int getentropy(void *buf, size_t
+ 
+ static int get(struct RandomSeed* randomSeed, uint64_t output[8])
+ {
+-    if (getentropy(output, 64) < 0) {
++    if (get_entropy(output, 64) < 0) {
+         return -1;
+     } else {
+         return 0;
+@@ -59,6 +60,6 @@ struct RandomSeed* GetEntropyRandomSeed_
+ {
+     return Allocator_clone(alloc, (&(struct RandomSeed) {
+         .get = get,
+-        .name = "getentropy(2)"
++        .name = "get_entropy(2)"
+     }));
+ }
