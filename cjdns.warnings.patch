@@ -1,6 +1,6 @@
 diff -up ./crypto/CryptoAuth.c.warnings ./crypto/CryptoAuth.c
---- ./crypto/CryptoAuth.c.warnings	2016-01-27 03:07:49.000000000 -0500
-+++ ./crypto/CryptoAuth.c	2016-05-03 22:06:45.842528947 -0400
+--- ./crypto/CryptoAuth.c.warnings	2016-10-11 17:39:44.000000000 -0400
++++ ./crypto/CryptoAuth.c	2017-02-18 14:33:13.145294735 -0500
 @@ -77,6 +77,8 @@ static inline void getSharedSecret(uint8
                                     uint8_t passwordHash[32],
                                     struct Log* logger)
@@ -19,8 +19,8 @@ diff -up ./crypto/CryptoAuth.c.warnings ./crypto/CryptoAuth.c
          uint8_t myPublicKeyHex[65];
          printHexPubKey(myPublicKeyHex, myPrivateKey);
 diff -up ./dht/CJDHTConstants.h.warnings ./dht/CJDHTConstants.h
---- ./dht/CJDHTConstants.h.warnings	2016-01-27 03:07:49.000000000 -0500
-+++ ./dht/CJDHTConstants.h	2016-05-03 22:06:45.842528947 -0400
+--- ./dht/CJDHTConstants.h.warnings	2016-10-11 17:39:44.000000000 -0400
++++ ./dht/CJDHTConstants.h	2017-02-18 14:33:13.145294735 -0500
 @@ -17,7 +17,9 @@
  
  #include "benc/String.h"
@@ -39,9 +39,28 @@ diff -up ./dht/CJDHTConstants.h.warnings ./dht/CJDHTConstants.h
 -
 +#pragma GCC diagnostic pop
  #endif
+diff -up ./dht/dhtcore/NodeStore.c.warnings ./dht/dhtcore/NodeStore.c
+--- ./dht/dhtcore/NodeStore.c.warnings	2017-02-18 14:33:47.091697196 -0500
++++ ./dht/dhtcore/NodeStore.c	2017-02-18 14:34:03.824895582 -0500
+@@ -1752,11 +1752,15 @@ struct NodeList* NodeStore_getPeers(uint
+             if ((out->nodes[j]->address.path - label) > (p - label)) { continue; }
+             break;
+         }
++#pragma GCC diagnostic push
++#pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
+         switch (j) {
+             default: Bits_memmove(out->nodes, &out->nodes[1], (j - 1) * sizeof(char*));
++                // fallthrough
+             case 1: out->nodes[j - 1] = next->child;
+             case 0:;
+         }
++#pragma GCC diagnostic pop
+     }
+ 
+     out->size = 0;
 diff -up ./node_build/dependencies/libuv/test/test-getsockname.c.warnings ./node_build/dependencies/libuv/test/test-getsockname.c
---- ./node_build/dependencies/libuv/test/test-getsockname.c.warnings	2016-01-27 03:07:49.000000000 -0500
-+++ ./node_build/dependencies/libuv/test/test-getsockname.c	2016-05-03 22:06:45.842528947 -0400
+--- ./node_build/dependencies/libuv/test/test-getsockname.c.warnings	2016-10-11 17:39:44.000000000 -0400
++++ ./node_build/dependencies/libuv/test/test-getsockname.c	2017-02-18 14:33:13.145294735 -0500
 @@ -18,7 +18,7 @@
   * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
   * IN THE SOFTWARE.
@@ -52,9 +71,9 @@ diff -up ./node_build/dependencies/libuv/test/test-getsockname.c.warnings ./node
  #include "task.h"
  
 diff -up ./util/platform/netdev/NetPlatform_linux.c.warnings ./util/platform/netdev/NetPlatform_linux.c
---- ./util/platform/netdev/NetPlatform_linux.c.warnings	2016-01-27 03:07:49.000000000 -0500
-+++ ./util/platform/netdev/NetPlatform_linux.c	2016-05-03 22:06:45.842528947 -0400
-@@ -142,7 +142,7 @@ void NetPlatform_addAddress(const char*
+--- ./util/platform/netdev/NetPlatform_linux.c.warnings	2016-10-11 17:39:44.000000000 -0400
++++ ./util/platform/netdev/NetPlatform_linux.c	2017-02-18 14:33:13.145294735 -0500
+@@ -165,7 +165,7 @@ void NetPlatform_addAddress(const char*
              Except_throw(eh, "ioctl(SIOCSIFADDR) failed: [%s]", strerror(err));
          }
  
@@ -64,8 +83,8 @@ diff -up ./util/platform/netdev/NetPlatform_linux.c.warnings ./util/platform/net
          memcpy(&sin.sin_addr, &x, 4);
          memcpy(&ifRequest.ifr_addr, &sin, sizeof(struct sockaddr_in));
 diff -up ./util/platform/Sockaddr.c.warnings ./util/platform/Sockaddr.c
---- ./util/platform/Sockaddr.c.warnings	2016-01-27 03:07:49.000000000 -0500
-+++ ./util/platform/Sockaddr.c	2016-05-03 22:06:45.842528947 -0400
+--- ./util/platform/Sockaddr.c.warnings	2016-10-11 17:39:44.000000000 -0400
++++ ./util/platform/Sockaddr.c	2017-02-18 14:33:13.145294735 -0500
 @@ -12,6 +12,7 @@
   * You should have received a copy of the GNU General Public License
   * along with this program.  If not, see <http://www.gnu.org/licenses/>.

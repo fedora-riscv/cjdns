@@ -43,7 +43,7 @@
 Name:           cjdns
 # major version is cjdns protocol version:
 Version:        18
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        The privacy-friendly network without borders
 Group:          System Environment/Base
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
@@ -94,6 +94,10 @@ Patch12: cjdns.sign.patch
 Patch13: cjdns.ppc64.patch
 # getentropy(2) added to glibc in Fedora 26
 Patch14: cjdns.entropy.patch
+# Fix buffer overrun in JsonBencSerializer.c
+Patch15: cjdns.benc.patch
+# Specify python2 for systems that default to python3
+Patch16: cjdns.python3.patch
 
 BuildRequires:  nodejs, nodejs-ronn, python2
 
@@ -209,6 +213,8 @@ fi
 %patch10 -b .tools
 %patch13 -b .ppc64
 %patch14 -b .entropy
+%patch15 -b .benc
+%patch16 -b .python3
 
 cp %{SOURCE1} README_Fedora.md
 
@@ -507,6 +513,9 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Sat Feb 18 2017 Stuart D. Gathman <stuart@gathman.org> 18-6
+- Fix errors and document nits found by gcc7
+
 * Sat Jan  7 2017 Stuart D. Gathman <stuart@gathman.org> 18-5
 - Run scripts in %{sysconfdir}/cjdns/up.d when cjdns comes up.
 
