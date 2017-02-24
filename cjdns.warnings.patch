@@ -1,7 +1,7 @@
 diff -up ./crypto/CryptoAuth.c.warnings ./crypto/CryptoAuth.c
---- ./crypto/CryptoAuth.c.warnings	2016-01-27 03:07:49.000000000 -0500
-+++ ./crypto/CryptoAuth.c	2016-05-03 22:06:45.842528947 -0400
-@@ -77,6 +77,8 @@ static inline void getSharedSecret(uint8
+--- ./crypto/CryptoAuth.c.warnings	2017-02-21 17:56:22.000000000 -0500
++++ ./crypto/CryptoAuth.c	2017-02-24 12:36:55.762819179 -0500
+@@ -85,6 +85,8 @@ static inline void getSharedSecret(uint8
                                     uint8_t passwordHash[32],
                                     struct Log* logger)
  {
@@ -10,7 +10,7 @@ diff -up ./crypto/CryptoAuth.c.warnings ./crypto/CryptoAuth.c
      if (passwordHash == NULL) {
          crypto_box_curve25519xsalsa20poly1305_beforenm(outputSecret, herPublicKey, myPrivateKey);
      } else {
-@@ -92,6 +94,7 @@ static inline void getSharedSecret(uint8
+@@ -100,6 +102,7 @@ static inline void getSharedSecret(uint8
          Bits_memcpy(buff.components.passwd, passwordHash, 32);
          crypto_hash_sha256(outputSecret, buff.bytes, 64);
      }
@@ -19,8 +19,8 @@ diff -up ./crypto/CryptoAuth.c.warnings ./crypto/CryptoAuth.c
          uint8_t myPublicKeyHex[65];
          printHexPubKey(myPublicKeyHex, myPrivateKey);
 diff -up ./dht/CJDHTConstants.h.warnings ./dht/CJDHTConstants.h
---- ./dht/CJDHTConstants.h.warnings	2016-01-27 03:07:49.000000000 -0500
-+++ ./dht/CJDHTConstants.h	2016-05-03 22:06:45.842528947 -0400
+--- ./dht/CJDHTConstants.h.warnings	2017-02-21 17:56:22.000000000 -0500
++++ ./dht/CJDHTConstants.h	2017-02-24 12:36:55.762819179 -0500
 @@ -17,7 +17,9 @@
  
  #include "benc/String.h"
@@ -39,9 +39,23 @@ diff -up ./dht/CJDHTConstants.h.warnings ./dht/CJDHTConstants.h
 -
 +#pragma GCC diagnostic pop
  #endif
+diff -up ./dht/dhtcore/NodeStore.c.warnings ./dht/dhtcore/NodeStore.c
+--- ./dht/dhtcore/NodeStore.c.warnings	2017-02-21 17:56:22.000000000 -0500
++++ ./dht/dhtcore/NodeStore.c	2017-02-24 12:44:19.822328184 -0500
+@@ -1770,7 +1770,9 @@ struct NodeList* NodeStore_getPeers(uint
+             break;
+         }
+         switch (j) {
+-            default: Bits_memmove(out->nodes, &out->nodes[1], (j - 1) * sizeof(char*));
++            default:
++              Bits_memmove(out->nodes, &out->nodes[1], (j - 1) * sizeof(char*));
++              Gcc_FALLTHROUGH;
+             case 1: out->nodes[j - 1] = next->child;
+             case 0:;
+         }
 diff -up ./node_build/dependencies/libuv/test/test-getsockname.c.warnings ./node_build/dependencies/libuv/test/test-getsockname.c
---- ./node_build/dependencies/libuv/test/test-getsockname.c.warnings	2016-01-27 03:07:49.000000000 -0500
-+++ ./node_build/dependencies/libuv/test/test-getsockname.c	2016-05-03 22:06:45.842528947 -0400
+--- ./node_build/dependencies/libuv/test/test-getsockname.c.warnings	2017-02-21 17:56:22.000000000 -0500
++++ ./node_build/dependencies/libuv/test/test-getsockname.c	2017-02-24 12:36:55.763819191 -0500
 @@ -18,7 +18,7 @@
   * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
   * IN THE SOFTWARE.
@@ -51,10 +65,43 @@ diff -up ./node_build/dependencies/libuv/test/test-getsockname.c.warnings ./node
  #include "uv.h"
  #include "task.h"
  
+diff -up ./util/Gcc.h.warnings ./util/Gcc.h
+--- ./util/Gcc.h.warnings	2017-02-24 12:41:36.926182554 -0500
++++ ./util/Gcc.h	2017-02-24 13:06:44.166644855 -0500
+@@ -40,6 +40,11 @@
+ #define Gcc_USE_RET \
+     __attribute__ ((warn_unused_result))
+ 
++#if __GNUC__ >= 7
++#define Gcc_FALLTHROUGH \
++    __attribute__ ((fallthrough))
++#endif
++
+ #elif defined(__clang__)
+ 
+ #define Gcc_NORETURN \
+@@ -50,6 +55,9 @@
+ 
+ #endif
+ 
++#ifndef Gcc_FALLTHROUGH
++    #define Gcc_FALLTHROUGH (void)0
++#endif
+ #ifndef Gcc_PRINTF
+     #define Gcc_PRINTF( format_idx, arg_idx )
+ #endif
 diff -up ./util/platform/netdev/NetPlatform_linux.c.warnings ./util/platform/netdev/NetPlatform_linux.c
---- ./util/platform/netdev/NetPlatform_linux.c.warnings	2016-01-27 03:07:49.000000000 -0500
-+++ ./util/platform/netdev/NetPlatform_linux.c	2016-05-03 22:06:45.842528947 -0400
-@@ -142,7 +142,7 @@ void NetPlatform_addAddress(const char*
+--- ./util/platform/netdev/NetPlatform_linux.c.warnings	2017-02-21 17:56:22.000000000 -0500
++++ ./util/platform/netdev/NetPlatform_linux.c	2017-02-24 14:55:11.354136283 -0500
+@@ -36,6 +36,7 @@
+ #include <linux/route.h>
+ #if ! defined(android)
+     #include <linux/ipv6_route.h>
++    #include <linux/ipv6.h>
+ #endif
+ #include <linux/netlink.h>
+ #include <linux/rtnetlink.h>
+@@ -165,7 +166,7 @@ void NetPlatform_addAddress(const char*
              Except_throw(eh, "ioctl(SIOCSIFADDR) failed: [%s]", strerror(err));
          }
  
@@ -64,11 +111,11 @@ diff -up ./util/platform/netdev/NetPlatform_linux.c.warnings ./util/platform/net
          memcpy(&sin.sin_addr, &x, 4);
          memcpy(&ifRequest.ifr_addr, &sin, sizeof(struct sockaddr_in));
 diff -up ./util/platform/Sockaddr.c.warnings ./util/platform/Sockaddr.c
---- ./util/platform/Sockaddr.c.warnings	2016-01-27 03:07:49.000000000 -0500
-+++ ./util/platform/Sockaddr.c	2016-05-03 22:06:45.842528947 -0400
+--- ./util/platform/Sockaddr.c.warnings	2017-02-21 17:56:22.000000000 -0500
++++ ./util/platform/Sockaddr.c	2017-02-24 12:36:55.763819191 -0500
 @@ -12,6 +12,7 @@
   * You should have received a copy of the GNU General Public License
-  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
   */
 +#pragma GCC diagnostic ignored "-Wstrict-aliasing"
  #include "util/events/libuv/UvWrapper.h"

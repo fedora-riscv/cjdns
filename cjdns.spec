@@ -42,8 +42,8 @@
 
 Name:           cjdns
 # major version is cjdns protocol version:
-Version:        18
-Release:        4%{?dist}
+Version:        19.1
+Release:        2%{?dist}
 Summary:        The privacy-friendly network without borders
 Group:          System Environment/Base
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
@@ -92,8 +92,14 @@ Patch11: cjdns.sodium.patch
 Patch12: cjdns.sign.patch
 # Recognize ppc64, ppc64le, and s390x arches
 Patch13: cjdns.ppc64.patch
+# getentropy(2) added to glibc in Fedora 26
+Patch14: cjdns.entropy.patch
+# Fix buffer overrun in JsonBencSerializer.c
+Patch15: cjdns.benc.patch
+# Specify python2 for systems that default to python3
+Patch16: cjdns.python3.patch
 
-BuildRequires:  nodejs, nodejs-ronn
+BuildRequires:  nodejs, nodejs-ronn, python2
 
 # Automated package review hates explicit BR on make, but it *is* needed
 BuildRequires:  make
@@ -205,7 +211,10 @@ fi
 
 %patch9 -b .man
 %patch10 -b .tools
-%patch13 -b .ppc64
+#patch13 -b .ppc64
+%patch14 -b .entropy
+%patch15 -b .benc
+%patch16 -b .python3
 
 cp %{SOURCE1} README_Fedora.md
 
@@ -225,6 +234,20 @@ find tools -type f | xargs grep -l '^#!\/usr\/bin\/env ' |
 rm -rf contrib/nodejs   # GPLv3 and ASL 2.0
 %endif
 rm -rf contrib/http     # GPLv2 and MIT
+
+cat >cjdns-up.sh <<'EOF'
+#!/bin/sh
+
+cjdev="$(cjdns-online -i)" || exit 1
+
+for s in %{_sysconfdir}/cjdns/up.d/*.sh; do
+  if test -x "$s"; then
+    "$s" up $cjdev
+  fi
+done
+EOF
+
+chmod a+x cjdns-up.sh
 
 # FIXME: grep Version_CURRENT_PROTOCOL util/version/Version.h and
 # check that it matches major %%{version}
@@ -264,6 +287,7 @@ install -pm 644 contrib/upstart/cjdns.conf %{buildroot}%{_sysconfdir}/init
 mkdir -p %{buildroot}%{_unitdir}
 install -pm 644 contrib/systemd/cjdns*.service %{buildroot}%{_unitdir}
 %endif
+mkdir -p %{buildroot}%{_sysconfdir}/cjdns/up.d
 
 # chroot 
 mkdir -p %{buildroot}/var/empty/cjdns
@@ -285,6 +309,8 @@ cp -pr tools node_modules %{buildroot}%{_libexecdir}/cjdns
 rm -f contrib/nodejs/admin/.gitignore
 cp -pr contrib/nodejs/admin %{buildroot}%{_libexecdir}/cjdns
 %endif
+
+cp -p cjdns-up.sh %{buildroot}%{_libexecdir}/cjdns/cjdns-up
 
 # symlinks for selected nodejs tools
 mkdir -p %{buildroot}%{_bindir}
@@ -360,6 +386,8 @@ done
 %if %{use_systemd}
 %{_unitdir}/*
 %endif
+%dir %{_sysconfdir}/cjdns/up.d
+%{_libexecdir}/cjdns/cjdns-up
 %{_libexecdir}/cjdns/randombytes
 %{_libexecdir}/cjdns/publictoip6
 %{_libexecdir}/cjdns/privatetopublic
@@ -485,6 +513,21 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Fri Feb 24 2017 Stuart D. Gathman <stuart@gathman.org> 19.1-2
+- Adjust for moving in6_ifreq to linux/ipv6.h in kernel-headers-4.11
+
+* Fri Feb 24 2017 Stuart D. Gathman <stuart@gathman.org> 19.1-1
+- New upstream release
+
+* Sat Feb 18 2017 Stuart D. Gathman <stuart@gathman.org> 18-7
+- Fix errors and document nits found by gcc7
+
+* Fri Feb 10 2017 Fedora Release Engineering <releng@fedoraproject.org> - 18-6
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
+
+* Sat Jan  7 2017 Stuart D. Gathman <stuart@gathman.org> 18-5
+- Run scripts in %{sysconfdir}/cjdns/up.d when cjdns comes up.
+
 * Sun Nov  6 2016 Stuart D. Gathman <stuart@gathman.org> 18-4
 - update cjdns-online man page
 - Support ppc64, ppc64le, s390x
