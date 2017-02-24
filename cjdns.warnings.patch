@@ -67,21 +67,29 @@ diff -up ./node_build/dependencies/libuv/test/test-getsockname.c.warnings ./node
  
 diff -up ./util/Gcc.h.warnings ./util/Gcc.h
 --- ./util/Gcc.h.warnings	2017-02-24 12:41:36.926182554 -0500
-+++ ./util/Gcc.h	2017-02-24 13:00:40.549082784 -0500
-@@ -40,6 +40,13 @@
++++ ./util/Gcc.h	2017-02-24 13:06:44.166644855 -0500
+@@ -40,6 +40,11 @@
  #define Gcc_USE_RET \
      __attribute__ ((warn_unused_result))
  
 +#if __GNUC__ >= 7
 +#define Gcc_FALLTHROUGH \
-+    __attribute__((fallthrough))
-+#else
-+#define Gcc_FALLTHROUGH (void)0
++    __attribute__ ((fallthrough))
 +#endif
 +
  #elif defined(__clang__)
  
  #define Gcc_NORETURN \
+@@ -50,6 +55,9 @@
+ 
+ #endif
+ 
++#ifndef Gcc_FALLTHROUGH
++    #define Gcc_FALLTHROUGH (void)0
++#endif
+ #ifndef Gcc_PRINTF
+     #define Gcc_PRINTF( format_idx, arg_idx )
+ #endif
 diff -up ./util/platform/netdev/NetPlatform_linux.c.warnings ./util/platform/netdev/NetPlatform_linux.c
 --- ./util/platform/netdev/NetPlatform_linux.c.warnings	2017-02-21 17:56:22.000000000 -0500
 +++ ./util/platform/netdev/NetPlatform_linux.c	2017-02-24 12:36:55.763819191 -0500
