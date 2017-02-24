@@ -92,8 +92,16 @@ diff -up ./util/Gcc.h.warnings ./util/Gcc.h
  #endif
 diff -up ./util/platform/netdev/NetPlatform_linux.c.warnings ./util/platform/netdev/NetPlatform_linux.c
 --- ./util/platform/netdev/NetPlatform_linux.c.warnings	2017-02-21 17:56:22.000000000 -0500
-+++ ./util/platform/netdev/NetPlatform_linux.c	2017-02-24 12:36:55.763819191 -0500
-@@ -165,7 +165,7 @@ void NetPlatform_addAddress(const char*
++++ ./util/platform/netdev/NetPlatform_linux.c	2017-02-24 14:55:11.354136283 -0500
+@@ -36,6 +36,7 @@
+ #include <linux/route.h>
+ #if ! defined(android)
+     #include <linux/ipv6_route.h>
++    #include <linux/ipv6.h>
+ #endif
+ #include <linux/netlink.h>
+ #include <linux/rtnetlink.h>
+@@ -165,7 +166,7 @@ void NetPlatform_addAddress(const char*
              Except_throw(eh, "ioctl(SIOCSIFADDR) failed: [%s]", strerror(err));
          }
  

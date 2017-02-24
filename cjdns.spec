@@ -43,7 +43,7 @@
 Name:           cjdns
 # major version is cjdns protocol version:
 Version:        19.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        The privacy-friendly network without borders
 Group:          System Environment/Base
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
@@ -513,6 +513,9 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Fri Feb 24 2017 Stuart D. Gathman <stuart@gathman.org> 19.1-2
+- Adjust for moving in6_ifreq to linux/ipv6.h in kernel-headers-4.11
+
 * Fri Feb 24 2017 Stuart D. Gathman <stuart@gathman.org> 19.1-1
 - New upstream release
 
