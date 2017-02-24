@@ -1,13 +1,12 @@
 diff -up ./crypto/random/seed/GetEntropyRandomSeed.c.entropy ./crypto/random/seed/GetEntropyRandomSeed.c
---- ./crypto/random/seed/GetEntropyRandomSeed.c.entropy	2016-10-11 17:39:44.000000000 -0400
-+++ ./crypto/random/seed/GetEntropyRandomSeed.c	2017-02-18 13:59:03.131999629 -0500
-@@ -21,7 +21,11 @@
- #include <errno.h>
- #include <sys/syscall.h>
+--- ./crypto/random/seed/GetEntropyRandomSeed.c.entropy	2017-02-24 00:23:48.994554470 -0500
++++ ./crypto/random/seed/GetEntropyRandomSeed.c	2017-02-24 00:28:07.022641392 -0500
+@@ -23,8 +23,9 @@
  
--#ifndef __OPENBSD__
-+#define GetEntropyRandomSeed_GLIBC_HAS_IT \
-+ (defined(__GNU_LIBRARY__) && defined(__GLIBC_PREREQ) && __GLIBC_PREREQ(2, 25))
+ #define GetEntropyRandomSeed_GLIBC_HAS_IT \
+     (defined(__GNU_LIBRARY__) && defined(__GLIBC_PREREQ) && __GLIBC_PREREQ(2, 25))
+-
+-#if !defined(__OPENBSD__) && !GetEntropyRandomSeed_GLIBC_HAS_IT
 +/* gcc warns against using defined() inside #define, so just copy definition */
 +#if !defined(__OPENBSD__) && \
 +!(defined(__GNU_LIBRARY__) && defined(__GLIBC_PREREQ) && __GLIBC_PREREQ(2, 25))

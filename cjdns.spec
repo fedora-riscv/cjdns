@@ -42,8 +42,8 @@
 
 Name:           cjdns
 # major version is cjdns protocol version:
-Version:        18
-Release:        7%{?dist}
+Version:        19.1
+Release:        1%{?dist}
 Summary:        The privacy-friendly network without borders
 Group:          System Environment/Base
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
@@ -211,7 +211,7 @@ fi
 
 %patch9 -b .man
 %patch10 -b .tools
-%patch13 -b .ppc64
+#patch13 -b .ppc64
 %patch14 -b .entropy
 %patch15 -b .benc
 %patch16 -b .python3
@@ -513,6 +513,9 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Fri Feb 24 2017 Stuart D. Gathman <stuart@gathman.org> 19.1-1
+- New upstream release
+
 * Sat Feb 18 2017 Stuart D. Gathman <stuart@gathman.org> 18-7
 - Fix errors and document nits found by gcc7
 

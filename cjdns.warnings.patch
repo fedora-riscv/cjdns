@@ -87,7 +87,7 @@ diff -up ./util/platform/Sockaddr.c.warnings ./util/platform/Sockaddr.c
 +++ ./util/platform/Sockaddr.c	2017-02-18 14:33:13.145294735 -0500
 @@ -12,6 +12,7 @@
   * You should have received a copy of the GNU General Public License
-  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
   */
 +#pragma GCC diagnostic ignored "-Wstrict-aliasing"
  #include "util/events/libuv/UvWrapper.h"
