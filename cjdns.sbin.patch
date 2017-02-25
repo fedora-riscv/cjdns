@@ -1,6 +1,6 @@
 diff -up ./contrib/systemd/cjdns-loadmodules.service.sbin ./contrib/systemd/cjdns-loadmodules.service
---- ./contrib/systemd/cjdns-loadmodules.service.sbin	2016-08-15 13:39:48.892573194 -0400
-+++ ./contrib/systemd/cjdns-loadmodules.service	2016-08-15 13:47:24.336772295 -0400
+--- ./contrib/systemd/cjdns-loadmodules.service.sbin	2017-01-13 21:43:05.413731242 -0500
++++ ./contrib/systemd/cjdns-loadmodules.service	2017-01-13 21:43:05.413731242 -0500
 @@ -0,0 +1,13 @@
 +[Unit]
 +Description=Load cjdns kernel modules
@@ -16,8 +16,8 @@ diff -up ./contrib/systemd/cjdns-loadmodules.service.sbin ./contrib/systemd/cjdn
 +[Install]
 +WantedBy=multi-user.target
 diff -up ./contrib/systemd/cjdns-online.sh.sbin ./contrib/systemd/cjdns-online.sh
---- ./contrib/systemd/cjdns-online.sh.sbin	2016-08-15 13:33:11.356021398 -0400
-+++ ./contrib/systemd/cjdns-online.sh	2016-08-15 13:33:11.356021398 -0400
+--- ./contrib/systemd/cjdns-online.sh.sbin	2017-01-13 21:43:05.414731254 -0500
++++ ./contrib/systemd/cjdns-online.sh	2017-01-13 21:43:05.414731254 -0500
 @@ -0,0 +1,90 @@
 +#!/bin/sh
 +#   Check whether cjdns IPs are available
@@ -110,9 +110,9 @@ diff -up ./contrib/systemd/cjdns-online.sh.sbin ./contrib/systemd/cjdns-online.s
 +  fi
 +fi
 diff -up ./contrib/systemd/cjdns.service.sbin ./contrib/systemd/cjdns.service
---- ./contrib/systemd/cjdns.service.sbin	2016-06-14 17:58:54.000000000 -0400
-+++ ./contrib/systemd/cjdns.service	2016-08-15 13:56:20.198792714 -0400
-@@ -1,18 +1,20 @@
+--- ./contrib/systemd/cjdns.service.sbin	2016-10-11 17:39:44.000000000 -0400
++++ ./contrib/systemd/cjdns.service	2017-01-13 22:07:35.128118775 -0500
+@@ -1,18 +1,21 @@
  [Unit]
  Description=cjdns: routing engine designed for security, scalability, speed and ease of use
  Wants=network.target
@@ -133,12 +133,13 @@ diff -up ./contrib/systemd/cjdns.service.sbin ./contrib/systemd/cjdns.service
              fi"
 -ExecStart=/bin/sh -c "exec cjdroute --nobg < /etc/cjdroute.conf"
 +ExecStart=/bin/sh -c "exec /usr/sbin/cjdroute --nobg < /etc/cjdroute.conf"
++ExecStartPost=/bin/sh /usr/libexec/cjdns/cjdns-up
  Restart=always
  
  [Install]
 diff -up ./contrib/systemd/cjdns-wait-online.service.sbin ./contrib/systemd/cjdns-wait-online.service
---- ./contrib/systemd/cjdns-wait-online.service.sbin	2016-08-15 13:33:11.356021398 -0400
-+++ ./contrib/systemd/cjdns-wait-online.service	2016-08-15 13:33:11.356021398 -0400
+--- ./contrib/systemd/cjdns-wait-online.service.sbin	2017-01-13 21:43:05.414731254 -0500
++++ ./contrib/systemd/cjdns-wait-online.service	2017-01-13 21:43:05.414731254 -0500
 @@ -0,0 +1,13 @@
 +[Unit]
 +Description=CJDNS Wait Online
@@ -154,8 +155,8 @@ diff -up ./contrib/systemd/cjdns-wait-online.service.sbin ./contrib/systemd/cjdn
 +[Install]
 +WantedBy=multi-user.target
 diff -up ./contrib/upstart/cjdns.conf.sbin ./contrib/upstart/cjdns.conf
---- ./contrib/upstart/cjdns.conf.sbin	2016-06-14 17:58:54.000000000 -0400
-+++ ./contrib/upstart/cjdns.conf	2016-08-15 13:33:11.356021398 -0400
+--- ./contrib/upstart/cjdns.conf.sbin	2016-10-11 17:39:44.000000000 -0400
++++ ./contrib/upstart/cjdns.conf	2017-01-13 21:45:35.268491363 -0500
 @@ -13,10 +13,16 @@ pre-start script
      if ! [ -s /etc/cjdroute.conf ]; then
          ( # start a subshell to avoid side effects of umask later on
@@ -174,9 +175,15 @@ diff -up ./contrib/upstart/cjdns.conf.sbin ./contrib/upstart/cjdns.conf
  
      # If you need a non-standard setup, as described in
      # https://github.com/cjdelisle/cjdns#non-standard-setups,
-@@ -25,4 +31,4 @@ pre-start script
+@@ -25,4 +31,10 @@ pre-start script
      # see http://upstart.ubuntu.com/cookbook/#setuid
  end script
  
 -exec /usr/bin/cjdroute --nobg < /etc/cjdroute.conf
-+exec /usr/sbin/cjdroute --nobg < /etc/cjdroute.conf
++script
++  exec /usr/sbin/cjdroute --nobg < /etc/cjdroute.conf
++end script
++
++post-start script
++  . /usr/libexec/cjdns/cjdns-up
++end script
