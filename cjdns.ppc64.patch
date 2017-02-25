@@ -1,0 +1,98 @@
+diff -up ./crypto/random/Random.c.ppc64 ./crypto/random/Random.c
+--- ./crypto/random/Random.c.ppc64	2016-12-05 00:06:42.586930523 -0500
++++ ./crypto/random/Random.c	2016-12-05 00:07:36.524592652 -0500
+@@ -20,6 +20,7 @@
+ #include "util/Assert.h"
+ #include "util/Base32.h"
+ #include "util/Identity.h"
++#include "util/Endian.h"
+ 
+ #include <crypto_hash_sha256.h>
+ #include <crypto_stream_salsa20.h>
+@@ -163,10 +164,11 @@ void Random_addRandom(struct Random* ran
+ 
+ static void stir(struct Random* rand)
+ {
++    uint64_t nonce = Endian_hostToLittleEndian64(rand->nonce);
+     crypto_stream_salsa20_xor((uint8_t*)rand->buff,
+                               (uint8_t*)rand->buff,
+                               BUFFSIZE,
+-                              (uint8_t*)&rand->nonce,
++                              (uint8_t*)&nonce,
+                               (uint8_t*)rand->tempSeed);
+     rand->nonce++;
+     rand->nextByte = 0;
+diff -up ./util/ArchInfo.c.ppc64 ./util/ArchInfo.c
+--- ./util/ArchInfo.c.ppc64	2016-10-11 17:39:44.000000000 -0400
++++ ./util/ArchInfo.c	2016-12-05 00:05:56.482360588 -0500
+@@ -98,8 +98,15 @@ gcc arch.c
+         #error unknown endian
+     #endif
+ #elif defined(__powerpc64__) || defined(__ppc64__) || defined(__PPC64__) || defined(_ARCH_PPC64)
+-    #define ARCH ArchInfo_AUDIT_ARCH_PPC64
+-    #define ARCHSTR "ppc64"
++    #if defined(Endian_BIG)
++        #define ARCH ArchInfo_AUDIT_ARCH_PPC64
++        #define ARCHSTR "ppc64"
++    #elif defined(Endian_LITTLE)
++        #define ARCH ArchInfo_AUDIT_ARCH_PPC64LE
++        #define ARCHSTR "ppc64le"
++    #else
++        #error unknown endian
++    #endif
+ #elif defined(__powerpc__) || defined(__ppc__) || defined(__PPC__) || defined(_ARCH_PPC)
+     #define ARCH ArchInfo_AUDIT_ARCH_PPC
+     #define ARCHSTR "ppc"
+@@ -145,6 +152,9 @@ gcc arch.c
+     #else
+         #error unknown bit width
+     #endif
++#elif defined(__s390x__)
++    #define ARCH ArchInfo_AUDIT_ARCH_S390X
++    #define ARCHSTR "s390x"
+ #else
+     #error architecture unknown
+ #endif
+diff -up ./util/test/Endian_test.c.ppc64 ./util/test/Endian_test.c
+--- ./util/test/Endian_test.c.ppc64	2016-12-05 10:48:46.767433986 -0500
++++ ./util/test/Endian_test.c	2016-12-05 10:50:23.116623515 -0500
+@@ -40,32 +40,32 @@ int main()
+         Assert_true(c == Endian_bigEndianToHost16(sc));
+         Assert_true(c == Endian_hostToBigEndian16(sc));
+         Assert_true(c == Endian_hostToLittleEndian16(c));
+-        Assert_true(c == Endian_hostToLittleEndian16(c));
++        Assert_true(c == Endian_littleEndianToHost16(c));
+ 
+         Assert_true(a == Endian_bigEndianToHost32(sa));
+         Assert_true(a == Endian_hostToBigEndian32(sa));
+         Assert_true(a == Endian_hostToLittleEndian32(a));
+-        Assert_true(a == Endian_hostToLittleEndian32(a));
++        Assert_true(a == Endian_littleEndianToHost32(a));
+ 
+         Assert_true(b == Endian_bigEndianToHost64(sb));
+         Assert_true(b == Endian_hostToBigEndian64(sb));
+         Assert_true(b == Endian_hostToLittleEndian64(b));
+-        Assert_true(b == Endian_hostToLittleEndian64(b));
++        Assert_true(b == Endian_littleEndianToHost64(b));
+     } else {
+         Assert_true(c == Endian_bigEndianToHost16(c));
+         Assert_true(c == Endian_hostToBigEndian16(c));
+         Assert_true(c == Endian_hostToLittleEndian16(sc));
+-        Assert_true(c == Endian_hostToLittleEndian16(sc));
++        Assert_true(c == Endian_littleEndianToHost16(sc));
+ 
+         Assert_true(a == Endian_bigEndianToHost32(a));
+         Assert_true(a == Endian_hostToBigEndian32(a));
+         Assert_true(a == Endian_hostToLittleEndian32(sa));
+-        Assert_true(a == Endian_hostToLittleEndian32(sa));
++        Assert_true(a == Endian_littleEndianToHost32(sa));
+ 
+         Assert_true(b == Endian_bigEndianToHost64(b));
+         Assert_true(b == Endian_hostToBigEndian64(b));
+         Assert_true(b == Endian_hostToLittleEndian64(sb));
+-        Assert_true(b == Endian_hostToLittleEndian64(sb));
++        Assert_true(b == Endian_littleEndianToHost64(sb));
+     }
+ 
+     Assert_true(b == Endian_byteSwap64(sb));
+
