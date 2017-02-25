@@ -1,12 +1,16 @@
 
 # Fedora review: http://bugzilla.redhat.com/1268716
 
-# Use the optimized libnacl embedded with cjdns
-%global use_embedded 0
-# Use libsodium instead of nacl
-%global use_libsodium 1
 # Option to enable SUBNODE mode (WIP)
 %bcond_with subnode
+# Use the optimized libnacl embedded with cjdns
+%if %{with subnode}
+%global use_embedded 1
+%else
+%global use_embedded 0
+%endif
+# Use libsodium instead of nacl
+%global use_libsodium 1
 # Option to disable SECCOMP: confusing backward logic
 %bcond_without seccomp
 
@@ -43,7 +47,7 @@
 Name:           cjdns
 # major version is cjdns protocol version:
 Version:        19.1
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        The privacy-friendly network without borders
 Group:          System Environment/Base
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
@@ -262,6 +266,9 @@ cd -
 
 %if !%{with seccomp}
 export Seccomp_NO=1
+%endif
+%if %{with subnode}
+export SUBNODE=1
 %endif
 CJDNS_RELEASE_VERSION="%{name}-%{version}-%{release}" ./do
 
