@@ -520,6 +520,9 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Fri Feb 24 2017 Stuart D. Gathman <stuart@gathman.org> 19.1-3
+- Test and fix --with=subnode 
+
 * Fri Feb 24 2017 Stuart D. Gathman <stuart@gathman.org> 19.1-2
 - Adjust for moving in6_ifreq to linux/ipv6.h in kernel-headers-4.11
 
