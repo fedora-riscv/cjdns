@@ -276,6 +276,9 @@ CJDNS_RELEASE_VERSION="%{name}-%{version}-%{release}" ./do
 # bundled libuv is 0.11.4 with changes:
 # https://github.com/cjdelisle/cjdns/commits/master/node_build/dependencies/libuv
 
+%check
+# test suite is executed in %%build
+
 %install
 %if 0%{?rhel} == 5
  rm -rf %{buildroot}  # needed on RHEL5
