@@ -1,12 +1,16 @@
 
 # Fedora review: http://bugzilla.redhat.com/1268716
 
-# Use the optimized libnacl embedded with cjdns
-%global use_embedded 0
-# Use libsodium instead of nacl
-%global use_libsodium 1
 # Option to enable SUBNODE mode (WIP)
 %bcond_with subnode
+# Use the optimized libnacl embedded with cjdns
+%if %{with subnode}
+%global use_embedded 1
+%else
+%global use_embedded 0
+%endif
+# Use libsodium instead of nacl
+%global use_libsodium 1
 # Option to disable SECCOMP: confusing backward logic
 %bcond_without seccomp
 
@@ -43,7 +47,7 @@
 Name:           cjdns
 # major version is cjdns protocol version:
 Version:        19.1
-Release:        2%{?dist}
+Release:        4%{?dist}
 Summary:        The privacy-friendly network without borders
 Group:          System Environment/Base
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
@@ -263,11 +267,17 @@ cd -
 %if !%{with seccomp}
 export Seccomp_NO=1
 %endif
+%if %{with subnode}
+export SUBNODE=1
+%endif
 CJDNS_RELEASE_VERSION="%{name}-%{version}-%{release}" ./do
 
 # FIXME: use system libuv on compatible systems
 # bundled libuv is 0.11.4 with changes:
 # https://github.com/cjdelisle/cjdns/commits/master/node_build/dependencies/libuv
+
+%check
+# test suite is executed in %%build
 
 %install
 %if 0%{?rhel} == 5
@@ -299,7 +309,7 @@ ln -f contrib/selinux/cjdns.{te,fc} .  # for doc dir
 
 # install c and nodejs tools
 mkdir -p %{buildroot}%{_libexecdir}/cjdns/{node_build,contrib}
-install -p publictoip6 privatetopublic makekeys randombytes sybilsim \
+install -p publictoip6 privatetopublic mkpasswd makekeys randombytes sybilsim \
         %{buildroot}%{_libexecdir}/cjdns
 rm -f node_modules/nthen/.npmignore
 cp -pr tools node_modules %{buildroot}%{_libexecdir}/cjdns
@@ -322,7 +332,7 @@ for t in traceroute; do
   ln -sf %{_libexecdir}/cjdns/tools/$t %{buildroot}%{_bindir}/cjdns-$t
 done
 
-# symlinks for selected C tools
+# symlinks for selected C tools that don't conflict with other packages
 for t in publictoip6 randombytes makekeys; do
   ln -sf %{_libexecdir}/cjdns/$t %{buildroot}%{_bindir}
 done
@@ -393,6 +403,7 @@ done
 %{_libexecdir}/cjdns/privatetopublic
 %{_libexecdir}/cjdns/sybilsim
 %{_libexecdir}/cjdns/makekeys
+%{_libexecdir}/cjdns/mkpasswd
 %{_bindir}/randombytes
 %{_bindir}/publictoip6
 %{_bindir}/makekeys
@@ -513,6 +524,13 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Wed May 24 2017 Stuart D. Gathman <stuart@gathman.org> 19.1-4
+- Add calls to sodium_init()
+- Include mkpasswd (but not in /usr/bin)
+
+* Fri Feb 24 2017 Stuart D. Gathman <stuart@gathman.org> 19.1-3
+- Test and fix --with=subnode 
+
 * Fri Feb 24 2017 Stuart D. Gathman <stuart@gathman.org> 19.1-2
 - Adjust for moving in6_ifreq to linux/ipv6.h in kernel-headers-4.11
 
