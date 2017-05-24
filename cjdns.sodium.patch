@@ -1,7 +1,146 @@
+diff -up ./client/cjdroute2.c.sodium ./client/cjdroute2.c
+--- ./client/cjdroute2.c.sodium	2017-05-24 16:30:27.567751409 -0400
++++ ./client/cjdroute2.c	2017-05-24 16:56:13.496738433 -0400
+@@ -57,6 +57,7 @@
+ #include <stdint.h>
+ #include <stdio.h>
+ #include <unistd.h>
++#include <sodium.h>
+ 
+ #define DEFAULT_TUN_DEV "tun0"
+ 
+@@ -523,6 +524,9 @@ static void onCoreExit(int64_t exit_stat
+ 
+ int main(int argc, char** argv)
+ {
++    if (sodium_init() == -1) {
++        return 1;
++    }
+     #ifdef Log_KEYS
+         fprintf(stderr, "Log_LEVEL = KEYS, EXPECT TO SEE PRIVATE KEYS IN YOUR LOGS!\n");
+     #endif
+diff -up ./contrib/c/makekeys.c.sodium ./contrib/c/makekeys.c
+--- ./contrib/c/makekeys.c.sodium	2017-02-21 17:56:22.000000000 -0500
++++ ./contrib/c/makekeys.c	2017-05-24 16:52:43.541154825 -0400
+@@ -23,9 +23,13 @@
+ 
+ #include <signal.h>
+ #include <stdio.h>
++#include <sodium.h>
+ 
+ int main(int argc, char** argv)
+ {
++    if (sodium_init() == -1) {
++        return 1;
++    }
+     struct Allocator* alloc = MallocAllocator_new(1<<22);
+     struct Random* rand = Random_new(alloc, NULL, NULL);
+ 
+diff -up ./contrib/c/mkpasswd.c.sodium ./contrib/c/mkpasswd.c
+--- ./contrib/c/mkpasswd.c.sodium	2017-02-21 17:56:22.000000000 -0500
++++ ./contrib/c/mkpasswd.c	2017-05-24 16:53:15.323545923 -0400
+@@ -18,9 +18,13 @@
+ 
+ #include <stdio.h>
+ #include <unistd.h>
++#include <sodium.h>
+ 
+ int main()
+ {
++    if (sodium_init() == -1) {
++        return 1;
++    }
+     struct Allocator* alloc = MallocAllocator_new(1<<22);
+     struct Random* rand = Random_new(alloc, NULL, NULL);
+ 
+diff -up ./contrib/c/privatetopublic.c.sodium ./contrib/c/privatetopublic.c
+--- ./contrib/c/privatetopublic.c.sodium	2017-05-24 16:43:13.814155821 -0400
++++ ./contrib/c/privatetopublic.c	2017-05-24 16:53:27.460695277 -0400
+@@ -23,6 +23,7 @@
+ #include <stdio.h>
+ #include <errno.h>
+ #include <string.h>
++#include <sodium.h>
+ 
+ static int usage(char* appName)
+ {
+@@ -67,6 +68,9 @@ int main(int argc, char** argv)
+             break;
+         }
+     }
++    if (sodium_init() == -1) {
++        return 1;
++    }
+ 
+     Hex_decode(privateKey, 32, privateKeyHexIn, 65);
+     crypto_scalarmult_curve25519_base(address.key, privateKey);
+diff -up ./contrib/c/publictoip6.c.sodium ./contrib/c/publictoip6.c
+--- ./contrib/c/publictoip6.c.sodium	2017-05-24 16:42:11.085386456 -0400
++++ ./contrib/c/publictoip6.c	2017-05-24 16:53:33.295767080 -0400
+@@ -16,6 +16,7 @@
+ #include "util/AddrTools.h"
+ #include "util/CString.h"
+ #include <stdio.h>
++#include <sodium.h>
+ 
+ static int usage(char* appName)
+ {
+@@ -36,6 +37,9 @@ int main(int argc, char** argv)
+     uint8_t keyBytes[32];
+     uint8_t ip6Bytes[16];
+     String key = { .bytes = argv[1], .len = CString_strlen(argv[1]) };
++    if (sodium_init() == -1) {
++        return 1;
++    }
+ 
+     int ret = Key_parse(&key, keyBytes, ip6Bytes);
+     switch (ret) {
+diff -up ./contrib/c/sybilsim.c.sodium ./contrib/c/sybilsim.c
+--- ./contrib/c/sybilsim.c.sodium	2017-02-21 17:56:22.000000000 -0500
++++ ./contrib/c/sybilsim.c	2017-05-24 16:53:39.030837653 -0400
+@@ -42,6 +42,7 @@
+ #include "crypto_scalarmult_curve25519.h"
+ 
+ #include <unistd.h> // isatty()
++#include <sodium.h> // isatty()
+ 
+ struct NodeContext {
+     struct Sockaddr* boundAddr;
+@@ -441,6 +442,9 @@ int main(int argc, char** argv)
+     if (isatty(STDIN_FILENO)) {
+         return usage(argv[0]);
+     }
++    if (sodium_init() == -1) {
++        return 1;
++    }
+ 
+     struct Allocator* alloc = MallocAllocator_new(1LL<<31);
+ 
+diff -up ./crypto/random/randombytes.c.sodium ./crypto/random/randombytes.c
+--- ./crypto/random/randombytes.c.sodium	2017-02-21 17:56:22.000000000 -0500
++++ ./crypto/random/randombytes.c	2017-05-24 16:54:01.745117164 -0400
+@@ -17,6 +17,7 @@
+ #include "memory/MallocAllocator.h"
+ 
+ #include <unistd.h>
++#include <sodium.h>
+ 
+ int main()
+ {
+@@ -29,6 +30,9 @@ int main()
+     } str;
+ 
+     size_t out = 0;
++    if (sodium_init() == -1) {
++        return 1;
++    }
+     for (;;) {
+         Random_bytes(rand, str.buff, 4096);
+         out = write(STDOUT_FILENO, str.buff, 4096);
 diff -up ./node_build/make.js.sodium ./node_build/make.js
---- ./node_build/make.js.sodium	2016-10-11 17:39:44.000000000 -0400
-+++ ./node_build/make.js	2016-10-14 22:23:23.711086438 -0400
-@@ -252,44 +252,8 @@ Builder.configure({
+--- ./node_build/make.js.sodium	2017-02-21 17:56:22.000000000 -0500
++++ ./node_build/make.js	2017-05-24 16:39:15.557233617 -0400
+@@ -244,44 +244,8 @@ Builder.configure({
  
      }).nThen(function (waitFor) {
  
@@ -48,7 +187,7 @@ diff -up ./node_build/make.js.sodium ./node_build/make.js
  
      }).nThen(function (waitFor) {
  
-@@ -430,7 +394,7 @@ Builder.configure({
+@@ -422,7 +386,7 @@ Builder.configure({
      builder.buildExecutable('crypto/random/randombytes.c');
  
      builder.lintFiles(function (fileName, file, callback) {
@@ -57,3 +196,24 @@ diff -up ./node_build/make.js.sodium ./node_build/make.js
              callback('', false);
              return;
          }
+diff -up ./test/testcjdroute.c.sodium ./test/testcjdroute.c
+--- ./test/testcjdroute.c.sodium	2017-02-21 17:56:22.000000000 -0500
++++ ./test/testcjdroute.c	2017-05-24 16:57:05.397377097 -0400
+@@ -19,6 +19,7 @@
+ #include "memory/MallocAllocator.h"
+ 
+ #include <stdio.h>
++#include <sodium.h>
+ 
+ #ifdef SUBNODE
+     #define testcjdroute_SUBNODE 1
+@@ -72,6 +73,9 @@ static void usage(char* appName)
+ 
+ int main(int argc, char** argv)
+ {
++    if (sodium_init() == -1) {
++        return 1;
++    }
+     struct Allocator* alloc = MallocAllocator_new(4096);
+     struct EventBase* base = EventBase_new(alloc);
+     uint64_t now = Time_hrtime();

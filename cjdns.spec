@@ -47,7 +47,7 @@
 Name:           cjdns
 # major version is cjdns protocol version:
 Version:        19.1
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        The privacy-friendly network without borders
 Group:          System Environment/Base
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
@@ -309,7 +309,7 @@ ln -f contrib/selinux/cjdns.{te,fc} .  # for doc dir
 
 # install c and nodejs tools
 mkdir -p %{buildroot}%{_libexecdir}/cjdns/{node_build,contrib}
-install -p publictoip6 privatetopublic makekeys randombytes sybilsim \
+install -p publictoip6 privatetopublic mkpasswd makekeys randombytes sybilsim \
         %{buildroot}%{_libexecdir}/cjdns
 rm -f node_modules/nthen/.npmignore
 cp -pr tools node_modules %{buildroot}%{_libexecdir}/cjdns
@@ -332,7 +332,7 @@ for t in traceroute; do
   ln -sf %{_libexecdir}/cjdns/tools/$t %{buildroot}%{_bindir}/cjdns-$t
 done
 
-# symlinks for selected C tools
+# symlinks for selected C tools that don't conflict with other packages
 for t in publictoip6 randombytes makekeys; do
   ln -sf %{_libexecdir}/cjdns/$t %{buildroot}%{_bindir}
 done
@@ -403,6 +403,7 @@ done
 %{_libexecdir}/cjdns/privatetopublic
 %{_libexecdir}/cjdns/sybilsim
 %{_libexecdir}/cjdns/makekeys
+%{_libexecdir}/cjdns/mkpasswd
 %{_bindir}/randombytes
 %{_bindir}/publictoip6
 %{_bindir}/makekeys
@@ -523,6 +524,10 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Wed May 24 2017 Stuart D. Gathman <stuart@gathman.org> 19.1-4
+- Add calls to sodium_init()
+- Include mkpasswd (but not in /usr/bin)
+
 * Fri Feb 24 2017 Stuart D. Gathman <stuart@gathman.org> 19.1-3
 - Test and fix --with=subnode 
 
