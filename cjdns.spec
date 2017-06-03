@@ -273,6 +273,9 @@ export Seccomp_NO=1
 %if %{with subnode}
 export SUBNODE=1
 %endif
+%if 0%{?rhel} && 0%{?rhel} <= 6
+export MINVER="0.10.48"
+%endif
 CJDNS_RELEASE_VERSION="%{name}-%{version}-%{release}" ./do
 
 # FIXME: use system libuv on compatible systems
