@@ -10,13 +10,13 @@
 %global use_embedded 0
 %endif
 # Use libsodium instead of nacl
-%global use_libsodium 0
+%global use_libsodium 1
 # Option to disable SECCOMP: confusing backward logic
 %bcond_without seccomp
 
 %if 0%{use_libsodium}
 %global nacl_name libsodium
-%global nacl_version 1.0.5
+%global nacl_version 0.4.5
 %global nacl_lib %{_libdir}/libsodium.so
 %else
 %global nacl_name nacl
@@ -211,6 +211,9 @@ fi
 
 %if !0%{?rhel} || 0%{?rhel} > 6
 %patch8 -b .warnings
+%else
+sed -e '/^#pragma /d' -i crypto/Sign.c
+echo "int super_pedantic = 1;" >>crypto/Sign.c
 %endif
 
 %patch9 -b .man
