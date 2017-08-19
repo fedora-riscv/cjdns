@@ -47,7 +47,7 @@
 Name:           cjdns
 # major version is cjdns protocol version:
 Version:        19.1
-Release:        6%{?dist}
+Release:        7%{?dist}
 Summary:        The privacy-friendly network without borders
 Group:          System Environment/Base
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
@@ -159,13 +159,17 @@ cjdnslog           display cjdroute log
 cjdns-traceroute   trace route to cjdns IP
 sessionStats       show current crypto sessions
 
-%package python
+%package -n python2-cjdns
+%{?python_provide:%python_provide python2-cjdns}
+# Remove before F30
+Provides: %{name}-python%{?_isa} = %{version}-%{release}
+Obsoletes: %{name}-python < %{version}-%{release}
 Summary: Python tools for cjdns
 Group: System Environment/Base
 Requires: python, %{name} = %{version}-%{release}
 BuildArch: noarch
 
-%description python
+%description -n python2-cjdns
 Python tools for cjdns.
 
 %package graph
@@ -486,7 +490,7 @@ fi
 %{_mandir}/man1/peerStats.1.gz
 %{_mandir}/man1/cjdnslog.1.gz
 
-%files python
+%files -n python2-cjdns
 %doc contrib/python/README.md contrib/python/cjdns-dynamic.conf
 %license contrib/python/cjdnsadmin/bencode.py.LICENSE.txt
 %dir %{_libexecdir}/cjdns/python
@@ -524,6 +528,10 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Sat Aug 19 2017 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 19.1-7
+- Python 2 binary package renamed to python2-cjdns
+  See https://fedoraproject.org/wiki/FinalizingFedoraSwitchtoPython3
+
 * Wed Aug 02 2017 Fedora Release Engineering <releng@fedoraproject.org> - 19.1-6
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Binutils_Mass_Rebuild
 
