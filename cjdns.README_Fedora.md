@@ -78,7 +78,7 @@ disable forking.  Seccomp is used to limit available system calls to only those
 actually needed.  Installing the cjdns-selinux package installs a targeted
 selinux policy that also restricts what the privileged process can access.
 
-##Routing security
+### Routing security
 
 If cjdns is not running, cjdns packets will get routed in plaintext
 to your default gateway by default.  An attacker could then play
@@ -86,7 +86,24 @@ man-in-the-middle.  If your default gateway is running cjdns, this
 could even happen accidentally.
 
 This can be blocked by restricting ```fc00::/8``` to the interface 
-used by cjdroute in the firewall. 
+used by cjdroute in the firewall.   An even simpler solution is
+to not have a "default" route.  Instead route ```2000::/3``` to your
+gateway.  All globally routable ips begin with ```001``` as the first
+three bits.
+
+### Application security
+
+The squid cache package default config allows ```fc00::/7``` unrestricted
+access to the proxy.  If the proxy port is not otherwise firewalled,
+you probably want to change this to ```fd00::/8``` when using cjdns
+on the proxy server.  Apart from that default config, squid works very
+well with cjdns - you can allow specific cjdns ips unrestricted access:
+
+```
+acl adultpcs src fc25:dede:dede:dede:dede:dede:dede:dede
+acl adultpcs src fc37:daaa:daaa:daaa:daaa:daaa:daaa:daaa 
+http_access allow adultpcs
+```
 
 ## Advanced config
 
