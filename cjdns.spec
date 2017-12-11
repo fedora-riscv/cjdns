@@ -530,6 +530,7 @@ fi
 %changelog
 * Mon Oct 02 2017 Remi Collet <remi@fedoraproject.org> - 19.1-8
 - rebuild for libsodium
+- rebuild cjdns-selinux to include map permission for BZ#1481454
 
 * Sat Aug 19 2017 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 19.1-7
 - Python 2 binary package renamed to python2-cjdns
