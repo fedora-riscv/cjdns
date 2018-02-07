@@ -47,7 +47,7 @@
 Name:           cjdns
 # major version is cjdns protocol version:
 Version:        19.1
-Release:        8%{?dist}
+Release:        9%{?dist}
 Summary:        The privacy-friendly network without borders
 Group:          System Environment/Base
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
@@ -528,6 +528,9 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Wed Feb 07 2018 Fedora Release Engineering <releng@fedoraproject.org> - 19.1-9
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_28_Mass_Rebuild
+
 * Mon Oct 02 2017 Remi Collet <remi@fedoraproject.org> - 19.1-8
 - rebuild for libsodium
 
