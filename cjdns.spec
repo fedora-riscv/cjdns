@@ -47,7 +47,7 @@
 Name:           cjdns
 # major version is cjdns protocol version:
 Version:        19.1
-Release:        9%{?dist}
+Release:        10%{?dist}
 Summary:        The privacy-friendly network without borders
 Group:          System Environment/Base
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
@@ -528,6 +528,9 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Fri Feb 09 2018 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 19.1-10
+- Escape macros in %%changelog
+
 * Wed Feb 07 2018 Fedora Release Engineering <releng@fedoraproject.org> - 19.1-9
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_28_Mass_Rebuild
 
@@ -564,7 +567,7 @@ fi
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
 
 * Sat Jan  7 2017 Stuart D. Gathman <stuart@gathman.org> 18-5
-- Run scripts in %{sysconfdir}/cjdns/up.d when cjdns comes up.
+- Run scripts in %%{sysconfdir}/cjdns/up.d when cjdns comes up.
 
 * Sun Nov  6 2016 Stuart D. Gathman <stuart@gathman.org> 18-4
 - update cjdns-online man page
