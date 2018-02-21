@@ -9,6 +9,47 @@ address allocation and a distributed hash table for routing. This provides
 near-zero-configuration networking, and prevents many of the security and
 scalability issues that plague existing networks.
 
+## Why?
+
+If you're here from the hyperboria docs, you're already sold - proceed to
+Installing.  But why should a Fedora user install cjdns?  I'll mention just two
+contrasting use cases, one mundane and the other paranoid.
+
+### VPN Mesh
+
+Configuring a point to point VPN connection with openvpn is fairly
+straightforward, as is configuring a centralized VPN server and clients.
+However, when every node in the VPN network needs to talk securely with many
+other nodes, relaying every packet through the central server becomes a drag on
+performance, and a single point of failure.  Mesh VPNs, like tinc and cjdns
+automatically create point to point connections based on a shared overall
+configuration.  Each node only needs a connection to one or more peers (that
+can be reused) to get things started.  
+
+With cjdns, however, things are much better than with tinc.  On a local LAN or
+mesh with broadcast, it is zero configuration.  Peers are automatically
+discovered via the 0xFC00 layer 2 protocol.  There is no shared configuration -
+the only thing required is adding one or more (for redundancy) internet peers
+when no peers on the local LAN or mesh are available.  Even better, when your
+node is mobile, and you have geographically separated peers configured, cjdns
+automatically switches to a faster peer as the relative performance changes.
+
+### Darknet
+
+In a widespread VPN, address assignment must be coordinated by a central
+authority.  The internet also uses centralized IP assignment, which means a
+government can take away your IP at any time.  Cjdns uses CryptoGraphic
+Addressing (CGA).  Your IP6 is the double SHA-512 of your public key truncated
+to 128 bits.  Your IP is as safe as the private key pair which produced it, and
+cannot [insert standard cryptography disclaimer] be spoofed.  Most mesh VPNs
+decrypt packets before routing to a new node.  This means that if a relay node
+is compromised in a conventional VPN, it can see and even alter packets.  All
+cjdns packets are end to end encrypted - relay nodes are untrusted.  Cjdns is
+source routed, there is no centralized routing.  If a node is "blackholing"
+your packets for some reason - simply doesn't route through that node anymore.
+(But see Security below.)  The usual security problems with source routing
+don't apply because cjdns IPs can't be (easily) spoofed.
+
 ## Startup
 
 The key part of cjdns is the cjdroute background daemon.  To start cjdroute:
@@ -18,8 +59,8 @@ The key part of cjdns is the cjdroute background daemon.  To start cjdroute:
 This will generate `/etc/cjdroute.conf` pre-populated with random keys and
 passwords.  At first startup, cjdroute looks for neighboring cjdns peers
 on all active network interfaces using a layer 2 (e.g. ethernet) protocol.
-This is exactly what you want if you are on a wifi mesh.  If you only have a
-conventional "clearnet" ISP, see the [upstream](README.md) README for
+This is exactly what you want if you are on a LAN or wifi mesh.  If you only
+have a conventional "clearnet" ISP, see the [upstream](README.md) README for
 instructions on adding peers using the UDP protocol.  (Search for "Find a
 friend".)
 
@@ -42,7 +83,7 @@ The resume service restarts cjdns when the system wakes up from sleep.
 For rhel6, use ```start cjdns``` instead of systemctl - ditto for restart
 and stop.
 
-##Security
+## Security
 
 By default, Fedora Workstation will treat the tun device created by cjdroute as
 "public", with SSH being the only incoming port allowed.  There is no

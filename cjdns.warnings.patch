@@ -39,20 +39,6 @@ diff -up ./dht/CJDHTConstants.h.warnings ./dht/CJDHTConstants.h
 -
 +#pragma GCC diagnostic pop
  #endif
-diff -up ./dht/dhtcore/NodeStore.c.warnings ./dht/dhtcore/NodeStore.c
---- ./dht/dhtcore/NodeStore.c.warnings	2017-02-21 17:56:22.000000000 -0500
-+++ ./dht/dhtcore/NodeStore.c	2017-02-24 12:44:19.822328184 -0500
-@@ -1770,7 +1770,9 @@ struct NodeList* NodeStore_getPeers(uint
-             break;
-         }
-         switch (j) {
--            default: Bits_memmove(out->nodes, &out->nodes[1], (j - 1) * sizeof(char*));
-+            default:
-+              Bits_memmove(out->nodes, &out->nodes[1], (j - 1) * sizeof(char*));
-+              Gcc_FALLTHROUGH;
-             case 1: out->nodes[j - 1] = next->child;
-             case 0:;
-         }
 diff -up ./node_build/dependencies/libuv/test/test-getsockname.c.warnings ./node_build/dependencies/libuv/test/test-getsockname.c
 --- ./node_build/dependencies/libuv/test/test-getsockname.c.warnings	2017-02-21 17:56:22.000000000 -0500
 +++ ./node_build/dependencies/libuv/test/test-getsockname.c	2017-02-24 12:36:55.763819191 -0500
