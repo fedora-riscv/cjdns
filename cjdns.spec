@@ -2,7 +2,7 @@
 # Fedora review: http://bugzilla.redhat.com/1268716
 
 # Option to enable SUBNODE mode (WIP)
-%bcond_with subnode
+%bcond_without subnode
 # Use the optimized libnacl embedded with cjdns
 %if %{with subnode}
 %global use_embedded 1
@@ -16,7 +16,7 @@
 
 %if 0%{use_libsodium}
 %global nacl_name libsodium
-%global nacl_version 1.0.5
+%global nacl_version 1.0.14
 %global nacl_lib %{_libdir}/libsodium.so
 %else
 %global nacl_name nacl
@@ -46,8 +46,8 @@
 
 Name:           cjdns
 # major version is cjdns protocol version:
-Version:        19.1
-Release:        10%{?dist}
+Version:        20.1
+Release:        1%{?dist}
 Summary:        The privacy-friendly network without borders
 Group:          System Environment/Base
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
@@ -56,6 +56,7 @@ License:        GPLv3 and MIT and BSD and ISC
 URL:            http://hyperboria.net/
 Source0: https://github.com/cjdelisle/cjdns/archive/%{name}-v%{version}.tar.gz
 Source1: cjdns.README_Fedora.md
+Source2: cjdns.service
 # Add targeted selinux policy
 Patch0: cjdns.selinux.patch
 # Allow python2.6 for build.  Python is not used during the build
@@ -191,6 +192,8 @@ Python graphing tools for cjdns.
 %patch2 -b .nprocs
 %patch4 -b .genconf
 %patch5 -b .sbin
+
+cp %{SOURCE2} contrib/systemd
 
 %if !%{use_embedded}
 # use system nacl library if provided.  
@@ -528,6 +531,9 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Wed Feb 21 2018 Stuart Gathman <stuart@gathman.org> - 20.1-1
+- New upstream release
+
 * Fri Feb 09 2018 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 19.1-10
 - Escape macros in %%changelog
 
