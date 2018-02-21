@@ -98,9 +98,11 @@ Patch12: cjdns.sign.patch
 # Recognize ppc64, ppc64le, and s390x arches
 Patch13: cjdns.ppc64.patch
 # getentropy(2) added to glibc in Fedora 26
-Patch14: cjdns.entropy.patch
+# included in cjdns-20.1 
+#Patch14: cjdns.entropy.patch
 # Fix buffer overrun in JsonBencSerializer.c
-Patch15: cjdns.benc.patch
+# included in cjdns-20.1
+#Patch15: cjdns.benc.patch
 # Specify python2 for systems that default to python3
 Patch16: cjdns.python3.patch
 
@@ -223,8 +225,8 @@ fi
 %patch9 -b .man
 %patch10 -b .tools
 #patch13 -b .ppc64
-%patch14 -b .entropy
-%patch15 -b .benc
+#patch14 -b .entropy
+#patch15 -b .benc
 %patch16 -b .python3
 
 cp %{SOURCE1} README_Fedora.md
