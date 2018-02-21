@@ -72,7 +72,7 @@ diff -up ./contrib/c/privatetopublic.c.sodium ./contrib/c/privatetopublic.c
 +        return 1;
 +    }
  
-     Hex_decode(privateKey, 32, privateKeyHexIn, 65);
+     Hex_decode(privateKey, 32, privateKeyHexIn, 64);
      crypto_scalarmult_curve25519_base(address.key, privateKey);
 diff -up ./contrib/c/publictoip6.c.sodium ./contrib/c/publictoip6.c
 --- ./contrib/c/publictoip6.c.sodium	2017-05-24 16:42:11.085386456 -0400
@@ -140,7 +140,7 @@ diff -up ./crypto/random/randombytes.c.sodium ./crypto/random/randombytes.c
 diff -up ./node_build/make.js.sodium ./node_build/make.js
 --- ./node_build/make.js.sodium	2017-02-21 17:56:22.000000000 -0500
 +++ ./node_build/make.js	2017-05-24 16:39:15.557233617 -0400
-@@ -244,44 +244,8 @@ Builder.configure({
+@@ -244,48 +244,8 @@ Builder.configure({
  
      }).nThen(function (waitFor) {
  
@@ -165,13 +165,17 @@ diff -up ./node_build/make.js.sodium ./node_build/make.js
 -
 -                args.unshift(builder.config.optimizeLevel, '-fomit-frame-pointer');
 -
+-                if (!/^\-O0$/.test(builder.config.optimizeLevel)) {
+-                    args.unshift('-D_FORTIFY_SOURCE=2');
+-                }
+-
 -                if (CFLAGS) {
 -                    [].push.apply(args, CFLAGS.split(' '));
 -                }
 -
 -                if (!builder.config.crossCompiling) {
--                    if (NO_MARCH_FLAG.indexOf(process.arch) < -1) {
--                        builder.config.cflags.push('-march=native');
+-                    if (NO_MARCH_FLAG.indexOf(process.arch) == -1) {
+-                        args.unshift('-march=native');
 -                    }
 -                }
 -

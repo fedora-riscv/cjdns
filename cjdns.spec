@@ -2,7 +2,7 @@
 # Fedora review: http://bugzilla.redhat.com/1268716
 
 # Option to enable SUBNODE mode (WIP)
-%bcond_with subnode
+%bcond_without subnode
 # Use the optimized libnacl embedded with cjdns
 %if %{with subnode}
 %global use_embedded 1
@@ -16,7 +16,7 @@
 
 %if 0%{use_libsodium}
 %global nacl_name libsodium
-%global nacl_version 0.4.5
+%global nacl_version 1.0.14
 %global nacl_lib %{_libdir}/libsodium.so
 %else
 %global nacl_name nacl
@@ -46,8 +46,8 @@
 
 Name:           cjdns
 # major version is cjdns protocol version:
-Version:        19.1
-Release:        4%{?dist}
+Version:        20.1
+Release:        1%{?dist}
 Summary:        The privacy-friendly network without borders
 Group:          System Environment/Base
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
@@ -56,6 +56,7 @@ License:        GPLv3 and MIT and BSD and ISC
 URL:            http://hyperboria.net/
 Source0: https://github.com/cjdelisle/cjdns/archive/%{name}-v%{version}.tar.gz
 Source1: cjdns.README_Fedora.md
+Source2: cjdns.service
 # Add targeted selinux policy
 Patch0: cjdns.selinux.patch
 # Allow python2.6 for build.  Python is not used during the build
@@ -97,9 +98,11 @@ Patch12: cjdns.sign.patch
 # Recognize ppc64, ppc64le, and s390x arches
 Patch13: cjdns.ppc64.patch
 # getentropy(2) added to glibc in Fedora 26
-Patch14: cjdns.entropy.patch
+# included in cjdns-20.1 
+#Patch14: cjdns.entropy.patch
 # Fix buffer overrun in JsonBencSerializer.c
-Patch15: cjdns.benc.patch
+# included in cjdns-20.1
+#Patch15: cjdns.benc.patch
 # Specify python2 for systems that default to python3
 Patch16: cjdns.python3.patch
 
@@ -127,6 +130,11 @@ Provides: bundled(nacl) = 20110221
 %endif
 # build system requires nodejs, unfortunately
 ExclusiveArch: %{nodejs_arches}
+%if 0%{use_embedded}
+# The nodejs build system for embedded cnacl has no "plan" for s390x.
+# It might work to copy a plan for another big endian arch like ppc64.
+ExcludeArch: s390x
+%endif
 
 %description
 Cjdns implements an encrypted IPv6 network using public-key cryptography for
@@ -159,13 +167,17 @@ cjdnslog           display cjdroute log
 cjdns-traceroute   trace route to cjdns IP
 sessionStats       show current crypto sessions
 
-%package python
+%package -n python2-cjdns
+%{?python_provide:%python_provide python2-cjdns}
+# Remove before F30
+Provides: %{name}-python%{?_isa} = %{version}-%{release}
+Obsoletes: %{name}-python < %{version}-%{release}
 Summary: Python tools for cjdns
 Group: System Environment/Base
 Requires: python, %{name} = %{version}-%{release}
 BuildArch: noarch
 
-%description python
+%description -n python2-cjdns
 Python tools for cjdns.
 
 %package graph
@@ -187,6 +199,8 @@ Python graphing tools for cjdns.
 %patch2 -b .nprocs
 %patch4 -b .genconf
 %patch5 -b .sbin
+
+cp %{SOURCE2} contrib/systemd
 
 %if !%{use_embedded}
 # use system nacl library if provided.  
@@ -219,8 +233,8 @@ echo "int super_pedantic = 1;" >>crypto/Sign.c
 %patch9 -b .man
 %patch10 -b .tools
 #patch13 -b .ppc64
-%patch14 -b .entropy
-%patch15 -b .benc
+#patch14 -b .entropy
+#patch15 -b .benc
 %patch16 -b .python3
 
 cp %{SOURCE1} README_Fedora.md
@@ -492,7 +506,7 @@ fi
 %{_mandir}/man1/peerStats.1.gz
 %{_mandir}/man1/cjdnslog.1.gz
 
-%files python
+%files -n python2-cjdns
 %doc contrib/python/README.md contrib/python/cjdns-dynamic.conf
 %license contrib/python/cjdnsadmin/bencode.py.LICENSE.txt
 %dir %{_libexecdir}/cjdns/python
@@ -530,6 +544,28 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Wed Feb 21 2018 Stuart Gathman <stuart@gathman.org> - 20.1-1
+- New upstream release
+
+* Fri Feb 09 2018 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 19.1-10
+- Escape macros in %%changelog
+
+* Wed Feb 07 2018 Fedora Release Engineering <releng@fedoraproject.org> - 19.1-9
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_28_Mass_Rebuild
+
+* Mon Oct 02 2017 Remi Collet <remi@fedoraproject.org> - 19.1-8
+- rebuild for libsodium
+
+* Sat Aug 19 2017 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 19.1-7
+- Python 2 binary package renamed to python2-cjdns
+  See https://fedoraproject.org/wiki/FinalizingFedoraSwitchtoPython3
+
+* Wed Aug 02 2017 Fedora Release Engineering <releng@fedoraproject.org> - 19.1-6
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Binutils_Mass_Rebuild
+
+* Wed Jul 26 2017 Fedora Release Engineering <releng@fedoraproject.org> - 19.1-5
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Mass_Rebuild
+
 * Wed May 24 2017 Stuart D. Gathman <stuart@gathman.org> 19.1-4
 - Add calls to sodium_init()
 - Include mkpasswd (but not in /usr/bin)
@@ -550,7 +586,7 @@ fi
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
 
 * Sat Jan  7 2017 Stuart D. Gathman <stuart@gathman.org> 18-5
-- Run scripts in %{sysconfdir}/cjdns/up.d when cjdns comes up.
+- Run scripts in %%{sysconfdir}/cjdns/up.d when cjdns comes up.
 
 * Sun Nov  6 2016 Stuart D. Gathman <stuart@gathman.org> 18-4
 - update cjdns-online man page

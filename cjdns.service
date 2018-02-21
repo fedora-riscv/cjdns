@@ -1,0 +1,23 @@
+[Unit]
+Description=cjdns: routing engine designed for security, scalability, speed and ease of use
+Wants=network.target
+After=network.target cjdns-loadmodules.service
+Requires=cjdns-loadmodules.service
+
+[Service]
+ProtectHome=true
+ProtectSystem=true
+SyslogIdentifier=cjdroute
+CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_RAW CAP_SETUID CAP_SETGID CAP_SYS_CHROOT CAP_AUDIT_CONTROL
+ExecStartPre=/bin/sh -ec "if ! test -s /etc/cjdroute.conf; \
+                then umask 077; \
+                /usr/sbin/cjdroute --genconf | cat > /etc/cjdroute.conf; \
+                echo 'WARNING: A new /etc/cjdroute.conf file has been generated.'; \
+            fi"
+ExecStart=/bin/sh -c "exec /usr/sbin/cjdroute --nobg < /etc/cjdroute.conf"
+ExecStartPost=/bin/sh /usr/libexec/cjdns/cjdns-up
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+Also=cjdns-resume.service
