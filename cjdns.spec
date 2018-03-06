@@ -540,7 +540,7 @@ fi
 %{_bindir}/graphStats
 
 %changelog
-* Wed Mar  5 2018 Stuart Gathman <stuart@gathman.org> - 20.1-2
+* Tue Mar  6 2018 Stuart Gathman <stuart@gathman.org> - 20.1-2
 - selinux: Allow map access to cjdns_exec_t
 - disable subnode by default
 
