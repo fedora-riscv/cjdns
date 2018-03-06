@@ -2,9 +2,11 @@
 # Fedora review: http://bugzilla.redhat.com/1268716
 
 # Option to enable SUBNODE mode (WIP)
-%bcond_without subnode
-# Use the optimized libnacl embedded with cjdns
-%if %{with subnode}
+%bcond_with subnode
+# Option to use the optimized libnacl embedded with cjdns
+%bcond_without embedded
+
+%if %{with subnode} || %{with embedded}
 %global use_embedded 1
 %else
 %global use_embedded 0
