@@ -2,9 +2,11 @@
 # Fedora review: http://bugzilla.redhat.com/1268716
 
 # Option to enable SUBNODE mode (WIP)
-%bcond_without subnode
-# Use the optimized libnacl embedded with cjdns
-%if %{with subnode}
+%bcond_with subnode
+# Option to use the optimized libnacl embedded with cjdns
+%bcond_without embedded
+
+%if %{with subnode} || %{with embedded}
 %global use_embedded 1
 %else
 %global use_embedded 0
@@ -47,7 +49,7 @@
 Name:           cjdns
 # major version is cjdns protocol version:
 Version:        20.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        The privacy-friendly network without borders
 Group:          System Environment/Base
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
@@ -130,6 +132,11 @@ Provides: bundled(nacl) = 20110221
 %endif
 # build system requires nodejs, unfortunately
 ExclusiveArch: %{nodejs_arches}
+%if 0%{use_embedded}
+# The nodejs build system for embedded cnacl has no "plan" for s390x.
+# It might work to copy another big endian plan like ppc64.
+ExcludeArch: s390x
+%endif
 
 %description
 Cjdns implements an encrypted IPv6 network using public-key cryptography for
@@ -165,7 +172,7 @@ sessionStats       show current crypto sessions
 %package -n python2-cjdns
 %{?python_provide:%python_provide python2-cjdns}
 # Remove before F30
-Provides: %{name}-python%{?_isa} = %{version}-%{release}
+Provides: %{name}-python = %{version}-%{release}
 Obsoletes: %{name}-python < %{version}-%{release}
 Summary: Python tools for cjdns
 Group: System Environment/Base
@@ -533,6 +540,9 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Wed Mar  5 2018 Stuart Gathman <stuart@gathman.org> - 20.1-2
+- selinux: Allow map access to cjdns_exec_t
+
 * Wed Feb 21 2018 Stuart Gathman <stuart@gathman.org> - 20.1-1
 - New upstream release
 
