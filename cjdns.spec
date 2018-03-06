@@ -2,9 +2,11 @@
 # Fedora review: http://bugzilla.redhat.com/1268716
 
 # Option to enable SUBNODE mode (WIP)
-%bcond_without subnode
-# Use the optimized libnacl embedded with cjdns
-%if %{with subnode}
+%bcond_with subnode
+# Option to use the optimized libnacl embedded with cjdns
+%bcond_without embedded
+
+%if %{with subnode} || %{with embedded}
 %global use_embedded 1
 %else
 %global use_embedded 0
@@ -47,7 +49,7 @@
 Name:           cjdns
 # major version is cjdns protocol version:
 Version:        20.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        The privacy-friendly network without borders
 Group:          System Environment/Base
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
@@ -538,6 +540,10 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Wed Mar  5 2018 Stuart Gathman <stuart@gathman.org> - 20.1-2
+- selinux: Allow map access to cjdns_exec_t
+- disable subnode by default
+
 * Wed Feb 21 2018 Stuart Gathman <stuart@gathman.org> - 20.1-1
 - New upstream release
 
