@@ -542,6 +542,7 @@ fi
 %changelog
 * Wed Mar  5 2018 Stuart Gathman <stuart@gathman.org> - 20.1-2
 - selinux: Allow map access to cjdns_exec_t
+- disable subnode by default
 
 * Wed Feb 21 2018 Stuart Gathman <stuart@gathman.org> - 20.1-1
 - New upstream release
