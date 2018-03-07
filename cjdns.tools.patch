@@ -25,6 +25,6 @@ diff -up ./tools/traceroute.tools ./tools/traceroute
              lastRet = ret;
              process.stdout.write('  ' + ret.ms + 'ms\n');
 +            if (!ret || !ret.nodes) { return; }
-             if (ret.result === 'timeout') {
-                 process.stdout.write('\n' + ret.from + ' ' + ret.result + '!');
-             } else if (ret.nodes.length === 0) {
+             if (ret.nodes.length === 0) {
+                 console.log('cornered');
+             } else if (ret.nodes[0] !== ret.from) {
