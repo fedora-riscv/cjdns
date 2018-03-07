@@ -162,7 +162,7 @@ sessionStats       show current crypto sessions
 %package -n python2-cjdns
 %{?python_provide:%python_provide python2-cjdns}
 # Remove before F30
-Provides: %{name}-python%{?_isa} = %{version}-%{release}
+Provides: %{name}-python = %{version}-%{release}
 Obsoletes: %{name}-python < %{version}-%{release}
 Summary: Python tools for cjdns
 Group: System Environment/Base
