@@ -98,7 +98,7 @@ Patch11: cjdns.sodium.patch
 # Disable WIP subnode code when SUBNODE not enabled
 Patch12: cjdns.sign.patch
 # Recognize ppc64, ppc64le, and s390x arches
-Patch13: cjdns.ppc64.patch
+#Patch13: cjdns.ppc64.patch
 # getentropy(2) added to glibc in Fedora 26
 # included in cjdns-20.1 
 #Patch14: cjdns.entropy.patch
@@ -540,7 +540,10 @@ fi
 %{_bindir}/graphStats
 
 %changelog
-* Wed Mar  6 2018 Stuart Gathman <stuart@gathman.org> - 20.1-2
+* Mon Mar 12 2018 Stuart Gathman <stuart@gathman.org> - 20.1-3
+- Explicit python version in Requires
+
+* Tue Mar  6 2018 Stuart Gathman <stuart@gathman.org> - 20.1-2
 - selinux: Allow map access to cjdns_exec_t
 - disable subnode by default
 
