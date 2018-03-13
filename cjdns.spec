@@ -49,7 +49,7 @@
 Name:           cjdns
 # major version is cjdns protocol version:
 Version:        20.1
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        The privacy-friendly network without borders
 Group:          System Environment/Base
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
@@ -176,7 +176,7 @@ Provides: %{name}-python = %{version}-%{release}
 Obsoletes: %{name}-python < %{version}-%{release}
 Summary: Python tools for cjdns
 Group: System Environment/Base
-Requires: python, %{name} = %{version}-%{release}
+Requires: python2, %{name} = %{version}-%{release}
 BuildArch: noarch
 
 %description -n python2-cjdns
@@ -185,7 +185,7 @@ Python tools for cjdns.
 %package graph
 Summary: Python tools for cjdns
 Group: System Environment/Base
-Requires: %{name}-python = %{version}-%{release}, python-networkx
+Requires: python2-%{name} = %{version}-%{release}, python-networkx
 BuildArch: noarch
 
 %description graph
@@ -540,6 +540,10 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Tue Mar 13 2018 Iryna Shcherbina <ishcherb@redhat.com> - 20.1-3
+- Update Python 2 dependency declarations to new packaging standards
+  (See https://fedoraproject.org/wiki/FinalizingFedoraSwitchtoPython3)
+
 * Wed Mar  5 2018 Stuart Gathman <stuart@gathman.org> - 20.1-2
 - selinux: Allow map access to cjdns_exec_t
 - disable subnode by default
