@@ -1,6 +1,6 @@
 diff -up ./crypto/CryptoAuth.c.warnings ./crypto/CryptoAuth.c
 --- ./crypto/CryptoAuth.c.warnings	2017-02-21 17:56:22.000000000 -0500
-+++ ./crypto/CryptoAuth.c	2017-02-24 12:36:55.762819179 -0500
++++ ./crypto/CryptoAuth.c	2018-03-14 13:24:11.853194505 -0400
 @@ -85,6 +85,8 @@ static inline void getSharedSecret(uint8
                                     uint8_t passwordHash[32],
                                     struct Log* logger)
@@ -20,7 +20,7 @@ diff -up ./crypto/CryptoAuth.c.warnings ./crypto/CryptoAuth.c
          printHexPubKey(myPublicKeyHex, myPrivateKey);
 diff -up ./dht/CJDHTConstants.h.warnings ./dht/CJDHTConstants.h
 --- ./dht/CJDHTConstants.h.warnings	2017-02-21 17:56:22.000000000 -0500
-+++ ./dht/CJDHTConstants.h	2017-02-24 12:36:55.762819179 -0500
++++ ./dht/CJDHTConstants.h	2018-03-14 13:24:11.853194505 -0400
 @@ -17,7 +17,9 @@
  
  #include "benc/String.h"
@@ -39,9 +39,23 @@ diff -up ./dht/CJDHTConstants.h.warnings ./dht/CJDHTConstants.h
 -
 +#pragma GCC diagnostic pop
  #endif
+diff -up ./dht/dhtcore/NodeStore.c.warnings ./dht/dhtcore/NodeStore.c
+--- ./dht/dhtcore/NodeStore.c.warnings	2017-02-21 17:56:22.000000000 -0500
++++ ./dht/dhtcore/NodeStore.c	2018-03-14 13:24:11.853194505 -0400
+@@ -1770,7 +1770,9 @@ struct NodeList* NodeStore_getPeers(uint
+             break;
+         }
+         switch (j) {
+-            default: Bits_memmove(out->nodes, &out->nodes[1], (j - 1) * sizeof(char*));
++            default:
++              Bits_memmove(out->nodes, &out->nodes[1], (j - 1) * sizeof(char*));
++              Gcc_FALLTHROUGH;
+             case 1: out->nodes[j - 1] = next->child;
+             case 0:;
+         }
 diff -up ./node_build/dependencies/libuv/test/test-getsockname.c.warnings ./node_build/dependencies/libuv/test/test-getsockname.c
 --- ./node_build/dependencies/libuv/test/test-getsockname.c.warnings	2017-02-21 17:56:22.000000000 -0500
-+++ ./node_build/dependencies/libuv/test/test-getsockname.c	2017-02-24 12:36:55.763819191 -0500
++++ ./node_build/dependencies/libuv/test/test-getsockname.c	2018-03-14 13:24:11.853194505 -0400
 @@ -18,7 +18,7 @@
   * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
   * IN THE SOFTWARE.
@@ -52,8 +66,8 @@ diff -up ./node_build/dependencies/libuv/test/test-getsockname.c.warnings ./node
  #include "task.h"
  
 diff -up ./util/Gcc.h.warnings ./util/Gcc.h
---- ./util/Gcc.h.warnings	2017-02-24 12:41:36.926182554 -0500
-+++ ./util/Gcc.h	2017-02-24 13:06:44.166644855 -0500
+--- ./util/Gcc.h.warnings	2017-02-21 17:56:22.000000000 -0500
++++ ./util/Gcc.h	2018-03-14 13:24:11.854194518 -0400
 @@ -40,6 +40,11 @@
  #define Gcc_USE_RET \
      __attribute__ ((warn_unused_result))
@@ -78,7 +92,7 @@ diff -up ./util/Gcc.h.warnings ./util/Gcc.h
  #endif
 diff -up ./util/platform/netdev/NetPlatform_linux.c.warnings ./util/platform/netdev/NetPlatform_linux.c
 --- ./util/platform/netdev/NetPlatform_linux.c.warnings	2017-02-21 17:56:22.000000000 -0500
-+++ ./util/platform/netdev/NetPlatform_linux.c	2017-02-24 14:55:11.354136283 -0500
++++ ./util/platform/netdev/NetPlatform_linux.c	2018-03-14 14:00:20.924302762 -0400
 @@ -36,6 +36,7 @@
  #include <linux/route.h>
  #if ! defined(android)
@@ -87,6 +101,15 @@ diff -up ./util/platform/netdev/NetPlatform_linux.c.warnings ./util/platform/net
  #endif
  #include <linux/netlink.h>
  #include <linux/rtnetlink.h>
+@@ -80,7 +81,7 @@ static int socketForIfName(const char* i
+     }
+ 
+     memset(ifRequestOut, 0, sizeof(struct ifreq));
+-    strncpy(ifRequestOut->ifr_name, interfaceName, IFNAMSIZ);
++    strncpy(ifRequestOut->ifr_name, interfaceName, IFNAMSIZ - 1);
+ 
+     if (ioctl(s, SIOCGIFINDEX, ifRequestOut) < 0) {
+         int err = errno;
 @@ -165,7 +166,7 @@ void NetPlatform_addAddress(const char*
              Except_throw(eh, "ioctl(SIOCSIFADDR) failed: [%s]", strerror(err));
          }
@@ -98,7 +121,7 @@ diff -up ./util/platform/netdev/NetPlatform_linux.c.warnings ./util/platform/net
          memcpy(&ifRequest.ifr_addr, &sin, sizeof(struct sockaddr_in));
 diff -up ./util/platform/Sockaddr.c.warnings ./util/platform/Sockaddr.c
 --- ./util/platform/Sockaddr.c.warnings	2017-02-21 17:56:22.000000000 -0500
-+++ ./util/platform/Sockaddr.c	2017-02-24 12:36:55.763819191 -0500
++++ ./util/platform/Sockaddr.c	2018-03-14 13:24:11.854194518 -0400
 @@ -12,6 +12,7 @@
   * You should have received a copy of the GNU General Public License
   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
