@@ -166,7 +166,7 @@ Provides: %{name}-python = %{version}-%{release}
 Obsoletes: %{name}-python < %{version}-%{release}
 Summary: Python tools for cjdns
 Group: System Environment/Base
-Requires: python, %{name} = %{version}-%{release}
+Requires: python2, %{name} = %{version}-%{release}
 BuildArch: noarch
 
 %description -n python2-cjdns
@@ -175,7 +175,7 @@ Python tools for cjdns.
 %package graph
 Summary: Python tools for cjdns
 Group: System Environment/Base
-Requires: %{name}-python = %{version}-%{release}, python-networkx
+Requires: python2-%{name} = %{version}-%{release}, python2-networkx
 BuildArch: noarch
 
 %description graph
