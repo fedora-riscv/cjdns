@@ -545,11 +545,11 @@ fi
 - selinux: Allow map access to cjdns_exec_t
 - disable subnode by default
 
-* Wed Feb 21 2018 Stuart Gathman <stuart@gathman.org> - 20.1-1
-- New upstream release
-
 * Tue Mar  6 2018 Stuart Gathman <stuart@gathman.org> - 19.1-11
 - bz#1551263 allow map permission added since f27
+
+* Wed Feb 21 2018 Stuart Gathman <stuart@gathman.org> - 20.1-1
+- New upstream release
 
 * Fri Feb 09 2018 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 19.1-10
 - Escape macros in %%changelog
