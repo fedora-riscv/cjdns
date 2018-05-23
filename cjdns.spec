@@ -48,8 +48,8 @@
 
 Name:           cjdns
 # major version is cjdns protocol version:
-Version:        20.1
-Release:        4%{?dist}
+Version:        20.2
+Release:        1%{?dist}
 Summary:        The privacy-friendly network without borders
 Group:          System Environment/Base
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
@@ -540,6 +540,9 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Tue May 22 2018 Stuart Gathman <stuart@gathman.org> - 20.2-1
+- New upstream release BZ#1464671
+
 * Wed Mar 14 2018 Stuart Gathman <stuart@gathman.org> - 20.1-4
 - Explicit python version in Requires
 - Fix possible unterminated interface name in ifreq
