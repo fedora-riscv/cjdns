@@ -43,6 +43,7 @@
 
 # FIXME: python tools need to make cjdnsadmin a proper python package
 %global with_python 1
+%global __python %{__python2}
 
 %{!?__restorecon: %global __restorecon /sbin/restorecon}
 
