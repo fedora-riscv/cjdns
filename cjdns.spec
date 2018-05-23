@@ -244,6 +244,7 @@ find contrib/python/cjdnsadmin ! -executable -name "*.py" |
         xargs sed -e '\,^#!/usr/bin/env, d' -i
 find contrib/python -type f |
         xargs sed -e '1 s,^#!/usr/bin/env ,#!/usr/bin/,' -i 
+sed -e '$ s,^python ,/usr/bin/python2 ,' -i contrib/python/cjdnsa
 
 # Remove #!env from nodejs scripts
 find tools -type f | xargs grep -l '^#!\/usr\/bin\/env ' |
