@@ -43,13 +43,14 @@
 
 # FIXME: python tools need to make cjdnsadmin a proper python package
 %global with_python 1
+%global __python %{__python2}
 
 %{!?__restorecon: %global __restorecon /sbin/restorecon}
 
 Name:           cjdns
 # major version is cjdns protocol version:
-Version:        20.1
-Release:        2%{?dist}
+Version:        20.2
+Release:        1%{?dist}
 Summary:        The privacy-friendly network without borders
 Group:          System Environment/Base
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
@@ -98,7 +99,7 @@ Patch11: cjdns.sodium.patch
 # Disable WIP subnode code when SUBNODE not enabled
 Patch12: cjdns.sign.patch
 # Recognize ppc64, ppc64le, and s390x arches
-Patch13: cjdns.ppc64.patch
+#Patch13: cjdns.ppc64.patch
 # getentropy(2) added to glibc in Fedora 26
 # included in cjdns-20.1 
 #Patch14: cjdns.entropy.patch
@@ -176,7 +177,7 @@ Provides: %{name}-python = %{version}-%{release}
 Obsoletes: %{name}-python < %{version}-%{release}
 Summary: Python tools for cjdns
 Group: System Environment/Base
-Requires: python, %{name} = %{version}-%{release}
+Requires: python2, %{name} = %{version}-%{release}
 BuildArch: noarch
 
 %description -n python2-cjdns
@@ -185,7 +186,7 @@ Python tools for cjdns.
 %package graph
 Summary: Python tools for cjdns
 Group: System Environment/Base
-Requires: %{name}-python = %{version}-%{release}, python-networkx
+Requires: python2-%{name} = %{version}-%{release}, python2-networkx
 BuildArch: noarch
 
 %description graph
@@ -244,6 +245,7 @@ find contrib/python/cjdnsadmin ! -executable -name "*.py" |
         xargs sed -e '\,^#!/usr/bin/env, d' -i
 find contrib/python -type f |
         xargs sed -e '1 s,^#!/usr/bin/env ,#!/usr/bin/,' -i 
+sed -e '$ s,^python ,/usr/bin/python2 ,' -i contrib/python/cjdnsa
 
 # Remove #!env from nodejs scripts
 find tools -type f | xargs grep -l '^#!\/usr\/bin\/env ' |
@@ -540,6 +542,17 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Tue May 22 2018 Stuart Gathman <stuart@gathman.org> - 20.2-1
+- New upstream release BZ#1464671
+
+* Wed Mar 14 2018 Stuart Gathman <stuart@gathman.org> - 20.1-4
+- Explicit python version in Requires
+- Fix possible unterminated interface name in ifreq
+
+* Tue Mar 13 2018 Iryna Shcherbina <ishcherb@redhat.com> - 20.1-3
+- Update Python 2 dependency declarations to new packaging standards
+  (See https://fedoraproject.org/wiki/FinalizingFedoraSwitchtoPython3)
+
 * Tue Mar  6 2018 Stuart Gathman <stuart@gathman.org> - 20.1-2
 - selinux: Allow map access to cjdns_exec_t
 - disable subnode by default
