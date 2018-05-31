@@ -3,8 +3,10 @@
 
 # Option to enable SUBNODE mode (WIP)
 %bcond_with subnode
-# Use the optimized libnacl embedded with cjdns
-%if %{with subnode}
+# Option to use the optimized libnacl embedded with cjdns
+%bcond_without embedded
+
+%if %{with subnode} || %{with embedded}
 %global use_embedded 1
 %else
 %global use_embedded 0
@@ -16,7 +18,7 @@
 
 %if 0%{use_libsodium}
 %global nacl_name libsodium
-%global nacl_version 1.0.5
+%global nacl_version 1.0.14
 %global nacl_lib %{_libdir}/libsodium.so
 %else
 %global nacl_name nacl
@@ -57,6 +59,7 @@ License:        GPLv3 and MIT and BSD and ISC
 URL:            http://hyperboria.net/
 Source0: https://github.com/cjdelisle/cjdns/archive/%{name}-v%{version}.tar.gz
 Source1: cjdns.README_Fedora.md
+Source2: cjdns.service
 # Add targeted selinux policy
 Patch0: cjdns.selinux.patch
 # Allow python2.6 for build.  Python is not used during the build
@@ -98,9 +101,11 @@ Patch12: cjdns.sign.patch
 # Recognize ppc64, ppc64le, and s390x arches
 #Patch13: cjdns.ppc64.patch
 # getentropy(2) added to glibc in Fedora 26
-Patch14: cjdns.entropy.patch
+# included in cjdns-20.1 
+#Patch14: cjdns.entropy.patch
 # Fix buffer overrun in JsonBencSerializer.c
-Patch15: cjdns.benc.patch
+# included in cjdns-20.1
+#Patch15: cjdns.benc.patch
 # Specify python2 for systems that default to python3
 Patch16: cjdns.python3.patch
 
@@ -128,6 +133,11 @@ Provides: bundled(nacl) = 20110221
 %endif
 # build system requires nodejs, unfortunately
 ExclusiveArch: %{nodejs_arches}
+%if 0%{use_embedded}
+# The nodejs build system for embedded cnacl has no "plan" for s390x.
+# It might work to copy another big endian plan like ppc64.
+ExcludeArch: s390x
+%endif
 
 %description
 Cjdns implements an encrypted IPv6 network using public-key cryptography for
@@ -193,6 +203,8 @@ Python graphing tools for cjdns.
 %patch4 -b .genconf
 %patch5 -b .sbin
 
+cp %{SOURCE2} contrib/systemd
+
 %if !%{use_embedded}
 # use system nacl library if provided.  
 if test -x %{nacl_lib}; then
@@ -221,8 +233,8 @@ fi
 %patch9 -b .man
 %patch10 -b .tools
 #patch13 -b .ppc64
-%patch14 -b .entropy
-%patch15 -b .benc
+#patch14 -b .entropy
+#patch15 -b .benc
 %patch16 -b .python3
 
 cp %{SOURCE1} README_Fedora.md
@@ -544,9 +556,6 @@ fi
 * Tue Mar  6 2018 Stuart Gathman <stuart@gathman.org> - 20.1-2
 - selinux: Allow map access to cjdns_exec_t
 - disable subnode by default
-
-* Tue Mar  6 2018 Stuart Gathman <stuart@gathman.org> - 19.1-11
-- bz#1551263 allow map permission added since f27
 
 * Wed Feb 21 2018 Stuart Gathman <stuart@gathman.org> - 20.1-1
 - New upstream release

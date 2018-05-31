@@ -5,13 +5,5 @@ diff -up ./node_build/dependencies/libuv/gyp_uv.py.python3 ./node_build/dependen
 -#!/usr/bin/env python
 +#!/usr/bin/env python2
  
- import glob
+ import os
  import platform
-@@ -34,6 +34,7 @@ def compiler_version():
-   proc = subprocess.Popen(CC.split() + ['-dumpversion'], stdout=subprocess.PIPE)
-   version = proc.communicate()[0].split('.')
-   version = map(int, version[:2])
-+  if len(version) < 2: version.append(0)
-   version = tuple(version)
-   return (version, is_clang)
- 
