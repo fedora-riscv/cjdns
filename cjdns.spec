@@ -50,7 +50,7 @@
 Name:           cjdns
 # major version is cjdns protocol version:
 Version:        20.2
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        The privacy-friendly network without borders
 Group:          System Environment/Base
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
@@ -108,6 +108,8 @@ Patch12: cjdns.sign.patch
 #Patch15: cjdns.benc.patch
 # Specify python2 for systems that default to python3
 Patch16: cjdns.python3.patch
+# s390x support for embedded cnacl library from Dan Horák <dan@danny.cz>
+Patch17: cjdns.s390x.patch
 
 BuildRequires:  nodejs, nodejs-ronn, python2
 
@@ -133,7 +135,7 @@ Provides: bundled(nacl) = 20110221
 %endif
 # build system requires nodejs, unfortunately
 ExclusiveArch: %{nodejs_arches}
-%if 0%{use_embedded}
+%if 0 && 0%{use_embedded}
 # The nodejs build system for embedded cnacl has no "plan" for s390x.
 # It might work to copy another big endian plan like ppc64.
 ExcludeArch: s390x
@@ -236,6 +238,7 @@ fi
 #patch14 -b .entropy
 #patch15 -b .benc
 %patch16 -b .python3
+%patch17 -p1 -b .s390x
 
 cp %{SOURCE1} README_Fedora.md
 
@@ -542,6 +545,9 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Thu May 31 2018 Stuart Gathman <stuart@gathman.org> - 20.2-2
+- Add cnacl s390x support BZ#1584480
+
 * Tue May 22 2018 Stuart Gathman <stuart@gathman.org> - 20.2-1
 - New upstream release BZ#1464671
 
