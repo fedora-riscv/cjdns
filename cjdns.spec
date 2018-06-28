@@ -50,7 +50,7 @@
 Name:           cjdns
 # major version is cjdns protocol version:
 Version:        20.2
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        The privacy-friendly network without borders
 Group:          System Environment/Base
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
@@ -129,17 +129,12 @@ Requires(preun): systemd
 Requires(postun): systemd
 %endif
 Requires(pre): shadow-utils
-Provides: bundled(libuv) = 0.11.4
+Provides: bundled(libuv) = 0.11.19
 %if 0%{use_embedded}
 Provides: bundled(nacl) = 20110221
 %endif
 # build system requires nodejs, unfortunately
 ExclusiveArch: %{nodejs_arches}
-%if 0 && 0%{use_embedded}
-# The nodejs build system for embedded cnacl has no "plan" for s390x.
-# It might work to copy another big endian plan like ppc64.
-ExcludeArch: s390x
-%endif
 
 %description
 Cjdns implements an encrypted IPv6 network using public-key cryptography for
@@ -545,6 +540,9 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Fri Jun 22 2018 Stuart Gathman <stuart@gathman.org> - 20.2-3
+- cjdns-20.2 bundles libuv-0.11.19
+
 * Thu May 31 2018 Stuart Gathman <stuart@gathman.org> - 20.2-2
 - Add cnacl s390x support BZ#1584480
 
