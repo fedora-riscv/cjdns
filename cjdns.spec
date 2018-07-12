@@ -50,7 +50,7 @@
 Name:           cjdns
 # major version is cjdns protocol version:
 Version:        20.2
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        The privacy-friendly network without borders
 Group:          System Environment/Base
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
@@ -545,6 +545,9 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Thu Jul 12 2018 Fedora Release Engineering <releng@fedoraproject.org> - 20.2-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
+
 * Thu May 31 2018 Stuart Gathman <stuart@gathman.org> - 20.2-2
 - Add cnacl s390x support BZ#1584480
 
