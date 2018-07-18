@@ -2,25 +2,40 @@
 # Fedora review: http://bugzilla.redhat.com/1268716
 
 # Option to enable SUBNODE mode (WIP)
+# Fedora generally runs on systems that easily support a full node
 %bcond_with subnode
 # Option to use the optimized libnacl embedded with cjdns
+# Required since v20 due to use of private cnacl APIs
 %bcond_without embedded
+# Option to enable CPU specific optimization
+# Default to generic for distro builds
+%bcond_without generic
+# Option to use libsodium instead of nacl (broken since v20)
+%bcond_with libsodium
+# Option to disable SECCOMP: confusing backward logic
+# Needed to run on openvz and other container systems
+%bcond_without seccomp
 
-%if %{with subnode} || %{with embedded}
+
+%if %{with embedded}
 %global use_embedded 1
 %else
 %global use_embedded 0
 %endif
-# Use libsodium instead of nacl
-%global use_libsodium 1
-# Option to disable SECCOMP: confusing backward logic
-%bcond_without seccomp
 
-%if 0%{use_libsodium}
+%if %{with generic}
+%global generic_build 1
+%else
+%global generic_build 0
+%endif
+
+%if %{with libsodium}
+%global use_libsodium 1
 %global nacl_name libsodium
 %global nacl_version 1.0.14
 %global nacl_lib %{_libdir}/libsodium.so
 %else
+%global use_libsodium 0
 %global nacl_name nacl
 %global nacl_version 20110221
 %global nacl_lib %{_libdir}/libnacl.so
@@ -50,7 +65,7 @@
 Name:           cjdns
 # major version is cjdns protocol version:
 Version:        20.2
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        The privacy-friendly network without borders
 Group:          System Environment/Base
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
@@ -116,7 +131,7 @@ BuildRequires:  nodejs, nodejs-ronn, python2
 # Automated package review hates explicit BR on make, but it *is* needed
 BuildRequires:  make
 
-%if !%{use_embedded}
+%if !0%{use_embedded}
 # x86_64 and ARM libnacl are not compiled with -fPIC before Fedora release 11.
 BuildRequires:  %{nacl_name}-devel >= %{nacl_version}
 %endif
@@ -202,7 +217,9 @@ Python graphing tools for cjdns.
 
 cp %{SOURCE2} contrib/systemd
 
-%if !%{use_embedded}
+%if 0%{use_embedded}
+# disable CPU opt
+%else !use_embedded
 # use system nacl library if provided.  
 if test -x %{nacl_lib}; then
 %if 0%{use_libsodium}
@@ -233,7 +250,9 @@ fi
 #patch14 -b .entropy
 #patch15 -b .benc
 %patch16 -b .python3
+%if 0%{use_embedded}
 %patch17 -p1 -b .s390x
+%endif
 
 cp %{SOURCE1} README_Fedora.md
 
@@ -268,6 +287,14 @@ done
 EOF
 
 chmod a+x cjdns-up.sh
+
+%if %{generic_build}
+sed -i -e 's/-march=native/-mtune=generic/' node_build/make.js
+rm node_build/dependencies/cnacl/node_build/plans/*_AVX_plan.json
+# Leaving SSE2 code in since x86 is secondary arch and pretty much everyone
+# is going to have SSE2, except things like XO-1 which needs custom build.
+#rm node_build/dependencies/cnacl/node_build/plans/x86_SSE2_plan.json
+%endif
 
 # FIXME: grep Version_CURRENT_PROTOCOL util/version/Version.h and
 # check that it matches major %%{version}
