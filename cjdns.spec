@@ -129,7 +129,7 @@ Patch17: cjdns.s390x.patch
 BuildRequires:  nodejs, nodejs-ronn, python2
 
 # Automated package review hates explicit BR on make, but it *is* needed
-BuildRequires:  make
+BuildRequires:  make gcc
 
 %if !0%{use_embedded}
 # x86_64 and ARM libnacl are not compiled with -fPIC before Fedora release 11.
