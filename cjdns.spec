@@ -540,8 +540,12 @@ fi
 %{_bindir}/graphStats
 
 %changelog
-* Fri Jun 22 2018 Stuart Gathman <stuart@gathman.org> - 20.2-3
+* Wed Jul 18 2018 Stuart Gathman <stuart@gathman.org> - 20.2-4
 - cjdns-20.2 bundles libuv-0.11.19
+- disable CPU specific optimization
+
+* Thu Jul 12 2018 Fedora Release Engineering <releng@fedoraproject.org> - 20.2-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
 
 * Thu May 31 2018 Stuart Gathman <stuart@gathman.org> - 20.2-2
 - Add cnacl s390x support BZ#1584480
