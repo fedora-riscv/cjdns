@@ -1,7 +1,7 @@
 diff -up ./node_build/make.js.dyn ./node_build/make.js
---- ./node_build/make.js.dyn	2016-10-11 17:39:44.000000000 -0400
-+++ ./node_build/make.js	2016-10-14 22:08:23.018241766 -0400
-@@ -252,44 +252,9 @@ Builder.configure({
+--- ./node_build/make.js.dyn	2018-04-18 03:35:41.000000000 -0400
++++ ./node_build/make.js	2018-06-28 13:50:51.922657841 -0400
+@@ -256,48 +256,9 @@ Builder.configure({
  
      }).nThen(function (waitFor) {
  
@@ -26,13 +26,17 @@ diff -up ./node_build/make.js.dyn ./node_build/make.js
 -
 -                args.unshift(builder.config.optimizeLevel, '-fomit-frame-pointer');
 -
+-                if (!/^\-O0$/.test(builder.config.optimizeLevel)) {
+-                    args.unshift('-D_FORTIFY_SOURCE=2');
+-                }
+-
 -                if (CFLAGS) {
 -                    [].push.apply(args, CFLAGS.split(' '));
 -                }
 -
 -                if (!builder.config.crossCompiling) {
--                    if (NO_MARCH_FLAG.indexOf(process.arch) < -1) {
--                        builder.config.cflags.push('-march=native');
+-                    if (NO_MARCH_FLAG.indexOf(process.arch) == -1) {
+-                        args.unshift('-march=native');
 -                    }
 -                }
 -
@@ -49,7 +53,7 @@ diff -up ./node_build/make.js.dyn ./node_build/make.js
  
      }).nThen(function (waitFor) {
  
-@@ -430,7 +395,7 @@ Builder.configure({
+@@ -442,7 +403,7 @@ Builder.configure({
      builder.buildExecutable('crypto/random/randombytes.c');
  
      builder.lintFiles(function (fileName, file, callback) {

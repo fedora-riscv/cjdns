@@ -2,25 +2,40 @@
 # Fedora review: http://bugzilla.redhat.com/1268716
 
 # Option to enable SUBNODE mode (WIP)
+# Fedora generally runs on systems that easily support a full node
 %bcond_with subnode
 # Option to use the optimized libnacl embedded with cjdns
+# Required since v20 due to use of private cnacl APIs
 %bcond_without embedded
+# Option to enable CPU specific optimization
+# Default to generic for distro builds
+%bcond_without generic
+# Option to use libsodium instead of nacl (broken since v20)
+%bcond_with libsodium
+# Option to disable SECCOMP: confusing backward logic
+# Needed to run on openvz and other container systems
+%bcond_without seccomp
 
-%if %{with subnode} || %{with embedded}
+
+%if %{with embedded}
 %global use_embedded 1
 %else
 %global use_embedded 0
 %endif
-# Use libsodium instead of nacl
-%global use_libsodium 1
-# Option to disable SECCOMP: confusing backward logic
-%bcond_without seccomp
 
-%if 0%{use_libsodium}
+%if %{with generic}
+%global generic_build 1
+%else
+%global generic_build 0
+%endif
+
+%if %{with libsodium}
+%global use_libsodium 1
 %global nacl_name libsodium
 %global nacl_version 1.0.14
 %global nacl_lib %{_libdir}/libsodium.so
 %else
+%global use_libsodium 0
 %global nacl_name nacl
 %global nacl_version 20110221
 %global nacl_lib %{_libdir}/libnacl.so
@@ -43,13 +58,14 @@
 
 # FIXME: python tools need to make cjdnsadmin a proper python package
 %global with_python 1
+%global __python %{__python2}
 
 %{!?__restorecon: %global __restorecon /sbin/restorecon}
 
 Name:           cjdns
 # major version is cjdns protocol version:
-Version:        20.1
-Release:        2%{?dist}
+Version:        20.2
+Release:        4%{?dist}
 Summary:        The privacy-friendly network without borders
 Group:          System Environment/Base
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
@@ -98,7 +114,7 @@ Patch11: cjdns.sodium.patch
 # Disable WIP subnode code when SUBNODE not enabled
 Patch12: cjdns.sign.patch
 # Recognize ppc64, ppc64le, and s390x arches
-Patch13: cjdns.ppc64.patch
+#Patch13: cjdns.ppc64.patch
 # getentropy(2) added to glibc in Fedora 26
 # included in cjdns-20.1 
 #Patch14: cjdns.entropy.patch
@@ -107,13 +123,15 @@ Patch13: cjdns.ppc64.patch
 #Patch15: cjdns.benc.patch
 # Specify python2 for systems that default to python3
 Patch16: cjdns.python3.patch
+# s390x support for embedded cnacl library from Dan Horák <dan@danny.cz>
+Patch17: cjdns.s390x.patch
 
 BuildRequires:  nodejs, nodejs-ronn, python2
 
 # Automated package review hates explicit BR on make, but it *is* needed
-BuildRequires:  make
+BuildRequires:  make gcc
 
-%if !%{use_embedded}
+%if !0%{use_embedded}
 # x86_64 and ARM libnacl are not compiled with -fPIC before Fedora release 11.
 BuildRequires:  %{nacl_name}-devel >= %{nacl_version}
 %endif
@@ -126,17 +144,12 @@ Requires(preun): systemd
 Requires(postun): systemd
 %endif
 Requires(pre): shadow-utils
-Provides: bundled(libuv) = 0.11.4
+Provides: bundled(libuv) = 0.11.19
 %if 0%{use_embedded}
 Provides: bundled(nacl) = 20110221
 %endif
 # build system requires nodejs, unfortunately
 ExclusiveArch: %{nodejs_arches}
-%if 0%{use_embedded}
-# The nodejs build system for embedded cnacl has no "plan" for s390x.
-# It might work to copy another big endian plan like ppc64.
-ExcludeArch: s390x
-%endif
 
 %description
 Cjdns implements an encrypted IPv6 network using public-key cryptography for
@@ -176,7 +189,7 @@ Provides: %{name}-python = %{version}-%{release}
 Obsoletes: %{name}-python < %{version}-%{release}
 Summary: Python tools for cjdns
 Group: System Environment/Base
-Requires: python, %{name} = %{version}-%{release}
+Requires: python2, %{name} = %{version}-%{release}
 BuildArch: noarch
 
 %description -n python2-cjdns
@@ -185,7 +198,7 @@ Python tools for cjdns.
 %package graph
 Summary: Python tools for cjdns
 Group: System Environment/Base
-Requires: %{name}-python = %{version}-%{release}, python-networkx
+Requires: python2-%{name} = %{version}-%{release}, python2-networkx
 BuildArch: noarch
 
 %description graph
@@ -204,7 +217,9 @@ Python graphing tools for cjdns.
 
 cp %{SOURCE2} contrib/systemd
 
-%if !%{use_embedded}
+%if 0%{use_embedded}
+# disable CPU opt
+%else !use_embedded
 # use system nacl library if provided.  
 if test -x %{nacl_lib}; then
 %if 0%{use_libsodium}
@@ -238,6 +253,9 @@ echo "int super_pedantic = 1;" >>crypto/Sign.c
 #patch14 -b .entropy
 #patch15 -b .benc
 %patch16 -b .python3
+%if 0%{use_embedded}
+%patch17 -p1 -b .s390x
+%endif
 
 cp %{SOURCE1} README_Fedora.md
 
@@ -247,6 +265,7 @@ find contrib/python/cjdnsadmin ! -executable -name "*.py" |
         xargs sed -e '\,^#!/usr/bin/env, d' -i
 find contrib/python -type f |
         xargs sed -e '1 s,^#!/usr/bin/env ,#!/usr/bin/,' -i 
+sed -e '$ s,^python ,/usr/bin/python2 ,' -i contrib/python/cjdnsa
 
 # Remove #!env from nodejs scripts
 find tools -type f | xargs grep -l '^#!\/usr\/bin\/env ' |
@@ -271,6 +290,14 @@ done
 EOF
 
 chmod a+x cjdns-up.sh
+
+%if %{generic_build}
+sed -i -e 's/-march=native/-mtune=generic/' node_build/make.js
+rm node_build/dependencies/cnacl/node_build/plans/*_AVX_plan.json
+# Leaving SSE2 code in since x86 is secondary arch and pretty much everyone
+# is going to have SSE2, except things like XO-1 which needs custom build.
+#rm node_build/dependencies/cnacl/node_build/plans/x86_SSE2_plan.json
+%endif
 
 # FIXME: grep Version_CURRENT_PROTOCOL util/version/Version.h and
 # check that it matches major %%{version}
@@ -546,7 +573,28 @@ fi
 %{_bindir}/graphStats
 
 %changelog
-* Wed Mar  6 2018 Stuart Gathman <stuart@gathman.org> - 20.1-2
+* Wed Jul 18 2018 Stuart Gathman <stuart@gathman.org> - 20.2-4
+- cjdns-20.2 bundles libuv-0.11.19
+- disable CPU specific optimization
+
+* Thu Jul 12 2018 Fedora Release Engineering <releng@fedoraproject.org> - 20.2-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
+
+* Thu May 31 2018 Stuart Gathman <stuart@gathman.org> - 20.2-2
+- Add cnacl s390x support BZ#1584480
+
+* Tue May 22 2018 Stuart Gathman <stuart@gathman.org> - 20.2-1
+- New upstream release BZ#1464671
+
+* Wed Mar 14 2018 Stuart Gathman <stuart@gathman.org> - 20.1-4
+- Explicit python version in Requires
+- Fix possible unterminated interface name in ifreq
+
+* Tue Mar 13 2018 Iryna Shcherbina <ishcherb@redhat.com> - 20.1-3
+- Update Python 2 dependency declarations to new packaging standards
+  (See https://fedoraproject.org/wiki/FinalizingFedoraSwitchtoPython3)
+
+* Tue Mar  6 2018 Stuart Gathman <stuart@gathman.org> - 20.1-2
 - selinux: Allow map access to cjdns_exec_t
 - disable subnode by default
 
