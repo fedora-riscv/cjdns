@@ -289,7 +289,11 @@ EOF
 chmod a+x cjdns-up.sh
 
 %if %{generic_build}
+%ifarch s390x
+sed -i -e 's/-march=native/-mtune=native/' node_build/make.js
+%else
 sed -i -e 's/-march=native/-mtune=generic/' node_build/make.js
+%endif
 rm node_build/dependencies/cnacl/node_build/plans/*_AVX_plan.json
 # Leaving SSE2 code in since x86 is secondary arch and pretty much everyone
 # is going to have SSE2, except things like XO-1 which needs custom build.
