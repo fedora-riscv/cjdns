@@ -274,6 +274,12 @@ sed -e '$ s,^python ,/usr/bin/python2 ,' -i contrib/python/cjdnsa
 find tools -type f | xargs grep -l '^#!\/usr\/bin\/env ' |
         xargs sed -e '1 s,^#!/usr/bin/env ,#!/usr/bin/,' -i
 
+# Fix deprecated Buffer ctor except on EL6
+%if 0%{?rhel} != 6 
+sed -e '1,$ s/new Buffer/Buffer.from/' -i \
+	tools/lib/publicToIp6.js tools/lib/cjdnsadmin/cjdnsadmin.js
+%endif
+
 # Remove unpackaged code with undeclared licenses
 %if %{with_admin}
 rm -rf contrib/nodejs   # GPLv3 and ASL 2.0
@@ -584,6 +590,7 @@ fi
 * Thu Nov  8 2018 Stuart Gathman <stuart@gathman.org> - 20.2-5
 - Install cjdnsadmin python module in site-packages
 - Work around missing python2-networkx Provides in python-networkx bz#1647987
+- Fix deprecated Buffer ctor in nodejs tools except on el6
 
 * Wed Jul 18 2018 Stuart Gathman <stuart@gathman.org> - 20.2-4
 - cjdns-20.2 bundles libuv-0.11.19
