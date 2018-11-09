@@ -189,7 +189,11 @@ Provides: %{name}-python = %{version}-%{release}
 Obsoletes: %{name}-python < %{version}-%{release}
 Summary: Python tools for cjdns
 Group: System Environment/Base
+%if 0%{?fedora} >= 18
 BuildRequires: python2-rpm-macros
+%else
+BuildRequires: python-rpm-macros
+%endif
 Requires: python2, %{name} = %{version}-%{release}
 BuildArch: noarch
 
