@@ -65,7 +65,7 @@
 Name:           cjdns
 # major version is cjdns protocol version:
 Version:        20.2
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        The privacy-friendly network without borders
 Group:          System Environment/Base
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
@@ -189,6 +189,11 @@ Provides: %{name}-python = %{version}-%{release}
 Obsoletes: %{name}-python < %{version}-%{release}
 Summary: Python tools for cjdns
 Group: System Environment/Base
+%if 0%{?fedora} >= 18
+BuildRequires: python2-rpm-macros
+%else
+BuildRequires: python-rpm-macros
+%endif
 Requires: python2, %{name} = %{version}-%{release}
 BuildArch: noarch
 
@@ -198,7 +203,12 @@ Python tools for cjdns.
 %package graph
 Summary: Python tools for cjdns
 Group: System Environment/Base
-Requires: python2-%{name} = %{version}-%{release}, python2-networkx
+Requires: python2-%{name} = %{version}-%{release}
+%if 0%{?rhel} == 6 || 0%{?rhel} == 7
+Requires: python-networkx
+%else
+Requires: python2-networkx
+%endif
 BuildArch: noarch
 
 %description graph
@@ -268,6 +278,12 @@ sed -e '$ s,^python ,/usr/bin/python2 ,' -i contrib/python/cjdnsa
 find tools -type f | xargs grep -l '^#!\/usr\/bin\/env ' |
         xargs sed -e '1 s,^#!/usr/bin/env ,#!/usr/bin/,' -i
 
+# Fix deprecated Buffer ctor except on EL6
+%if 0%{?rhel} != 6 
+sed -e '1,$ s/new Buffer/Buffer.from/' -i \
+	tools/lib/publicToIp6.js tools/lib/cjdnsadmin/cjdnsadmin.js
+%endif
+
 # Remove unpackaged code with undeclared licenses
 %if %{with_admin}
 rm -rf contrib/nodejs   # GPLv3 and ASL 2.0
@@ -289,7 +305,11 @@ EOF
 chmod a+x cjdns-up.sh
 
 %if %{generic_build}
+%ifarch s390x
+sed -i -e 's/-march=native/-mtune=native/' node_build/make.js
+%else
 sed -i -e 's/-march=native/-mtune=generic/' node_build/make.js
+%endif
 rm node_build/dependencies/cnacl/node_build/plans/*_AVX_plan.json
 # Leaving SSE2 code in since x86 is secondary arch and pretty much everyone
 # is going to have SSE2, except things like XO-1 which needs custom build.
@@ -412,6 +432,10 @@ rm %{buildroot}%{_libexecdir}/cjdns/python/README.md
 rm %{buildroot}%{_libexecdir}/cjdns/python/cjdns-dynamic.conf
 rm %{buildroot}%{_libexecdir}/cjdns/python/cjdnsadmin/bencode.py.LICENSE.txt
 
+# Move cjdnsadmin to site-packages
+mkdir -p %{buildroot}%{python2_sitelib}
+mv %{buildroot}%{_libexecdir}/cjdns/python/cjdnsadmin %{buildroot}%{python2_sitelib}
+
 # symlink python tools w/o conflict with nodejs tools or needing networkx
 for t in pingAll.py trashroutes \
          getLinks ip6topk pktoip6 cjdnsa searches findnodes; do
@@ -532,6 +556,7 @@ fi
 %files -n python2-cjdns
 %doc contrib/python/README.md contrib/python/cjdns-dynamic.conf
 %license contrib/python/cjdnsadmin/bencode.py.LICENSE.txt
+%{python2_sitelib}/cjdnsadmin
 %dir %{_libexecdir}/cjdns/python
 %{_libexecdir}/cjdns/python/cexec
 %{_libexecdir}/cjdns/python/cjdnsadminmaker.py*
@@ -540,7 +565,6 @@ fi
 %{_libexecdir}/cjdns/python/dynamicEndpoints.py*
 %{_libexecdir}/cjdns/python/peerStats
 %{_libexecdir}/cjdns/python/sessionStats
-%{_libexecdir}/cjdns/python/cjdnsadmin
 %{_libexecdir}/cjdns/python/pingAll.py*
 %{_libexecdir}/cjdns/python/trashroutes
 %{_libexecdir}/cjdns/python/getLinks
@@ -567,6 +591,11 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Thu Nov  8 2018 Stuart Gathman <stuart@gathman.org> - 20.2-5
+- Install cjdnsadmin python module in site-packages
+- Work around missing python2-networkx Provides in python-networkx bz#1647987
+- Fix deprecated Buffer ctor in nodejs tools except on el6
+
 * Wed Jul 18 2018 Stuart Gathman <stuart@gathman.org> - 20.2-4
 - cjdns-20.2 bundles libuv-0.11.19
 - disable CPU specific optimization
