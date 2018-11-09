@@ -65,7 +65,7 @@
 Name:           cjdns
 # major version is cjdns protocol version:
 Version:        20.2
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        The privacy-friendly network without borders
 Group:          System Environment/Base
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
@@ -189,6 +189,7 @@ Provides: %{name}-python = %{version}-%{release}
 Obsoletes: %{name}-python < %{version}-%{release}
 Summary: Python tools for cjdns
 Group: System Environment/Base
+BuildRequires: python2-rpm-macros
 Requires: python2, %{name} = %{version}-%{release}
 BuildArch: noarch
 
@@ -198,7 +199,12 @@ Python tools for cjdns.
 %package graph
 Summary: Python tools for cjdns
 Group: System Environment/Base
-Requires: python2-%{name} = %{version}-%{release}, python2-networkx
+Requires: python2-%{name} = %{version}-%{release}
+%if 0%{?rhel} == 6 || 0%{?rhel} == 7
+Requires: python-networkx
+%else
+Requires: python2-networkx
+%endif
 BuildArch: noarch
 
 %description graph
@@ -416,6 +422,10 @@ rm %{buildroot}%{_libexecdir}/cjdns/python/README.md
 rm %{buildroot}%{_libexecdir}/cjdns/python/cjdns-dynamic.conf
 rm %{buildroot}%{_libexecdir}/cjdns/python/cjdnsadmin/bencode.py.LICENSE.txt
 
+# Move cjdnsadmin to site-packages
+mkdir -p %{buildroot}%{python2_sitelib}
+mv %{buildroot}%{_libexecdir}/cjdns/python/cjdnsadmin %{buildroot}%{python2_sitelib}
+
 # symlink python tools w/o conflict with nodejs tools or needing networkx
 for t in pingAll.py trashroutes \
          getLinks ip6topk pktoip6 cjdnsa searches findnodes; do
@@ -536,6 +546,7 @@ fi
 %files -n python2-cjdns
 %doc contrib/python/README.md contrib/python/cjdns-dynamic.conf
 %license contrib/python/cjdnsadmin/bencode.py.LICENSE.txt
+%{python2_sitelib}/cjdnsadmin
 %dir %{_libexecdir}/cjdns/python
 %{_libexecdir}/cjdns/python/cexec
 %{_libexecdir}/cjdns/python/cjdnsadminmaker.py*
@@ -544,7 +555,6 @@ fi
 %{_libexecdir}/cjdns/python/dynamicEndpoints.py*
 %{_libexecdir}/cjdns/python/peerStats
 %{_libexecdir}/cjdns/python/sessionStats
-%{_libexecdir}/cjdns/python/cjdnsadmin
 %{_libexecdir}/cjdns/python/pingAll.py*
 %{_libexecdir}/cjdns/python/trashroutes
 %{_libexecdir}/cjdns/python/getLinks
@@ -571,6 +581,10 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Thu Nov  8 2018 Stuart Gathman <stuart@gathman.org> - 20.2-5
+- Install cjdnsadmin python module in site-packages
+- Work around missing python2-networkx Provides in python-networkx bz#1647987
+
 * Wed Jul 18 2018 Stuart Gathman <stuart@gathman.org> - 20.2-4
 - cjdns-20.2 bundles libuv-0.11.19
 - disable CPU specific optimization
