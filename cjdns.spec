@@ -201,18 +201,19 @@ BuildArch: noarch
 Python tools for cjdns.
 
 %package graph
-Summary: Python tools for cjdns
+Summary: Python peer graph tools for cjdns
 Group: System Environment/Base
 Requires: python2-%{name} = %{version}-%{release}
 %if 0%{?rhel} == 6 || 0%{?rhel} == 7
 Requires: python-networkx
+Requires: python2-matplotlib
 %else
 Requires: python2-networkx
 %endif
 BuildArch: noarch
 
 %description graph
-Python graphing tools for cjdns.
+Python peer graph tools for cjdns.
 
 %prep
 %setup -qn cjdns-%{name}-v%{version}
