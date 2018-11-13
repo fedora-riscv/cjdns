@@ -17,7 +17,7 @@ diff -up ./contrib/selinux/cjdns.te.selinux ./contrib/selinux/cjdns.te
  # Let master process run further restricted subprocess
 -allow cjdns_t cjdns_exec_t:file { execute_no_trans execmod };
 -allow cjdns_t self:capability { net_admin net_raw setuid setgid sys_chroot sys_module };
-+allow cjdns_t cjdns_exec_t:file { execute_no_trans execmod };
++allow cjdns_t cjdns_exec_t:file { execute_no_trans execmod map };
 +allow cjdns_t self:capability { net_admin net_raw setuid setgid sys_chroot };
  allow cjdns_t self:process { signal getcap setrlimit setcap };
 -allow cjdns_t kernel_t:system module_request;
