@@ -67,7 +67,6 @@ Name:           cjdns
 Version:        20.2
 Release:        5%{?dist}
 Summary:        The privacy-friendly network without borders
-Group:          System Environment/Base
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
 # cnacl is unused except when use_embedded is true
 License:        GPLv3 and MIT and BSD and ISC
@@ -159,7 +158,6 @@ scalability issues that plague existing networks.
 
 %package selinux
 Summary: Targeted SELinux policy module for cjdns
-Group: System Environment/Base
 BuildRequires: policycoreutils, checkpolicy, selinux-policy-devel
 Requires: policycoreutils, selinux-policy-targeted
 Requires: %{name} = %{version}-%{release}
@@ -171,7 +169,6 @@ Targeted SELinux policy module for cjdns.
 # FIXME: keep C tools separate?
 %package tools
 Summary: Nodejs tools for cjdns
-Group: System Environment/Base
 Requires: nodejs, %{name} = %{version}-%{release}
 BuildArch: noarch
 
@@ -188,7 +185,6 @@ sessionStats       show current crypto sessions
 Provides: %{name}-python = %{version}-%{release}
 Obsoletes: %{name}-python < %{version}-%{release}
 Summary: Python tools for cjdns
-Group: System Environment/Base
 %if 0%{?fedora} >= 18
 BuildRequires: python2-rpm-macros
 %else
@@ -202,7 +198,6 @@ Python tools for cjdns.
 
 %package graph
 Summary: Python peer graph tools for cjdns
-Group: System Environment/Base
 Requires: python2-%{name} = %{version}-%{release}
 %if 0%{?rhel} == 6 || 0%{?rhel} == 7
 Requires: python-networkx
