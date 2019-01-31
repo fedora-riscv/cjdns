@@ -65,7 +65,7 @@
 Name:           cjdns
 # major version is cjdns protocol version:
 Version:        20.2
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        The privacy-friendly network without borders
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
 # cnacl is unused except when use_embedded is true
@@ -587,6 +587,9 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Thu Jan 31 2019 Fedora Release Engineering <releng@fedoraproject.org> - 20.2-6
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_30_Mass_Rebuild
+
 * Thu Nov  8 2018 Stuart Gathman <stuart@gathman.org> - 20.2-5
 - Install cjdnsadmin python module in site-packages
 - Work around missing python2-networkx Provides in python-networkx bz#1647987
