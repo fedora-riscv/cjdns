@@ -15,12 +15,19 @@
 # Option to disable SECCOMP: confusing backward logic
 # Needed to run on openvz and other container systems
 %bcond_without seccomp
-
+# Option to use embedded libuv-0.11.19
+%bcond_without libuv
 
 %if %{with embedded}
 %global use_embedded 1
 %else
 %global use_embedded 0
+%endif
+
+%if %{with libuv}
+%global use_libuv 1
+%else
+%global use_libuv 0
 %endif
 
 %if %{with generic}
@@ -65,7 +72,7 @@
 Name:           cjdns
 # major version is cjdns protocol version:
 Version:        20.2
-Release:        6%{?dist}
+Release:        7%{?dist}
 Summary:        The privacy-friendly network without borders
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
 # cnacl is unused except when use_embedded is true
@@ -124,6 +131,8 @@ Patch12: cjdns.sign.patch
 Patch16: cjdns.python3.patch
 # s390x support for embedded cnacl library from Dan Horák <dan@danny.cz>
 Patch17: cjdns.s390x.patch
+# patch build to use system libuv
+Patch18: cjdns.libuv.patch
 
 BuildRequires:  nodejs, nodejs-ronn, python2
 
@@ -143,7 +152,11 @@ Requires(preun): systemd
 Requires(postun): systemd
 %endif
 Requires(pre): shadow-utils
+%if 0%{use_libuv}
+BuildRequires: libuv-devel
+%else
 Provides: bundled(libuv) = 0.11.19
+%endif
 %if 0%{use_embedded}
 Provides: bundled(nacl) = 20110221
 %endif
@@ -259,6 +272,12 @@ fi
 %if 0%{use_embedded}
 %patch17 -p1 -b .s390x
 %endif
+%if 0%{use_libuv}
+%patch18 -p1 -b .libuv
+mkdir dependencies
+cp node_build/dependencies/libuv/include/tree.h dependencies/uv_tree.h
+rm -rf node_build/dependencies/libuv
+%endif
 
 cp %{SOURCE1} README_Fedora.md
 
@@ -332,7 +351,7 @@ export SUBNODE=1
 CJDNS_RELEASE_VERSION="%{name}-%{version}-%{release}" ./do
 
 # FIXME: use system libuv on compatible systems
-# bundled libuv is 0.11.4 with changes:
+# bundled libuv is 0.11.19 with changes:
 # https://github.com/cjdelisle/cjdns/commits/master/node_build/dependencies/libuv
 
 %check
@@ -587,6 +606,9 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Wed Apr 24 2019 Stuart Gathman <stuart@gathman.org> - 20.2-7
+- Use system libuv
+
 * Thu Jan 31 2019 Fedora Release Engineering <releng@fedoraproject.org> - 20.2-6
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_30_Mass_Rebuild
 
