@@ -15,8 +15,8 @@
 # Option to disable SECCOMP: confusing backward logic
 # Needed to run on openvz and other container systems
 %bcond_without seccomp
-# Option to use embedded libuv-0.11.19
-%bcond_without libuv
+# Option to use system libuv instead of bundled libuv-0.11.19
+%bcond_with libuv
 
 %if %{with embedded}
 %global use_embedded 1
