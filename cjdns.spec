@@ -606,8 +606,9 @@ fi
 %{_bindir}/graphStats
 
 %changelog
-* Wed Apr 24 2019 Stuart Gathman <stuart@gathman.org> - 20.2-7
-- Use system libuv
+* Fri May 03 2019 Stuart Gathman <stuart@gathman.org> - 20.2-7
+- Option to use system libuv
+- Fix scope of Pipe_PATH String_CONST in config.
 
 * Thu Jan 31 2019 Fedora Release Engineering <releng@fedoraproject.org> - 20.2-6
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_30_Mass_Rebuild
