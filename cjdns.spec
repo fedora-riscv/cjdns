@@ -72,7 +72,7 @@
 Name:           cjdns
 # major version is cjdns protocol version:
 Version:        20.3
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        The privacy-friendly network without borders
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
 # cnacl is unused except when use_embedded is true
@@ -134,6 +134,7 @@ Patch16: cjdns.python3.patch
 #Patch17: cjdns.s390x.patch
 # patch build to use system libuv
 Patch18: cjdns.libuv.patch
+Patch19: cjdns.fuzz.patch
 
 BuildRequires:  nodejs, nodejs-ronn, python2
 
@@ -163,11 +164,6 @@ Provides: bundled(nacl) = 20110221
 %endif
 # build system requires nodejs, unfortunately
 ExclusiveArch: %{nodejs_arches}
-%if 0%{use_embedded}
- # The nodejs build system for embedded cnacl has no "plan" for s390x.
- # It might work to copy another big endian plan like ppc64.
-ExcludeArch: s390x ppc64le armv7hl
-%endif
 
 %description
 Cjdns implements an encrypted IPv6 network using public-key cryptography for
@@ -281,6 +277,7 @@ mkdir dependencies
 cp node_build/dependencies/libuv/include/tree.h dependencies/uv_tree.h
 rm -rf node_build/dependencies/libuv
 %endif
+%patch19 -p1 -b .fuzz
 
 cp %{SOURCE1} README_Fedora.md
 
@@ -609,6 +606,9 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Wed May 08 2019 Stuart Gathman <stuart@gathman.org> - 20.3-2
+- Increase timeout for fuzz tests to allow slower arches to succeed
+
 * Wed May 08 2019 Stuart Gathman <stuart@gathman.org> - 20.3-1
 - New upstream version 20.3
 
