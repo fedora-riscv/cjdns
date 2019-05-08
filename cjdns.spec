@@ -71,8 +71,8 @@
 
 Name:           cjdns
 # major version is cjdns protocol version:
-Version:        20.2
-Release:        7%{?dist}
+Version:        20.3
+Release:        1%{?dist}
 Summary:        The privacy-friendly network without borders
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
 # cnacl is unused except when use_embedded is true
@@ -130,7 +130,8 @@ Patch12: cjdns.sign.patch
 # Specify python2 for systems that default to python3
 Patch16: cjdns.python3.patch
 # s390x support for embedded cnacl library from Dan Horák <dan@danny.cz>
-Patch17: cjdns.s390x.patch
+# Included upstream since 20.3
+#Patch17: cjdns.s390x.patch
 # patch build to use system libuv
 Patch18: cjdns.libuv.patch
 
@@ -269,9 +270,6 @@ fi
 #patch14 -b .entropy
 #patch15 -b .benc
 %patch16 -b .python3
-%if 0%{use_embedded}
-%patch17 -p1 -b .s390x
-%endif
 %if 0%{use_libuv}
 %patch18 -p1 -b .libuv
 mkdir dependencies
@@ -606,6 +604,9 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Wed May 08 2019 Stuart Gathman <stuart@gathman.org> - 20.3-1
+- New upstream version 20.3
+
 * Fri May 03 2019 Stuart Gathman <stuart@gathman.org> - 20.2-7
 - Option to use system libuv
 - Fix scope of Pipe_PATH String_CONST in config.

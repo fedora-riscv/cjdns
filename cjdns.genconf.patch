@@ -1,7 +1,7 @@
 diff -up ./client/cjdroute2.c.genconf ./client/cjdroute2.c
---- ./client/cjdroute2.c.genconf	2018-04-18 03:35:41.000000000 -0400
-+++ ./client/cjdroute2.c	2019-05-04 12:57:06.880045566 -0400
-@@ -334,7 +334,7 @@ static int genconf(struct Random* rand,
+--- ./client/cjdroute2.c.genconf	2019-05-02 04:02:32.000000000 -0400
++++ ./client/cjdroute2.c	2019-05-08 12:14:53.146838389 -0400
+@@ -336,7 +336,7 @@ static int genconf(struct Random* rand,
             "        // and ETHInterface will be unable to hot-add new interfaces\n"
             "        // Use { \"setuser\": 0 } to disable.\n"
             "        // Default: enabled with keepNetAdmin\n"
@@ -10,7 +10,7 @@ diff -up ./client/cjdroute2.c.genconf ./client/cjdroute2.c
             "\n"
             "        // Chroot changes the filesystem root directory which cjdns sees, blocking it\n"
             "        // from accessing files outside of the chroot sandbox, if the user does not\n"
-@@ -346,7 +346,7 @@ static int genconf(struct Random* rand,
+@@ -348,7 +348,7 @@ static int genconf(struct Random* rand,
            }
            else {
      printf("        // Default: enabled (using \"/var/run\")\n"
@@ -19,10 +19,10 @@ diff -up ./client/cjdroute2.c.genconf ./client/cjdroute2.c
            }
      printf("\n"
             "        // Nofiles is a deprecated security feature which prevents cjdns from opening\n"
-@@ -647,11 +647,12 @@ int main(int argc, char** argv)
+@@ -695,11 +695,12 @@ int main(int argc, char** argv)
      char corePipeName[64] = "client-core-";
      Random_base32(rand, (uint8_t*)corePipeName+CString_strlen(corePipeName), 31);
-     String* pipePath = Dict_getStringC(&config, "pipe");
+     String* pipePath = Dict_getStringC(config, "pipe");
 +    String* path = String_CONST(Pipe_PATH);
      if (!pipePath) {
 -        pipePath = String_CONST(Pipe_PATH);
