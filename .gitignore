@@ -8,3 +8,4 @@
 /results_cjdns
 /*.src.rpm
 /.build-*
+/cjdns-v20.3.tar.gz
