@@ -163,6 +163,11 @@ Provides: bundled(nacl) = 20110221
 %endif
 # build system requires nodejs, unfortunately
 ExclusiveArch: %{nodejs_arches}
+%if 0%{use_embedded}
+ # The nodejs build system for embedded cnacl has no "plan" for s390x.
+ # It might work to copy another big endian plan like ppc64.
+ExcludeArch: s390x ppc64le armv7hl
+%endif
 
 %description
 Cjdns implements an encrypted IPv6 network using public-key cryptography for
