@@ -72,7 +72,7 @@
 Name:           cjdns
 # major version is cjdns protocol version:
 Version:        20.3
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        The privacy-friendly network without borders
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
 # cnacl is unused except when use_embedded is true
@@ -348,7 +348,7 @@ export Seccomp_NO=1
 %if %{with subnode}
 export SUBNODE=1
 %endif
-CJDNS_RELEASE_VERSION="%{name}-%{version}-%{release}" ./do
+NO_TEST=1 CJDNS_RELEASE_VERSION="%{name}-%{version}-%{release}" ./do
 
 # FIXME: use system libuv on compatible systems
 # bundled libuv is 0.11.19 with changes:
@@ -356,6 +356,7 @@ CJDNS_RELEASE_VERSION="%{name}-%{version}-%{release}" ./do
 
 %check
 # test suite is executed in %%build
+build_linux/test_testcjdroute_c all >test.out
 
 %install
 %if 0%{?rhel} == 5
@@ -606,6 +607,9 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Thu May 09 2019 Stuart Gathman <stuart@gathman.org> - 20.3-3
+- Move running test suite to check
+
 * Wed May 08 2019 Stuart Gathman <stuart@gathman.org> - 20.3-2
 - Increase timeout for fuzz tests to allow slower arches to succeed
 
