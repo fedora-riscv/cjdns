@@ -15,12 +15,19 @@
 # Option to disable SECCOMP: confusing backward logic
 # Needed to run on openvz and other container systems
 %bcond_without seccomp
-
+# Option to use system libuv instead of bundled libuv-0.11.19
+%bcond_with libuv
 
 %if %{with embedded}
 %global use_embedded 1
 %else
 %global use_embedded 0
+%endif
+
+%if %{with libuv}
+%global use_libuv 1
+%else
+%global use_libuv 0
 %endif
 
 %if %{with generic}
@@ -64,10 +71,9 @@
 
 Name:           cjdns
 # major version is cjdns protocol version:
-Version:        20.2
-Release:        4%{?dist}
+Version:        20.3
+Release:        3%{?dist}
 Summary:        The privacy-friendly network without borders
-Group:          System Environment/Base
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
 # cnacl is unused except when use_embedded is true
 License:        GPLv3 and MIT and BSD and ISC
@@ -124,7 +130,11 @@ Patch12: cjdns.sign.patch
 # Specify python2 for systems that default to python3
 Patch16: cjdns.python3.patch
 # s390x support for embedded cnacl library from Dan Horák <dan@danny.cz>
-Patch17: cjdns.s390x.patch
+# Included upstream since 20.3
+#Patch17: cjdns.s390x.patch
+# patch build to use system libuv
+Patch18: cjdns.libuv.patch
+Patch19: cjdns.fuzz.patch
 
 BuildRequires:  nodejs, nodejs-ronn, python2
 
@@ -144,7 +154,11 @@ Requires(preun): systemd
 Requires(postun): systemd
 %endif
 Requires(pre): shadow-utils
+%if 0%{use_libuv}
+BuildRequires: libuv-devel
+%else
 Provides: bundled(libuv) = 0.11.19
+%endif
 %if 0%{use_embedded}
 Provides: bundled(nacl) = 20110221
 %endif
@@ -159,7 +173,6 @@ scalability issues that plague existing networks.
 
 %package selinux
 Summary: Targeted SELinux policy module for cjdns
-Group: System Environment/Base
 BuildRequires: policycoreutils, checkpolicy, selinux-policy-devel
 Requires: policycoreutils, selinux-policy-targeted
 Requires: %{name} = %{version}-%{release}
@@ -171,7 +184,6 @@ Targeted SELinux policy module for cjdns.
 # FIXME: keep C tools separate?
 %package tools
 Summary: Nodejs tools for cjdns
-Group: System Environment/Base
 Requires: nodejs, %{name} = %{version}-%{release}
 BuildArch: noarch
 
@@ -188,7 +200,11 @@ sessionStats       show current crypto sessions
 Provides: %{name}-python = %{version}-%{release}
 Obsoletes: %{name}-python < %{version}-%{release}
 Summary: Python tools for cjdns
-Group: System Environment/Base
+%if 0%{?fedora} >= 18
+BuildRequires: python2-rpm-macros
+%else
+BuildRequires: python-rpm-macros
+%endif
 Requires: python2, %{name} = %{version}-%{release}
 BuildArch: noarch
 
@@ -196,13 +212,18 @@ BuildArch: noarch
 Python tools for cjdns.
 
 %package graph
-Summary: Python tools for cjdns
-Group: System Environment/Base
-Requires: python2-%{name} = %{version}-%{release}, python2-networkx
+Summary: Python peer graph tools for cjdns
+Requires: python2-%{name} = %{version}-%{release}
+%if 0%{?rhel} == 6 || 0%{?rhel} == 7
+Requires: python-networkx
+Requires: python2-matplotlib
+%else
+Requires: python2-networkx
+%endif
 BuildArch: noarch
 
 %description graph
-Python graphing tools for cjdns.
+Python peer graph tools for cjdns.
 
 %prep
 %setup -qn cjdns-%{name}-v%{version}
@@ -253,9 +274,13 @@ echo "int super_pedantic = 1;" >>crypto/Sign.c
 #patch14 -b .entropy
 #patch15 -b .benc
 %patch16 -b .python3
-%if 0%{use_embedded}
-%patch17 -p1 -b .s390x
+%if 0%{use_libuv}
+%patch18 -p1 -b .libuv
+mkdir dependencies
+cp node_build/dependencies/libuv/include/tree.h dependencies/uv_tree.h
+rm -rf node_build/dependencies/libuv
 %endif
+%patch19 -p1 -b .fuzz
 
 cp %{SOURCE1} README_Fedora.md
 
@@ -270,6 +295,12 @@ sed -e '$ s,^python ,/usr/bin/python2 ,' -i contrib/python/cjdnsa
 # Remove #!env from nodejs scripts
 find tools -type f | xargs grep -l '^#!\/usr\/bin\/env ' |
         xargs sed -e '1 s,^#!/usr/bin/env ,#!/usr/bin/,' -i
+
+# Fix deprecated Buffer ctor except on EL6
+%if 0%{?rhel} != 6 
+sed -e '1,$ s/new Buffer/Buffer.from/' -i \
+	tools/lib/publicToIp6.js tools/lib/cjdnsadmin/cjdnsadmin.js
+%endif
 
 # Remove unpackaged code with undeclared licenses
 %if %{with_admin}
@@ -292,7 +323,11 @@ EOF
 chmod a+x cjdns-up.sh
 
 %if %{generic_build}
+%ifarch s390x
+sed -i -e 's/-march=native/-mtune=native/' node_build/make.js
+%else
 sed -i -e 's/-march=native/-mtune=generic/' node_build/make.js
+%endif
 rm node_build/dependencies/cnacl/node_build/plans/*_AVX_plan.json
 # Leaving SSE2 code in since x86 is secondary arch and pretty much everyone
 # is going to have SSE2, except things like XO-1 which needs custom build.
@@ -319,14 +354,15 @@ export SUBNODE=1
 %if 0%{?rhel} && 0%{?rhel} <= 6
 export MINVER="0.10.48"
 %endif
-CJDNS_RELEASE_VERSION="%{name}-%{version}-%{release}" ./do
+NO_TEST=1 CJDNS_RELEASE_VERSION="%{name}-%{version}-%{release}" ./do
 
 # FIXME: use system libuv on compatible systems
-# bundled libuv is 0.11.4 with changes:
+# bundled libuv is 0.11.19 with changes:
 # https://github.com/cjdelisle/cjdns/commits/master/node_build/dependencies/libuv
 
 %check
 # test suite is executed in %%build
+build_linux/test_testcjdroute_c all >test.out
 
 %install
 %if 0%{?rhel} == 5
@@ -417,6 +453,10 @@ cp -pr contrib/python %{buildroot}%{_libexecdir}/cjdns
 rm %{buildroot}%{_libexecdir}/cjdns/python/README.md
 rm %{buildroot}%{_libexecdir}/cjdns/python/cjdns-dynamic.conf
 rm %{buildroot}%{_libexecdir}/cjdns/python/cjdnsadmin/bencode.py.LICENSE.txt
+
+# Move cjdnsadmin to site-packages
+mkdir -p %{buildroot}%{python2_sitelib}
+mv %{buildroot}%{_libexecdir}/cjdns/python/cjdnsadmin %{buildroot}%{python2_sitelib}
 
 # symlink python tools w/o conflict with nodejs tools or needing networkx
 for t in pingAll.py trashroutes \
@@ -538,6 +578,7 @@ fi
 %files -n python2-cjdns
 %doc contrib/python/README.md contrib/python/cjdns-dynamic.conf
 %license contrib/python/cjdnsadmin/bencode.py.LICENSE.txt
+%{python2_sitelib}/cjdnsadmin
 %dir %{_libexecdir}/cjdns/python
 %{_libexecdir}/cjdns/python/cexec
 %{_libexecdir}/cjdns/python/cjdnsadminmaker.py*
@@ -546,7 +587,6 @@ fi
 %{_libexecdir}/cjdns/python/dynamicEndpoints.py*
 %{_libexecdir}/cjdns/python/peerStats
 %{_libexecdir}/cjdns/python/sessionStats
-%{_libexecdir}/cjdns/python/cjdnsadmin
 %{_libexecdir}/cjdns/python/pingAll.py*
 %{_libexecdir}/cjdns/python/trashroutes
 %{_libexecdir}/cjdns/python/getLinks
@@ -573,6 +613,27 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Thu May 09 2019 Stuart Gathman <stuart@gathman.org> - 20.3-3
+- Move running test suite to check
+
+* Wed May 08 2019 Stuart Gathman <stuart@gathman.org> - 20.3-2
+- Increase timeout for fuzz tests to allow slower arches to succeed
+
+* Wed May 08 2019 Stuart Gathman <stuart@gathman.org> - 20.3-1
+- New upstream version 20.3
+
+* Fri May 03 2019 Stuart Gathman <stuart@gathman.org> - 20.2-7
+- Option to use system libuv
+- Fix scope of Pipe_PATH String_CONST in config.
+
+* Thu Jan 31 2019 Fedora Release Engineering <releng@fedoraproject.org> - 20.2-6
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_30_Mass_Rebuild
+
+* Thu Nov  8 2018 Stuart Gathman <stuart@gathman.org> - 20.2-5
+- Install cjdnsadmin python module in site-packages
+- Work around missing python2-networkx Provides in python-networkx bz#1647987
+- Fix deprecated Buffer ctor in nodejs tools except on el6
+
 * Wed Jul 18 2018 Stuart Gathman <stuart@gathman.org> - 20.2-4
 - cjdns-20.2 bundles libuv-0.11.19
 - disable CPU specific optimization

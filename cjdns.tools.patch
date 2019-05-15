@@ -1,6 +1,6 @@
 diff -up ./tools/traceroute.tools ./tools/traceroute
---- ./tools/traceroute.tools	2016-03-13 21:23:01.529922250 -0400
-+++ ./tools/traceroute	2016-03-13 21:27:38.006631098 -0400
+--- ./tools/traceroute.tools	2019-05-02 04:02:32.000000000 -0400
++++ ./tools/traceroute	2019-05-08 12:18:10.958661859 -0400
 @@ -83,6 +83,11 @@ var main = function (target) {
  
          cjdns.RouterModule_getPeers("0000.0000.0000.0001", waitFor(function (err, ret) {
@@ -13,7 +13,7 @@ diff -up ./tools/traceroute.tools ./tools/traceroute
              self = ret.peers[0];
          }));
  
-@@ -101,12 +106,13 @@ var main = function (target) {
+@@ -101,11 +106,12 @@ var main = function (target) {
  
      }).nThen(function (waitFor) {
  
@@ -23,8 +23,7 @@ diff -up ./tools/traceroute.tools ./tools/traceroute
          process.stdout.write(lastRet.from);
          tracePath(nodeToIP6(self), lastRet.from, cjdns, function (ret) {
              lastRet = ret;
-             process.stdout.write('  ' + ret.ms + 'ms\n');
 +            if (!ret || !ret.nodes) { return; }
+             process.stdout.write('  ' + ret.ms + 'ms\n');
              if (ret.result === 'timeout') {
                  process.stdout.write('\n' + ret.from + ' ' + ret.result + '!');
-             } else if (ret.nodes.length === 0) {
