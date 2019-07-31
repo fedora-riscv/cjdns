@@ -135,6 +135,8 @@ Patch16: cjdns.python3.patch
 # patch build to use system libuv
 Patch18: cjdns.libuv.patch
 Patch19: cjdns.fuzz.patch
+# patch to use /proc/sys/kernel/random/uuid instead of sysctl
+Patch20: cjdns.sysctl.patch
 
 BuildRequires:  nodejs, nodejs-ronn, python2
 
@@ -240,7 +242,7 @@ cp %{SOURCE2} contrib/systemd
 
 %if 0%{use_embedded}
 # disable CPU opt
-%else !use_embedded
+%else
 # use system nacl library if provided.  
 if test -x %{nacl_lib}; then
 %if 0%{use_libsodium}
@@ -278,6 +280,7 @@ cp node_build/dependencies/libuv/include/tree.h dependencies/uv_tree.h
 rm -rf node_build/dependencies/libuv
 %endif
 %patch19 -p1 -b .fuzz
+%patch20 -p1 -b .sysctl
 
 cp %{SOURCE1} README_Fedora.md
 
@@ -355,7 +358,6 @@ NO_TEST=1 CJDNS_RELEASE_VERSION="%{name}-%{version}-%{release}" ./do
 # https://github.com/cjdelisle/cjdns/commits/master/node_build/dependencies/libuv
 
 %check
-# test suite is executed in %%build
 build_linux/test_testcjdroute_c all >test.out
 
 %install
