@@ -60,6 +60,14 @@
 %global use_upstart 0
 %endif
 
+%if 0 && 0%{?fedora} > 30
+%global use_marked 1
+%global makeman marked-man
+%else
+%global use_marked 0
+%global makeman ../../ronn
+%endif
+
 # FIXME: Needs dependencies and install www dir someplace reasonable.
 %global with_admin 0
 
@@ -72,7 +80,7 @@
 Name:           cjdns
 # major version is cjdns protocol version:
 Version:        20.3
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        The privacy-friendly network without borders
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
 # cnacl is unused except when use_embedded is true
@@ -81,6 +89,8 @@ URL:            http://hyperboria.net/
 Source0: https://github.com/cjdelisle/cjdns/archive/%{name}-v%{version}.tar.gz
 Source1: cjdns.README_Fedora.md
 Source2: cjdns.service
+# nroff overlay for nodejs-marked
+Source3: https://github.com/kapouer/marked-man/archive/0.7.0.tar.gz#/marked-man-0.7.0.tar.gz
 # Add targeted selinux policy
 Patch0: cjdns.selinux.patch
 # Allow python2.6 for build.  Python is not used during the build
@@ -137,8 +147,14 @@ Patch18: cjdns.libuv.patch
 Patch19: cjdns.fuzz.patch
 # patch to use /proc/sys/kernel/random/uuid instead of sysctl
 Patch20: cjdns.sysctl.patch
+# Patch ronn to stop using deprecated util.puts and util.debug
+Patch21: cjdns.puts.patch
 
+%if %{use_marked}
+BuildRequires:  nodejs, nodejs-marked, python2
+%else
 BuildRequires:  nodejs, nodejs-ronn, python2
+%endif
 
 # Automated package review hates explicit BR on make, but it *is* needed
 BuildRequires:  make gcc
@@ -240,6 +256,10 @@ Python peer graph tools for cjdns.
 
 cp %{SOURCE2} contrib/systemd
 
+%if %{use_marked}
+tar xvfz %{SOURCE3}
+%endif
+
 %if 0%{use_embedded}
 # disable CPU opt
 %else
@@ -332,6 +352,12 @@ rm node_build/dependencies/cnacl/node_build/plans/*_AVX_plan.json
 # Leaving SSE2 code in since x86 is secondary arch and pretty much everyone
 # is going to have SSE2, except things like XO-1 which needs custom build.
 #rm node_build/dependencies/cnacl/node_build/plans/x86_SSE2_plan.json
+%endif
+
+%if !%{use_marked}
+cp -r /usr/lib/node_modules/ronn node_modules
+%patch21 -p1 -b .puts
+ln -s node_modules/ronn/bin/ronn.js ronn
 %endif
 
 # FIXME: grep Version_CURRENT_PROTOCOL util/version/Version.h and
@@ -431,12 +457,12 @@ cd contrib/doc
 for m in *.md; do
   case ${m%.md} in
   traceroute) M="1"
-    ronn-nodejs $m >%{buildroot}%{_mandir}/man$M/cjdns-${m%.md}.$M
+    %{makeman} $m >%{buildroot}%{_mandir}/man$M/cjdns-${m%.md}.$M
     continue ;;
   privatetopublic|sybilsim) M="8" ;;
   *) M="1" ;;
   esac
-  ronn-nodejs $m >%{buildroot}%{_mandir}/man$M/${m%.md}.$M
+  %{makeman} $m >%{buildroot}%{_mandir}/man$M/${m%.md}.$M
 done
 cd -
 
@@ -609,6 +635,10 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Sat Aug 03 2019 Stuart Gathman <stuart@gathman.org> - 20.3-5
+- Remove deprecated sysctl() call in getUUID (read from /proc/.../random/uuid)
+- Patch a local copy of ronn to stop calling util.puts/util.debug
+
 * Wed Jul 24 2019 Fedora Release Engineering <releng@fedoraproject.org> - 20.3-4
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_31_Mass_Rebuild
 
