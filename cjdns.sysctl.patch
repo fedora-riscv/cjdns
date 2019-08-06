@@ -1,49 +1,11 @@
-diff -up ./crypto/random/seed/LinuxRandomUuidSysctlRandomSeed.c.sysctl ./crypto/random/seed/LinuxRandomUuidSysctlRandomSeed.c
---- ./crypto/random/seed/LinuxRandomUuidSysctlRandomSeed.c.sysctl	2019-05-02 04:02:32.000000000 -0400
-+++ ./crypto/random/seed/LinuxRandomUuidSysctlRandomSeed.c	2019-07-31 15:43:45.626839153 -0400
-@@ -19,20 +19,39 @@
- #include "util/Hex.h"
- 
- #include <unistd.h>
--#include <sys/syscall.h>
--#include <sys/sysctl.h>
-+#include <fcntl.h>
- 
- static int getUUID(uint64_t output[2])
- {
--    int mib[] = { CTL_KERN, KERN_RANDOM, RANDOM_UUID };
--    size_t sixteen = 16;
--
-+    uint8_t uuid[40];
-     Bits_memset(output, 0, 16);
--    if (sysctl(mib, 3, output, &sixteen, NULL, 0)
-+    int fd = open("/proc/sys/kernel/random/uuid",O_RDONLY);
-+    if (fd < 0)
-+    {
-+        return -1;
-+    }
-+    int rc = read(fd,uuid,36);
-+    close(fd);
-+    if (rc < 32)
-+    {
-+        return -1;
-+    }
-+    uuid[rc] = 0;
-+    /* strip '-' */
-+    int i,j = 0;
-+    for (i = 0; uuid[i] != 0; ++i) {
-+        if (uuid[i] != '-')
-+        {
-+            uuid[j++] = uuid[i];
-+        }
-+    }
-+    uuid[j] = 0;
-+    if (Hex_decode((uint8_t*) output, 16, uuid, j) != 16
-         || Bits_isZero(output, 16))
-     {
-         return -1;
-     }
-+
-     return 0;
- }
- 
+diff -up ./crypto/random/seed/SystemRandomSeed.c.sysctl ./crypto/random/seed/SystemRandomSeed.c
+--- ./crypto/random/seed/SystemRandomSeed.c.sysctl	2019-08-06 12:28:23.084611733 -0400
++++ ./crypto/random/seed/SystemRandomSeed.c	2019-08-06 12:28:36.864803551 -0400
+@@ -19,7 +19,6 @@
+ #include "crypto/random/seed/RtlGenRandomSeed.h"
+ #include "crypto/random/seed/BsdKernArndSysctlRandomSeed.h"
+ #include "crypto/random/seed/DevUrandomRandomSeed.h"
+-#include "crypto/random/seed/LinuxRandomUuidSysctlRandomSeed.h"
+ #include "crypto/random/seed/ProcSysKernelRandomUuidRandomSeed.h"
+ #include "crypto/random/seed/GetEntropyRandomSeed.h"
+ #include "crypto/random/seed/SystemRandomSeed.h"

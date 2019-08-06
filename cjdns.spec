@@ -635,6 +635,9 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Tue Aug 06 2019 Stuart Gathman <stuart@gathman.org> - 20.3-6
+- Much simpler solution to removing sysctl calls :-)
+
 * Sat Aug 03 2019 Stuart Gathman <stuart@gathman.org> - 20.3-5
 - Remove deprecated sysctl() call in getUUID (read from /proc/.../random/uuid)
 - Patch a local copy of ronn to stop calling util.puts/util.debug
