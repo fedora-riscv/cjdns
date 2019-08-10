@@ -1,0 +1,9 @@
+diff -up ./node_build/dependencies/libuv/gyp_uv.py.python3 ./node_build/dependencies/libuv/gyp_uv.py
+--- ./node_build/dependencies/libuv/gyp_uv.py.python3	2017-02-18 15:19:22.280061575 -0500
++++ ./node_build/dependencies/libuv/gyp_uv.py	2017-02-18 15:32:37.090478242 -0500
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/env python2
+ 
+ import os
+ import platform

@@ -1,0 +1,161 @@
+diff -up ./contrib/systemd/cjdns-loadmodules.service.sbin ./contrib/systemd/cjdns-loadmodules.service
+--- ./contrib/systemd/cjdns-loadmodules.service.sbin	2017-01-13 21:43:05.413731242 -0500
++++ ./contrib/systemd/cjdns-loadmodules.service	2017-01-13 21:43:05.413731242 -0500
+@@ -0,0 +1,13 @@
++[Unit]
++Description=Load cjdns kernel modules
++# Load kernel modules needed by cjdns so that it doesn't need the privilege
++Before=cjdns.service
++# Do not try to load modules in containers like openvz
++ConditionVirtualization=!container
++
++[Service]
++Type=oneshot
++ExecStart=/usr/sbin/modprobe tun
++
++[Install]
++WantedBy=multi-user.target
+diff -up ./contrib/systemd/cjdns-online.sh.sbin ./contrib/systemd/cjdns-online.sh
+--- ./contrib/systemd/cjdns-online.sh.sbin	2017-01-13 21:43:05.414731254 -0500
++++ ./contrib/systemd/cjdns-online.sh	2017-01-13 21:43:05.414731254 -0500
+@@ -0,0 +1,90 @@
++#!/bin/sh
++#   Check whether cjdns IPs are available
++#   Copyright (C) 2016  Stuart D. Gathman <stuart@gathman.org>
++#
++#   This program is free software: you can redistribute it and/or modify
++#   it under the terms of the GNU General Public License as published by
++#   the Free Software Foundation, either version 3 of the License, or
++#   (at your option) any later version.
++#
++#   This program is distributed in the hope that it will be useful,
++#   but WITHOUT ANY WARRANTY; without even the implied warranty of
++#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++#   GNU General Public License for more details.
++#
++#   You should have received a copy of the GNU General Public License
++#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
++
++cjdns_ips() {
++  ip -6 -o addr | while read i dev fam ip rem; do
++    case "$ip" in
++    fc*:*/8) echo "${ip%/8}";;
++    esac
++  done
++}
++
++cjdns_dev() {
++  ip -6 -o addr | while read i dev fam ip rem; do
++    case "$ip" in
++    fc*:*/8) echo "${dev}";;
++    esac
++  done
++}
++
++die() {
++  echo "$1" >&2
++  exit 1
++}
++
++PROGRAM_NAME="/usr/bin/cjdns-online"
++
++ARGS=$(getopt -n $PROGRAM_NAME -o t:xiqsh \
++	--long timeout:,exit,interface,quiet,wait-for-startup,help -- "$@")
++
++# Die if they fat finger arguments, this program may be run as root
++[ $? = 0 ] || die "Error parsing arguments. Try $PROGRAM_NAME --help"
++
++help() {
++        cat <<EOH
++Usage: $PROGRAM_NAME [options]
++        -t, --timeout <timeout_value>	time to wait in seconds, default 30
++        -i, --interface 	output interface name instead of ip
++        -x, --exit		exit immediately if cjdns is not online
++        -q, --quiet		don't print anything
++        -s, --wait-for-startup	wait for full startup instead of just tun dev
++EOH
++        exit 2
++}
++
++let timeout="30"
++let nowait="0"
++let quiet="0"
++let startup="0"
++let interface="0"
++
++eval set -- "$ARGS"
++while true; do
++  case "$1" in
++    -t|--timeout)	   let timeout="$2" || help; shift 2; continue;;
++    -i|--interface)	   let interface="1"; shift;;
++    -x|--exit)		   let nowait="1"; shift;;
++    -q|--quiet)		   let quiet="1"; shift;;
++    -s|--wait-for-startup) let startup="1"; shift;;
++    --) shift; break;;
++    *)	help;;
++  esac
++done
++
++let started="$(date +%s)"
++while test -z "$(cjdns_ips)"; do
++  let elapsed="$(date +%s) - $started"
++  [ $elapsed -gt $timeout ] && exit 1
++  sleep 2
++done
++if [ "$quiet" -eq 0 ]; then
++  if [ "$interface" -eq 0 ]; then
++    cjdns_ips
++  else
++    cjdns_dev
++  fi
++fi
+diff -up ./contrib/systemd/cjdns-wait-online.service.sbin ./contrib/systemd/cjdns-wait-online.service
+--- ./contrib/systemd/cjdns-wait-online.service.sbin	2017-01-13 21:43:05.414731254 -0500
++++ ./contrib/systemd/cjdns-wait-online.service	2017-01-13 21:43:05.414731254 -0500
+@@ -0,0 +1,13 @@
++[Unit]
++Description=CJDNS Wait Online
++Requisite=cjdns.service
++After=cjdns.service
++Wants=network.target
++Before=network-online.target
++
++[Service]
++Type=oneshot
++ExecStart=/usr/bin/cjdns-online -s -q --timeout=30
++
++[Install]
++WantedBy=multi-user.target
+diff -up ./contrib/upstart/cjdns.conf.sbin ./contrib/upstart/cjdns.conf
+--- ./contrib/upstart/cjdns.conf.sbin	2016-10-11 17:39:44.000000000 -0400
++++ ./contrib/upstart/cjdns.conf	2017-01-13 21:45:35.268491363 -0500
+@@ -13,10 +13,16 @@ pre-start script
+     if ! [ -s /etc/cjdroute.conf ]; then
+         ( # start a subshell to avoid side effects of umask later on
+             umask 077 # to create the file with 600 permissions without races
+-            /usr/bin/cjdroute --genconf > /etc/cjdroute.conf
++	    # use cat because cjdroute can't write directly to /etc
++            /usr/sbin/cjdroute --genconf | cat > /etc/cjdroute.conf
+         ) # exit subshell; umask no longer applies
+         echo 'WARNING: A new cjdns cjdroute.conf file has been generated.'
+     fi
++    # preload tun driver, since we prevent module_request
++    case $(wc -c /proc/modules) in
++    0*) ;;
++    *) /sbin/modprobe tun;;
++    esac
+ 
+     # If you need a non-standard setup, as described in
+     # https://github.com/cjdelisle/cjdns#non-standard-setups,
+@@ -25,4 +31,10 @@ pre-start script
+     # see http://upstart.ubuntu.com/cookbook/#setuid
+ end script
+ 
+-exec /usr/bin/cjdroute --nobg < /etc/cjdroute.conf
++script
++  exec /usr/sbin/cjdroute --nobg < /etc/cjdroute.conf
++end script
++
++post-start script
++  . /usr/libexec/cjdns/cjdns-up
++end script

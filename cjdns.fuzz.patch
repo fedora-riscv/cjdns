@@ -1,0 +1,21 @@
+diff -up ./test/Main_fuzz_test.c.fuzz ./test/Main_fuzz_test.c
+--- ./test/Main_fuzz_test.c.fuzz	2019-05-08 19:31:34.995364838 -0400
++++ ./test/Main_fuzz_test.c	2019-05-08 19:31:51.955608910 -0400
+@@ -59,8 +59,8 @@ static Iface_DEFUN incomingTun(struct Me
+ static void notLinkedYet(struct Context* ctx)
+ {
+     uint64_t now = Time_currentTimeMilliseconds(ctx->base);
+-    if ((now - ctx->startTime) > 5000) {
+-        Assert_failure("Failed to link in 5 seconds");
++    if ((now - ctx->startTime) > 100000) {
++        Assert_failure("Failed to link in 100 seconds");
+     }
+ }
+ 
+@@ -185,4 +185,4 @@ void CJDNS_FUZZ_MAIN(void* vctx, struct
+     TestFramework_assertLastMessageUnaltered(ctx->nodeA);
+ 
+     EventBase_beginLoop(ctx->base);
+-}
+\ No newline at end of file
++}

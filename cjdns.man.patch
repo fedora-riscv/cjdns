@@ -1,0 +1,13 @@
+diff -up ./contrib/doc/cjdns-online.md.man ./contrib/doc/cjdns-online.md
+--- ./contrib/doc/cjdns-online.md.man	2016-10-11 17:39:44.000000000 -0400
++++ ./contrib/doc/cjdns-online.md	2016-11-06 23:15:32.528962680 -0500
+@@ -25,6 +25,9 @@ thttpd at boot, for example.
+   * `-x`, `--exit`:		
+     Exit immediately if cjdns is not online
+ 
++  * `-i`, `--interface`:
++    Output interface name instead of IP 
++
+   * `-q`, `--quiet`:
+     Don't print anything
+ 

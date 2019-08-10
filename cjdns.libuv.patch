@@ -1,0 +1,126 @@
+diff -up ./dht/dhtcore/NodeStore.c.libuv ./dht/dhtcore/NodeStore.c
+--- ./dht/dhtcore/NodeStore.c.libuv	2018-04-18 03:35:41.000000000 -0400
++++ ./dht/dhtcore/NodeStore.c	2019-04-24 23:37:26.625881889 -0400
+@@ -28,7 +28,7 @@
+ #include "util/Endian.h"
+ #include "util/events/Time.h"
+ 
+-#include <tree.h>
++#include "dependencies/uv_tree.h"
+ 
+ /** A list of DHT nodes. */
+ struct NodeStore_pvt
+diff -up ./node_build/make.js.libuv ./node_build/make.js
+--- ./node_build/make.js.libuv	2018-04-18 03:35:41.000000000 -0400
++++ ./node_build/make.js	2019-04-24 23:37:26.690882782 -0400
+@@ -46,7 +46,7 @@ Builder.configure({
+     crossCompiling: process.env['CROSS'] !== undefined,
+     gcc:            GCC,
+     tempDir:        process.env['CJDNS_BUILD_TMPDIR'] || '/tmp',
+-    optimizeLevel:  '-O3',
++    optimizeLevel:  '-O',
+     logLevel:       process.env['Log_LEVEL'] || 'DEBUG'
+ }, function (builder, waitFor) {
+ 
+@@ -101,7 +101,7 @@ Builder.configure({
+ 
+     if (!builder.config.crossCompiling) {
+         if (NO_MARCH_FLAG.indexOf(process.arch) == -1) {
+-            builder.config.cflags.push('-march=native');
++            builder.config.cflags.push('-mtune=generic');
+         }
+     }
+ 
+@@ -287,7 +287,7 @@ Builder.configure({
+ 
+                 if (!builder.config.crossCompiling) {
+                     if (NO_MARCH_FLAG.indexOf(process.arch) == -1) {
+-                        args.unshift('-march=native');
++                        args.unshift('-mtune=generic');
+                     }
+                 }
+ 
+@@ -301,7 +301,7 @@ Builder.configure({
+ 
+     }).nThen(function (waitFor) {
+ 
+-        builder.config.libs.push(libuvLib);
++        builder.config.libs.push('-luv');
+         if (!android) {
+             builder.config.libs.push('-lpthread');
+         }
+@@ -328,15 +328,13 @@ Builder.configure({
+             );
+         }
+ 
+-        builder.config.includeDirs.push(dependencyDir + '/libuv/include/');
++        /* builder.config.includeDirs.push('/usr/include/uv/'); */
+ 
+         var libuvBuilt;
+         var python;
+         nThen(function (waitFor) {
+ 
+-            Fs.exists(libuvLib, waitFor(function (exists) {
+-                if (exists) { libuvBuilt = true; }
+-            }));
++            libuvBuilt = true;
+ 
+         }).nThen(function (waitFor) {
+ 
+diff -up ./test/Beacon_test.c.libuv ./test/Beacon_test.c
+--- ./test/Beacon_test.c.libuv	2018-04-18 03:35:41.000000000 -0400
++++ ./test/Beacon_test.c	2019-04-24 23:44:04.535476759 -0400
+@@ -256,7 +256,8 @@ int main()
+     start(alloc, logger, base, rand, runTest);
+ 
+     EventBase_beginLoop(base);
+-    Allocator_free(alloc);
++    EventBase_endLoop(base);
++    /* Allocator_free(alloc); */
+     return 0;
+ }
+ #endif
+diff -up ./util/events/libuv/FileNo.c.libuv ./util/events/libuv/FileNo.c
+--- ./util/events/libuv/FileNo.c.libuv	2018-04-18 03:35:41.000000000 -0400
++++ ./util/events/libuv/FileNo.c	2019-04-24 23:37:26.626881902 -0400
+@@ -77,14 +77,14 @@ static void onClose(uv_handle_t* handle)
+ #endif
+ #define ALLOC(buff) (((struct Allocator**) &(buff[-(8 + (((uintptr_t)buff) % 8))]))[0])
+ 
+-static void incoming(uv_pipe_t* stream,
++static void incoming(uv_stream_t* stream,
+                      ssize_t nread,
+-                     const uv_buf_t* buf,
+-                     uv_handle_type pending)
++                     const uv_buf_t* buf)
+ {
+     // Grab out the allocator which was placed there by allocate()
+     struct Allocator* alloc = buf->base ? ALLOC(buf->base) : NULL;
+ 
++    uv_handle_type pending = uv_pipe_pending_type((uv_pipe_t*) stream);
+     Assert_true(pending == UV_UNKNOWN_HANDLE);
+ 
+     if (nread < 0) {
+@@ -134,8 +134,8 @@ static void connected(uv_connect_t* req,
+                  fileno->pub.pipePath, uv_strerror(status) );
+         uv_close((uv_handle_t*) &fileno->peer, onClose);
+ 
+-    } else if ((ret = uv_read2_start((uv_stream_t*)&fileno->peer, allocate, incoming))) {
+-        Log_info(fileno->pub.logger, "uv_read2_start() failed for pipe [%s] [%s]",
++    } else if ((ret = uv_read_start((uv_stream_t*)&fileno->peer, allocate, incoming))) {
++        Log_info(fileno->pub.logger, "uv_read_start() failed for pipe [%s] [%s]",
+                  fileno->pub.pipePath, uv_strerror(ret));
+         uv_close((uv_handle_t*) &fileno->peer, onClose);
+ 
+diff -up ./util/events/libuv/Timeout.c.libuv ./util/events/libuv/Timeout.c
+--- ./util/events/libuv/Timeout.c.libuv	2018-04-18 03:35:41.000000000 -0400
++++ ./util/events/libuv/Timeout.c	2019-04-24 23:37:26.626881902 -0400
+@@ -38,7 +38,7 @@ struct Timeout
+ /**
+  * The callback to be called by libuv.
+  */
+-static void handleEvent(uv_timer_t* handle, int status)
++static void handleEvent(uv_timer_t* handle)
+ {
+     struct Timeout* timeout = Identity_check((struct Timeout*) handle);
+     if (!timeout->isInterval) {
