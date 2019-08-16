@@ -636,7 +636,7 @@ fi
 
 %changelog
 * Thu Aug 15 2019 Stuart Gathman <stuart@gathman.org> - 20.3-7
-- Don't audit /var/lib/sss access
+- Don't audit /var/lib/sss access bz#1589395
 
 * Tue Aug 06 2019 Stuart Gathman <stuart@gathman.org> - 20.3-6
 - Much simpler solution to removing sysctl calls :-)
