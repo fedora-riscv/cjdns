@@ -1,17 +1,18 @@
 diff -up ./contrib/selinux/cjdns.te.selinux ./contrib/selinux/cjdns.te
---- ./contrib/selinux/cjdns.te.selinux	2018-01-30 19:04:59.000000000 -0500
-+++ ./contrib/selinux/cjdns.te	2018-03-05 01:15:40.302169785 -0500
-@@ -7,8 +7,8 @@ require {
+--- ./contrib/selinux/cjdns.te.selinux	2019-05-02 04:02:32.000000000 -0400
++++ ./contrib/selinux/cjdns.te	2019-08-15 22:23:18.807845457 -0400
+@@ -7,8 +7,9 @@ require {
  	type port_t;
  	type unreserved_port_t;
  	type tmp_t;
 -	type kernel_t;
  	type passwd_file_t;
 +	type net_conf_t;
++	type sssd_var_lib_t;
  }
  
  type cjdns_t;
-@@ -17,24 +17,24 @@ init_daemon_domain(cjdns_t,cjdns_exec_t)
+@@ -17,24 +18,26 @@ init_daemon_domain(cjdns_t,cjdns_exec_t)
  
  #============= cjdns_t ==============
  # Let master process run further restricted subprocess
@@ -23,6 +24,8 @@ diff -up ./contrib/selinux/cjdns.te.selinux ./contrib/selinux/cjdns.te
 -allow cjdns_t kernel_t:system module_request;
  # translate username to uid
  allow cjdns_t passwd_file_t:file { read getattr open };
++# should not need sssd to lookup uid for local uid
++dontaudit cjdns_t sssd_var_lib_t:dir search;
  
 +# translate host names
 +allow cjdns_t net_conf_t:file { read getattr open };

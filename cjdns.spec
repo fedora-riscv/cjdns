@@ -80,7 +80,7 @@
 Name:           cjdns
 # major version is cjdns protocol version:
 Version:        20.3
-Release:        6%{?dist}
+Release:        7%{?dist}
 Summary:        The privacy-friendly network without borders
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
 # cnacl is unused except when use_embedded is true
@@ -635,6 +635,9 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Thu Aug 15 2019 Stuart Gathman <stuart@gathman.org> - 20.3-7
+- Don't audit /var/lib/sss access
+
 * Tue Aug 06 2019 Stuart Gathman <stuart@gathman.org> - 20.3-6
 - Much simpler solution to removing sysctl calls :-)
 
