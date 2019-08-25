@@ -80,7 +80,7 @@
 Name:           cjdns
 # major version is cjdns protocol version:
 Version:        20.3
-Release:        7%{?dist}
+Release:        8%{?dist}
 Summary:        The privacy-friendly network without borders
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
 # cnacl is unused except when use_embedded is true
@@ -420,7 +420,8 @@ install -p publictoip6 privatetopublic mkpasswd makekeys randombytes sybilsim \
         %{buildroot}%{_libexecdir}/cjdns
 rm -f node_modules/nthen/.npmignore
 cp -pr tools node_modules %{buildroot}%{_libexecdir}/cjdns
-
+# but not local copy of ronn
+rm -rf %{buildroot}%{_libexecdir}/cjdns/node_modules/ronn
 
 %if %{with_admin}
 rm -f contrib/nodejs/admin/.gitignore
@@ -635,6 +636,9 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Sat Aug 24 2019 Stuart Gathman <stuart@gathman.org> - 20.3-8
+- Don't package local copy of ronn 
+
 * Thu Aug 15 2019 Stuart Gathman <stuart@gathman.org> - 20.3-7
 - Don't audit /var/lib/sss access bz#1589395
 
