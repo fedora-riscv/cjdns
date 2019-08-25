@@ -319,7 +319,7 @@ find tools -type f | xargs grep -l '^#!\/usr\/bin\/env ' |
 # Fix deprecated Buffer ctor except on EL6
 %if 0%{?rhel} != 6 
 sed -e '1,$ s/new Buffer/Buffer.from/' -i \
-	tools/lib/publicToIp6.js tools/lib/cjdnsadmin/cjdnsadmin.js
+        tools/lib/publicToIp6.js tools/lib/cjdnsadmin/cjdnsadmin.js
 %endif
 
 # Remove unpackaged code with undeclared licenses
@@ -359,6 +359,11 @@ cp -r /usr/lib/node_modules/ronn node_modules
 %patch21 -p1 -b .puts
 ln -s node_modules/ronn/bin/ronn.js ronn
 %endif
+
+# remove hidden files from node_modules/nthen
+cd node_modules/nthen
+rm -f .f* .j* .t*
+cd -
 
 # FIXME: grep Version_CURRENT_PROTOCOL util/version/Version.h and
 # check that it matches major %%{version}
@@ -638,6 +643,7 @@ fi
 %changelog
 * Sat Aug 24 2019 Stuart Gathman <stuart@gathman.org> - 20.3-8
 - Don't package local copy of ronn 
+- Remove hidden files from node_modules/nthen
 
 * Thu Aug 15 2019 Stuart Gathman <stuart@gathman.org> - 20.3-7
 - Don't audit /var/lib/sss access bz#1589395
