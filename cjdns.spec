@@ -90,7 +90,9 @@ Source0: https://github.com/cjdelisle/cjdns/archive/%{name}-v%{version}.tar.gz
 Source1: cjdns.README_Fedora.md
 Source2: cjdns.service
 # nroff overlay for nodejs-marked
+%if 0%{?use_marked}
 Source3: https://github.com/kapouer/marked-man/archive/0.7.0.tar.gz#/marked-man-0.7.0.tar.gz
+%endif
 # Add targeted selinux policy
 Patch0: cjdns.selinux.patch
 # Allow python2.6 for build.  Python is not used during the build
@@ -299,6 +301,7 @@ fi
 rm -rf node_build/dependencies/libuv
 %else
 rm -rf node_build/dependencies/libuv/build/gyp # use system gyp
+sed -i -e '/optimizeLevel:/ s/-O0/-O3/' node_build/make.js
 %endif
 #patch19 -p1 -b .fuzz
 #patch20 -p1 -b .sysctl
