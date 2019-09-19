@@ -79,8 +79,8 @@
 
 Name:           cjdns
 # major version is cjdns protocol version:
-Version:        20.3
-Release:        8%{?dist}
+Version:        20.4
+Release:        1%{?dist}
 Summary:        The privacy-friendly network without borders
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
 # cnacl is unused except when use_embedded is true
@@ -145,15 +145,15 @@ Patch16: cjdns.python3.patch
 # patch build to use system libuv
 Patch18: cjdns.libuv.patch
 Patch19: cjdns.fuzz.patch
-# patch to use /proc/sys/kernel/random/uuid instead of sysctl
+# patch to use /proc/sys/kernel/random/uuid instead of sysctl before 20.4
 Patch20: cjdns.sysctl.patch
 # Patch ronn to stop using deprecated util.puts and util.debug
 Patch21: cjdns.puts.patch
 
 %if %{use_marked}
-BuildRequires:  nodejs, nodejs-marked, python2
+BuildRequires:  nodejs, nodejs-marked, python3
 %else
-BuildRequires:  nodejs, nodejs-ronn, python2
+BuildRequires:  nodejs, nodejs-ronn, python3
 %endif
 
 # Automated package review hates explicit BR on make, but it *is* needed
@@ -175,6 +175,7 @@ Requires(pre): shadow-utils
 %if 0%{use_libuv}
 BuildRequires: libuv-devel
 %else
+BuildRequires: gyp
 Provides: bundled(libuv) = 0.11.19
 %endif
 %if 0%{use_embedded}
@@ -295,12 +296,12 @@ fi
 %patch16 -b .python3
 %if 0%{use_libuv}
 %patch18 -p1 -b .libuv
-mkdir dependencies
-cp node_build/dependencies/libuv/include/tree.h dependencies/uv_tree.h
 rm -rf node_build/dependencies/libuv
+%else
+rm -rf node_build/dependencies/libuv/build/gyp # use system gyp
 %endif
-%patch19 -p1 -b .fuzz
-%patch20 -p1 -b .sysctl
+#patch19 -p1 -b .fuzz
+#patch20 -p1 -b .sysctl
 
 cp %{SOURCE1} README_Fedora.md
 
@@ -641,6 +642,10 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Tue Sep 10 2019 Stuart Gathman <stuart@gathman.org> - 20.4-1
+- Update to 20.4
+- Update bundled libuv build to use system gyp for build
+
 * Sat Aug 24 2019 Stuart Gathman <stuart@gathman.org> - 20.3-8
 - Don't package local copy of ronn 
 - Remove hidden files from node_modules/nthen
