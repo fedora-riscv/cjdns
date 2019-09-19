@@ -303,7 +303,7 @@ rm -rf node_build/dependencies/libuv
 rm -rf node_build/dependencies/libuv/build/gyp # use system gyp
 sed -i -e '/optimizeLevel:/ s/-O0/-O3/' node_build/make.js
 %endif
-#patch19 -p1 -b .fuzz
+%patch19 -p1 -b .fuzz
 #patch20 -p1 -b .sysctl
 
 cp %{SOURCE1} README_Fedora.md
