@@ -73,7 +73,7 @@
 
 # FIXME: python tools need to make cjdnsadmin a proper python package
 %global with_python 1
-%global __python %{__python2}
+%global __python %{__python3}
 
 %{!?__restorecon: %global __restorecon /sbin/restorecon}
 
@@ -153,9 +153,19 @@ Patch20: cjdns.sysctl.patch
 Patch21: cjdns.puts.patch
 
 %if %{use_marked}
-BuildRequires:  nodejs, nodejs-marked, python3
+BuildRequires:  nodejs, nodejs-marked
 %else
-BuildRequires:  nodejs, nodejs-ronn, python3
+BuildRequires:  nodejs, nodejs-ronn
+%endif
+
+%if 0%{?rhel} == 6 
+BuildRequires:	python34
+%else
+%if 0%{?rhel} == 7
+BuildRequires:	python36
+%else
+BuildRequires:	python3
+%endif
 %endif
 
 # Automated package review hates explicit BR on make, but it *is* needed
