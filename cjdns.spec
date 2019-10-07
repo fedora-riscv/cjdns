@@ -247,7 +247,7 @@ BuildRequires: python3-rpm-macros, python3-devel
 Requires: python3, %{name} = %{version}-%{release}
 BuildArch: noarch
 %if !%{with python2}
-Obsoletes: python2-%{name}
+Obsoletes: python2-%{name} < 20.4-2
 %endif
 
 %description -n python3-%{name}
