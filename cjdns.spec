@@ -1,4 +1,3 @@
-
 # Fedora review: http://bugzilla.redhat.com/1268716
 
 # Option to enable SUBNODE mode (WIP)
@@ -67,9 +66,15 @@
 %if 0 && 0%{?fedora} > 30
 %global use_marked 1
 %global makeman marked-man
+%global manpages 1
 %else
 %global use_marked 0
+%if 0%{?rhel} == 8
+%global manpages 0
+%else
 %global makeman ../../ronn
+%global manpages 1
+%endif
 %endif
 
 # FIXME: Needs dependencies and install www dir someplace reasonable.
@@ -158,7 +163,10 @@ Patch21: cjdns.puts.patch
 %if %{use_marked}
 BuildRequires:  nodejs, nodejs-marked, python3
 %else
-BuildRequires:  nodejs, nodejs-ronn, python3
+BuildRequires:  nodejs, python3
+%if %{manpages}
+BuildRequires:	nodejs-ronn
+%endif
 %endif
 
 # Automated package review hates explicit BR on make, but it *is* needed
@@ -385,7 +393,7 @@ rm node_build/dependencies/cnacl/node_build/plans/*_AVX_plan.json
 #rm node_build/dependencies/cnacl/node_build/plans/x86_SSE2_plan.json
 %endif
 
-%if !%{use_marked}
+%if !%{use_marked} && %{manpages}
 cp -r /usr/lib/node_modules/ronn node_modules
 %patch21 -p1 -b .puts
 ln -s node_modules/ronn/bin/ronn.js ronn
@@ -515,10 +523,11 @@ install -pm 755 contrib/systemd/cjdns-online.sh \
         %{buildroot}%{_bindir}/cjdns-online
 
 # man pages
-mkdir -p %{buildroot}%{_mandir}/man1
 mkdir -p %{buildroot}%{_mandir}/man5
-mkdir -p %{buildroot}%{_mandir}/man8
 install -pm 644 doc/man/cjdroute.conf.5 %{buildroot}%{_mandir}/man5
+%if %{manpages}
+mkdir -p %{buildroot}%{_mandir}/man1
+mkdir -p %{buildroot}%{_mandir}/man8
 cd contrib/doc
 for m in *.md; do
   case ${m%.md} in
@@ -531,6 +540,7 @@ for m in *.md; do
   %{makeman} $m >%{buildroot}%{_mandir}/man$M/${m%.md}.$M
 done
 cd -
+%endif
 
 %if %{with python2}
 
@@ -591,12 +601,14 @@ done
 %{_bindir}/makekeys
 %{_bindir}/cjdns-online
 %{_mandir}/man5/*
+%if %{manpages}
 %{_mandir}/man8/*
 %{_mandir}/man1/cjdns-online.1.gz
 %{_mandir}/man1/cjdroute.1.gz
 %{_mandir}/man1/makekeys.1.gz
 %{_mandir}/man1/publictoip6.1.gz
 %{_mandir}/man1/randombytes.1.gz
+%endif
 
 %pre
 getent group cjdns > /dev/null || groupadd -r cjdns
@@ -663,10 +675,12 @@ fi
 %{_bindir}/pingAll
 %{_bindir}/search
 %{_bindir}/cjdns-traceroute
+%if %{manpages}
 %{_mandir}/man1/cjdns-traceroute.1.gz
 %{_mandir}/man1/sessionStats.1.gz
 %{_mandir}/man1/peerStats.1.gz
 %{_mandir}/man1/cjdnslog.1.gz
+%endif
 
 %if %{with python2}
 %files -n python2-cjdns
