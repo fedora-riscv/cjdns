@@ -17,6 +17,10 @@
 %bcond_without seccomp
 # Option to use system libuv instead of bundled libuv-0.11.19
 %bcond_with libuv
+# When with_python3 is set, this replaces tools in bin and libexec
+# with python3 versions, and python2-cjdns has py2 library only.
+%bcond_without python2
+%bcond_without python3
 
 %if %{with embedded}
 %global use_embedded 1
@@ -69,18 +73,18 @@
 %endif
 
 # FIXME: Needs dependencies and install www dir someplace reasonable.
-%global with_admin 0
 
 # FIXME: python tools need to make cjdnsadmin a proper python package
 %global with_python 1
 %global __python %{__python3}
+%global with_admin 0
 
 %{!?__restorecon: %global __restorecon /sbin/restorecon}
 
 Name:           cjdns
 # major version is cjdns protocol version:
 Version:        20.4
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        The privacy-friendly network without borders
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
 # cnacl is unused except when use_embedded is true
@@ -93,6 +97,8 @@ Source2: cjdns.service
 %if 0%{?use_marked}
 Source3: https://github.com/kapouer/marked-man/archive/0.7.0.tar.gz#/marked-man-0.7.0.tar.gz
 %endif
+# Contributed python API hacked for python3
+Source4: python-cjdns-0.1.tar.gz
 # Add targeted selinux policy
 Patch0: cjdns.selinux.patch
 # Allow python2.6 for build.  Python is not used during the build
@@ -184,12 +190,14 @@ Requires(preun): systemd
 Requires(postun): systemd
 %endif
 Requires(pre): shadow-utils
+
 %if 0%{use_libuv}
 BuildRequires: libuv-devel
 %else
 BuildRequires: gyp
 Provides: bundled(libuv) = 0.11.19
 %endif
+
 %if 0%{use_embedded}
 Provides: bundled(nacl) = 20110221
 %endif
@@ -225,6 +233,7 @@ cjdnslog           display cjdroute log
 cjdns-traceroute   trace route to cjdns IP
 sessionStats       show current crypto sessions
 
+%if %{with python2}
 %package -n python2-cjdns
 %{?python_provide:%python_provide python2-cjdns}
 # Remove before F30
@@ -237,19 +246,41 @@ BuildRequires: python2-rpm-macros
 BuildRequires: python-rpm-macros
 %endif
 Requires: python2, %{name} = %{version}-%{release}
+#Requires: python2-%{name} = %{version}-%{release}
 BuildArch: noarch
 
 %description -n python2-cjdns
 Python tools for cjdns.
+%endif
+
+%if %{with python3}
+%package -n python3-%{name}
+%{?python_provide:%python_provide python3-%{name}}
+Summary: Python tools for cjdns
+BuildRequires: python3-rpm-macros, python3-devel
+Requires: python3, %{name} = %{version}-%{release}
+BuildArch: noarch
+%if !%{with python2}
+Obsoletes: python2-%{name} < 20.4-2
+%endif
+
+%description -n python3-%{name}
+Python tools for cjdns.
+%endif
 
 %package graph
 Summary: Python peer graph tools for cjdns
+%if %{with python3}
+Requires: python3-%{name} = %{version}-%{release}
+Requires: python3-networkx
+%else
 Requires: python2-%{name} = %{version}-%{release}
 %if 0%{?rhel} == 6 || 0%{?rhel} == 7
 Requires: python-networkx
 Requires: python2-matplotlib
 %else
 Requires: python2-networkx
+%endif
 %endif
 BuildArch: noarch
 
@@ -337,7 +368,7 @@ sed -e '1,$ s/new Buffer/Buffer.from/' -i \
 %endif
 
 # Remove unpackaged code with undeclared licenses
-%if %{with_admin}
+%if !%{with_admin}
 rm -rf contrib/nodejs   # GPLv3 and ASL 2.0
 %endif
 rm -rf contrib/http     # GPLv2 and MIT
@@ -379,14 +410,28 @@ cd node_modules/nthen
 rm -f .f* .j* .t*
 cd -
 
+# python3 API
+%if %{with python3}
+tar xvfz %{SOURCE4}
+mv python-cjdns-* python-cjdns
+%endif
+
 # FIXME: grep Version_CURRENT_PROTOCOL util/version/Version.h and
 # check that it matches major %%{version}
 
 %build
+
+# build selinux policy
 cd contrib/selinux
 ln -s /usr/share/selinux/devel/Makefile .
 make 
 cd -
+
+%if 0 && %{with python3}
+cd python-cjdns
+python3 setup.py build 
+cd -
+%endif
 
 # nodejs based build system
 
@@ -449,8 +494,24 @@ cp -pr contrib/nodejs/admin %{buildroot}%{_libexecdir}/cjdns
 
 cp -p cjdns-up.sh %{buildroot}%{_libexecdir}/cjdns/cjdns-up
 
-# symlinks for selected nodejs tools
+# do python setup.py install *before* any other bin installs so we can move
+# to libexec.  FIXME: pip install might be able to do this more elegantly.
 mkdir -p %{buildroot}%{_bindir}
+%if %{with python3}
+mkdir -p %{buildroot}%{_libexecdir}/cjdns/python
+cd python-cjdns
+python3 setup.py install -O1 --root %{buildroot}
+cd -
+mv %{buildroot}/%{_bindir}/* %{buildroot}/%{_libexecdir}/cjdns/python
+
+# These files are installed via doc and license
+rm -f %{buildroot}%{python3_sitelib}/cjdnsadmin/bencode.py.LICENSE.txt
+rm -f %{buildroot}%{_libexecdir}/cjdns/python/README.md
+rm -f %{buildroot}%{_libexecdir}/cjdns/python/cjdns-dynamic.conf
+
+%endif
+
+# symlinks for selected nodejs tools
 for t in peerStats sessionStats cjdnslog search dumpLinks dumptable \
          dumpRumorMill pathfinderTree pingAll; do
   ln -sf %{_libexecdir}/cjdns/tools/$t %{buildroot}%{_bindir}
@@ -486,8 +547,9 @@ for m in *.md; do
 done
 cd -
 
-%if %{with_python}
+%if %{with python2}
 
+%if !%{with python3}
 # install python tools that pull in networkx for graphing
 cp -pr contrib/python %{buildroot}%{_libexecdir}/cjdns
 
@@ -496,22 +558,26 @@ rm %{buildroot}%{_libexecdir}/cjdns/python/README.md
 rm %{buildroot}%{_libexecdir}/cjdns/python/cjdns-dynamic.conf
 rm %{buildroot}%{_libexecdir}/cjdns/python/cjdnsadmin/bencode.py.LICENSE.txt
 
-# Move cjdnsadmin to site-packages
-mkdir -p %{buildroot}%{python2_sitelib}
-mv %{buildroot}%{_libexecdir}/cjdns/python/cjdnsadmin %{buildroot}%{python2_sitelib}
+%endif
 
+# Install cjdnsadmin to site-packages
+mkdir -p %{buildroot}%{python2_sitelib}
+cp -pr contrib/python/cjdnsadmin %{buildroot}%{python2_sitelib}
+
+%endif
+
+%if %{with python2} || %{with python3}
 # symlink python tools w/o conflict with nodejs tools or needing networkx
 for t in pingAll.py trashroutes \
          getLinks ip6topk pktoip6 cjdnsa searches findnodes; do
   ln -sf %{_libexecdir}/cjdns/python/$t %{buildroot}%{_bindir}
 done
+%endif
 
 # symlink python tools that pull in networkx for graphing
 for t in drawgraph dumpgraph graphStats; do
   ln -sf %{_libexecdir}/cjdns/python/$t %{buildroot}%{_bindir}
 done
-
-%endif
 
 %files
 %{!?_licensedir:%global license %%doc}
@@ -617,10 +683,12 @@ fi
 %{_mandir}/man1/peerStats.1.gz
 %{_mandir}/man1/cjdnslog.1.gz
 
+%if %{with python2}
 %files -n python2-cjdns
 %doc contrib/python/README.md contrib/python/cjdns-dynamic.conf
 %license contrib/python/cjdnsadmin/bencode.py.LICENSE.txt
 %{python2_sitelib}/cjdnsadmin
+%if !%{with python3}
 %dir %{_libexecdir}/cjdns/python
 %{_libexecdir}/cjdns/python/cexec
 %{_libexecdir}/cjdns/python/cjdnsadminmaker.py*
@@ -645,6 +713,40 @@ fi
 %{_bindir}/cjdnsa
 %{_bindir}/searches
 %{_bindir}/findnodes
+%endif
+%endif
+
+%if %{with python3}
+%files -n python3-cjdns
+%doc python-cjdns/README.md python-cjdns/cjdns-dynamic.conf
+%license python-cjdns/cjdnsadmin/bencode.py.LICENSE.txt
+%{python3_sitelib}/*
+%dir %{_libexecdir}/cjdns/python
+%{_libexecdir}/cjdns/python/cexec
+%{_libexecdir}/cjdns/python/cjdnsadminmaker.py*
+%{_libexecdir}/cjdns/python/cjdnslog
+%{_libexecdir}/cjdns/python/dumptable
+%{_libexecdir}/cjdns/python/dynamicEndpoints.py*
+%{_libexecdir}/cjdns/python/peerStats
+%{_libexecdir}/cjdns/python/sessionStats
+%{_libexecdir}/cjdns/python/pingAll.py*
+%{_libexecdir}/cjdns/python/trashroutes
+%{_libexecdir}/cjdns/python/getLinks
+%{_libexecdir}/cjdns/python/ip6topk
+%{_libexecdir}/cjdns/python/pktoip6
+%{_libexecdir}/cjdns/python/cjdnsa
+%{_libexecdir}/cjdns/python/searches
+%{_libexecdir}/cjdns/python/findnodes
+%{_libexecdir}/cjdns/python/__pycache__
+%{_bindir}/pingAll.py
+%{_bindir}/trashroutes
+%{_bindir}/getLinks
+%{_bindir}/ip6topk
+%{_bindir}/pktoip6
+%{_bindir}/cjdnsa
+%{_bindir}/searches
+%{_bindir}/findnodes
+%endif
 
 %files graph
 %{_libexecdir}/cjdns/python/drawgraph
@@ -655,6 +757,9 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Wed Oct  2 2019 Stuart Gathman <stuart@gathman.org> - 20.4-2
+- Add python3 support for python API
+
 * Tue Sep 10 2019 Stuart Gathman <stuart@gathman.org> - 20.4-1
 - Update to 20.4
 - Update bundled libuv build to use system gyp for build
