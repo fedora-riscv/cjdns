@@ -84,7 +84,7 @@
 Name:           cjdns
 # major version is cjdns protocol version:
 Version:        20.4
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        The privacy-friendly network without borders
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
 # cnacl is unused except when use_embedded is true
@@ -246,7 +246,6 @@ BuildRequires: python2-rpm-macros
 BuildRequires: python-rpm-macros
 %endif
 Requires: python2, %{name} = %{version}-%{release}
-#Requires: python2-%{name} = %{version}-%{release}
 BuildArch: noarch
 
 %description -n python2-cjdns
@@ -254,31 +253,32 @@ Python tools for cjdns.
 %endif
 
 %if %{with python3}
-%package -n python3-%{name}
+%package -n python36-%{name}
 %{?python_provide:%python_provide python3-%{name}}
 Summary: Python tools for cjdns
 BuildRequires: python3-rpm-macros, python3-devel
-Requires: python3, %{name} = %{version}-%{release}
+Requires: python36, %{name} = %{version}-%{release}
 BuildArch: noarch
 %if !%{with python2}
 Obsoletes: python2-%{name} < 20.4-2
 %endif
 
-%description -n python3-%{name}
+%description -n python36-%{name}
 Python tools for cjdns.
 %endif
 
 %package graph
 Summary: Python peer graph tools for cjdns
+%if 0%{?rhel} == 6 || 0%{?rhel} == 7
+Requires: python2-%{name} = %{version}-%{release}
+Requires: python-networkx
+Requires: python2-matplotlib
+%else
 %if %{with python3}
 Requires: python3-%{name} = %{version}-%{release}
 Requires: python3-networkx
 %else
 Requires: python2-%{name} = %{version}-%{release}
-%if 0%{?rhel} == 6 || 0%{?rhel} == 7
-Requires: python-networkx
-Requires: python2-matplotlib
-%else
 Requires: python2-networkx
 %endif
 %endif
@@ -355,7 +355,7 @@ find contrib/python/cjdnsadmin ! -executable -name "*.py" |
         xargs sed -e '\,^#!/usr/bin/env, d' -i
 find contrib/python -type f |
         xargs sed -e '1 s,^#!/usr/bin/env ,#!/usr/bin/,' -i 
-sed -e '$ s,^python ,/usr/bin/python2 ,' -i contrib/python/cjdnsa
+sed -e '$ s,^python ,/usr/bin/python3.6 ,' -i contrib/python/cjdnsa
 
 # Remove #!env from nodejs scripts
 find tools -type f | xargs grep -l '^#!\/usr\/bin\/env ' |
@@ -576,6 +576,12 @@ done
 
 # symlink python tools that pull in networkx for graphing
 for t in drawgraph dumpgraph graphStats; do
+
+%if 0%{?rhel} == 6 || 0%{?rhel} == 7
+  # cjdns-graph requirements are only in python2 on el7
+  sed -e '1 s,python3,python2,' -i %{buildroot}%{_libexecdir}/cjdns/python/$t
+%endif
+
   ln -sf %{_libexecdir}/cjdns/python/$t %{buildroot}%{_bindir}
 done
 
@@ -717,7 +723,7 @@ fi
 %endif
 
 %if %{with python3}
-%files -n python3-cjdns
+%files -n python36-cjdns
 %doc python-cjdns/README.md python-cjdns/cjdns-dynamic.conf
 %license python-cjdns/cjdnsadmin/bencode.py.LICENSE.txt
 %{python3_sitelib}/*
@@ -757,6 +763,9 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Tue Nov 12 2019 Stuart Gathman <stuart@gathman.org> - 20.4-3
+- networkx for cjdns-graph subpackage requires python2 on el7
+
 * Wed Oct  2 2019 Stuart Gathman <stuart@gathman.org> - 20.4-2
 - Add python3 support for python API
 
