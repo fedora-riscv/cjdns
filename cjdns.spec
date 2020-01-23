@@ -154,6 +154,8 @@ Patch19: cjdns.fuzz.patch
 Patch20: cjdns.sysctl.patch
 # Patch ronn to stop using deprecated util.puts and util.debug
 Patch21: cjdns.puts.patch
+# gcc-10 no longer allows duplicate globals
+Patch22: cjdns.gcc10.patch
 
 %if %{use_marked}
 BuildRequires:  nodejs, nodejs-marked, python3
@@ -332,6 +334,7 @@ sed -i -e '/optimizeLevel:/ s/-O0/-O3/' node_build/make.js
 %endif
 %patch19 -p1 -b .fuzz
 #patch20 -p1 -b .sysctl
+%patch22 -b .gcc10
 
 cp %{SOURCE1} README_Fedora.md
 
