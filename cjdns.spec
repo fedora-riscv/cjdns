@@ -330,7 +330,7 @@ fi
 rm -rf node_build/dependencies/libuv
 %else
 rm -rf node_build/dependencies/libuv/build/gyp # use system gyp
-sed -i -e '/optimizeLevel:/ s/-O0/-O3/' node_build/make.js
+sed -i -e '/optimizeLevel:/ s/-O0/-O2/' node_build/make.js
 %endif
 %patch19 -p1 -b .fuzz
 #patch20 -p1 -b .sysctl
