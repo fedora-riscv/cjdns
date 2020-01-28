@@ -81,7 +81,7 @@
 Name:           cjdns
 # major version is cjdns protocol version:
 Version:        20.5
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        The privacy-friendly network without borders
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
 # cnacl is unused except when use_embedded is true
@@ -748,6 +748,9 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Tue Jan 28 2020 Fedora Release Engineering <releng@fedoraproject.org> - 20.5-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_32_Mass_Rebuild
+
 * Wed Jan 22 2020 Stuart Gathman <stuart@gathman.org> - 20.5-1
 - New upstream release
 
