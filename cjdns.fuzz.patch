@@ -12,10 +12,3 @@ diff -up ./test/Main_fuzz_test.c.fuzz ./test/Main_fuzz_test.c
      }
  }
  
-@@ -185,4 +185,4 @@ void CJDNS_FUZZ_MAIN(void* vctx, struct
-     TestFramework_assertLastMessageUnaltered(ctx->nodeA);
- 
-     EventBase_beginLoop(ctx->base);
--}
-\ No newline at end of file
-+}

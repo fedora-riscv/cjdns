@@ -1,0 +1,48 @@
+diff -up ./interface/tuntap/test/TUNTools.h.gcc10 ./interface/tuntap/test/TUNTools.h
+--- ./interface/tuntap/test/TUNTools.h.gcc10	2020-01-23 00:49:32.396175244 -0500
++++ ./interface/tuntap/test/TUNTools.h	2020-01-23 00:50:00.026580841 -0500
+@@ -29,9 +29,9 @@ typedef Iface_DEFUN (* TUNTools_Callback
+ 
+ Iface_DEFUN TUNTools_genericIP6Echo(struct Message* msg, struct TUNTools* tt);
+ 
+-const uint8_t* TUNTools_testIP6AddrA;
+-const uint8_t* TUNTools_testIP6AddrB;
+-const uint8_t* TUNTools_testIP6AddrC;
++extern const uint8_t* TUNTools_testIP6AddrA;
++extern const uint8_t* TUNTools_testIP6AddrB;
++extern const uint8_t* TUNTools_testIP6AddrC;
+ 
+ struct TUNTools
+ {
+diff -up ./util/platform/Sockaddr.h.gcc10 ./util/platform/Sockaddr.h
+--- ./util/platform/Sockaddr.h.gcc10	2019-11-25 06:38:10.000000000 -0500
++++ ./util/platform/Sockaddr.h	2020-01-23 00:41:54.026444061 -0500
+@@ -50,11 +50,11 @@ struct Sockaddr_storage
+ };
+ 
+ /** 127.0.0.1 and ::1 addresses for building from. */
+-const struct Sockaddr* const Sockaddr_LOOPBACK_be;
+-const struct Sockaddr* const Sockaddr_LOOPBACK_le;
++extern const struct Sockaddr* const Sockaddr_LOOPBACK_be;
++extern const struct Sockaddr* const Sockaddr_LOOPBACK_le;
+ #define Sockaddr_LOOPBACK (Endian_isBigEndian() ? Sockaddr_LOOPBACK_be : Sockaddr_LOOPBACK_le)
+ 
+-const struct Sockaddr* const Sockaddr_LOOPBACK6;
++extern const struct Sockaddr* const Sockaddr_LOOPBACK6;
+ 
+ int Sockaddr_getPrefix(struct Sockaddr* addr);
+ 
+diff -up ./util/platform/Socket.h.gcc10 ./util/platform/Socket.h
+--- ./util/platform/Socket.h.gcc10	2020-01-23 00:45:55.522991656 -0500
++++ ./util/platform/Socket.h	2020-01-23 00:46:13.753259267 -0500
+@@ -39,8 +39,8 @@ int Socket_recvfrom(int fd,
+ 
+ int Socket_connect(int fd, const struct Sockaddr* sa, struct Allocator* alloc);
+ 
+-const int Socket_SOCK_DGRAM;
+-const int Socket_SOCK_STREAM;
++extern const int Socket_SOCK_DGRAM;
++extern const int Socket_SOCK_STREAM;
+ int Socket_socket(int af, int type, int protocol, struct Allocator* alloc);
+ 
+ int Socket_bind(int fd, const struct Sockaddr* sa);
