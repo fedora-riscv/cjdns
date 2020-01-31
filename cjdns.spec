@@ -83,8 +83,8 @@
 
 Name:           cjdns
 # major version is cjdns protocol version:
-Version:        20.4
-Release:        3%{?dist}
+Version:        20.5
+Release:        1%{?dist}
 Summary:        The privacy-friendly network without borders
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
 # cnacl is unused except when use_embedded is true
@@ -146,7 +146,7 @@ Patch12: cjdns.sign.patch
 # included in cjdns-20.1
 #Patch15: cjdns.benc.patch
 # Specify python2 for systems that default to python3
-Patch16: cjdns.python3.patch
+#Patch16: cjdns.python3.patch
 # s390x support for embedded cnacl library from Dan Horák <dan@danny.cz>
 # Included upstream since 20.3
 #Patch17: cjdns.s390x.patch
@@ -157,6 +157,8 @@ Patch19: cjdns.fuzz.patch
 Patch20: cjdns.sysctl.patch
 # Patch ronn to stop using deprecated util.puts and util.debug
 Patch21: cjdns.puts.patch
+# gcc-10 no longer allows duplicate globals
+Patch22: cjdns.gcc10.patch
 
 %if %{use_marked}
 BuildRequires:  nodejs, nodejs-marked
@@ -336,16 +338,21 @@ fi
 #patch13 -b .ppc64
 #patch14 -b .entropy
 #patch15 -b .benc
-%patch16 -b .python3
+#patch16 -b .python3
 %if 0%{use_libuv}
 %patch18 -p1 -b .libuv
 rm -rf node_build/dependencies/libuv
 %else
 rm -rf node_build/dependencies/libuv/build/gyp # use system gyp
-sed -i -e '/optimizeLevel:/ s/-O0/-O3/' node_build/make.js
+%ifarch s390x
+sed -i -e '/optimizeLevel:/ s/-O0/-O1/' node_build/make.js
+%else
+sed -i -e '/optimizeLevel:/ s/-O0/-O2/' node_build/make.js
+%endif
 %endif
 %patch19 -p1 -b .fuzz
 #patch20 -p1 -b .sysctl
+%patch22 -b .gcc10
 
 cp %{SOURCE1} README_Fedora.md
 
@@ -763,6 +770,9 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Wed Jan 22 2020 Stuart Gathman <stuart@gathman.org> - 20.5-1
+- New upstream release
+
 * Tue Nov 12 2019 Stuart Gathman <stuart@gathman.org> - 20.4-3
 - networkx for cjdns-graph subpackage requires python2 on el7
 

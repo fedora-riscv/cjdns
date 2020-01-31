@@ -87,15 +87,6 @@ diff -up ./util/platform/netdev/NetPlatform_linux.c.warnings ./util/platform/net
  #endif
  #include <linux/netlink.h>
  #include <linux/rtnetlink.h>
-@@ -78,7 +79,7 @@ static int socketForIfName(const char* i
-     }
- 
-     memset(ifRequestOut, 0, sizeof(struct ifreq));
--    strncpy(ifRequestOut->ifr_name, interfaceName, IFNAMSIZ);
-+    strncpy(ifRequestOut->ifr_name, interfaceName, IFNAMSIZ - 1);
- 
-     if (ioctl(s, SIOCGIFINDEX, ifRequestOut) < 0) {
-         int err = errno;
 @@ -167,7 +168,7 @@ void NetPlatform_addAddress(const char*
              Except_throw(eh, "ioctl(SIOCSIFADDR) failed: [%s]", strerror(err));
          }
