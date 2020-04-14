@@ -80,8 +80,8 @@
 
 Name:           cjdns
 # major version is cjdns protocol version:
-Version:        20.5
-Release:        3%{?dist}
+Version:        20.6
+Release:        1%{?dist}
 Summary:        The privacy-friendly network without borders
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
 # cnacl is unused except when use_embedded is true
@@ -338,7 +338,7 @@ sed -i -e '/optimizeLevel:/ s/-O0/-O2/' node_build/make.js
 %endif
 %patch19 -p1 -b .fuzz
 #patch20 -p1 -b .sysctl
-%patch22 -b .gcc10
+#patch22 -b .gcc10
 
 cp %{SOURCE1} README_Fedora.md
 
