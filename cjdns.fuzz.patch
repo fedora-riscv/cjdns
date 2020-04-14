@@ -7,7 +7,7 @@ diff -up ./test/Main_fuzz_test.c.fuzz ./test/Main_fuzz_test.c
      uint64_t now = Time_currentTimeMilliseconds(ctx->base);
 -    if ((now - ctx->startTime) > 5000) {
 -        Assert_failure("Failed to link in 5 seconds");
-+    if ((now - ctx->startTime) > 100000) {
++    if ((now - ctx->startTime) > 200000) {
 +        Assert_failure("Failed to link in 100 seconds");
      }
  }

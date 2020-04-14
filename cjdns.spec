@@ -331,9 +331,9 @@ rm -rf node_build/dependencies/libuv
 %else
 rm -rf node_build/dependencies/libuv/build/gyp # use system gyp
 %ifarch s390x
-sed -i -e '/optimizeLevel:/ s/-O0/-O1/' node_build/make.js
+sed -i -e '/optimizeLevel:/ s/-O0/-O3/' node_build/make.js
 %else
-sed -i -e '/optimizeLevel:/ s/-O0/-O2/' node_build/make.js
+sed -i -e '/optimizeLevel:/ s/-O0/-O3/' node_build/make.js
 %endif
 %endif
 %patch19 -p1 -b .fuzz
@@ -748,6 +748,9 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Mon Mar 16 2020 Stuart Gathman <stuart@gathman.org> - 20.6-1
+- New upstream release
+
 * Mon Mar 16 2020 Stuart Gathman <stuart@gathman.org> - 20.5-3
 - Rebuilt for Fedora 33
 - Minor doc updates
