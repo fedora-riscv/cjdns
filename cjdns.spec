@@ -83,7 +83,7 @@
 
 Name:           cjdns
 # major version is cjdns protocol version:
-Version:        20.5
+Version:        20.6
 Release:        1%{?dist}
 Summary:        The privacy-friendly network without borders
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
@@ -345,14 +345,14 @@ rm -rf node_build/dependencies/libuv
 %else
 rm -rf node_build/dependencies/libuv/build/gyp # use system gyp
 %ifarch s390x
-sed -i -e '/optimizeLevel:/ s/-O0/-O1/' node_build/make.js
+sed -i -e '/optimizeLevel:/ s/-O0/-O3/' node_build/make.js
 %else
-sed -i -e '/optimizeLevel:/ s/-O0/-O2/' node_build/make.js
+sed -i -e '/optimizeLevel:/ s/-O0/-O3/' node_build/make.js
 %endif
 %endif
 %patch19 -p1 -b .fuzz
 #patch20 -p1 -b .sysctl
-%patch22 -b .gcc10
+#patch22 -b .gcc10
 
 cp %{SOURCE1} README_Fedora.md
 
@@ -770,6 +770,16 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Mon Mar 16 2020 Stuart Gathman <stuart@gathman.org> - 20.6-1
+- New upstream release
+
+* Mon Mar 16 2020 Stuart Gathman <stuart@gathman.org> - 20.5-3
+- Rebuilt for Fedora 33
+- Minor doc updates
+
+* Tue Jan 28 2020 Fedora Release Engineering <releng@fedoraproject.org> - 20.5-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_32_Mass_Rebuild
+
 * Wed Jan 22 2020 Stuart Gathman <stuart@gathman.org> - 20.5-1
 - New upstream release
 
