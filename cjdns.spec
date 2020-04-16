@@ -192,6 +192,8 @@ Provides: bundled(nacl) = 20110221
 %endif
 # build system requires nodejs, unfortunately
 ExclusiveArch: %{nodejs_arches}
+# Seccomp_test is too slow on koji for this arch
+ExcludeArch: armv7hl
 
 %description
 Cjdns implements an encrypted IPv6 network using public-key cryptography for
