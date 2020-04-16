@@ -45,10 +45,11 @@ cannot [insert standard cryptography disclaimer] be spoofed.  Most mesh VPNs
 decrypt packets before routing to a new node.  This means that if a relay node
 is compromised in a conventional VPN, it can see and even alter packets.  All
 cjdns packets are end to end encrypted - relay nodes are untrusted.  Cjdns is
-source routed, there is no centralized routing.  If a node is "blackholing"
-your packets for some reason - simply doesn't route through that node anymore.
-(But see Security below.)  The usual security problems with source routing
-don't apply because cjdns IPs can't be (easily) spoofed.
+source routed, there is no centralized routing (an option for chosen route
+servers is slated for future implementation).  If a node is "blackholing"
+your packets for some reason - cjdns simply doesn't route through that node
+anymore.  (But see Security below.)  The usual security problems with source
+routing don't apply because cjdns IPs can't be (easily) spoofed.
 
 ## Startup
 
@@ -80,9 +81,6 @@ can speed this up dramatically with:
 
 The resume service restarts cjdns when the system wakes up from sleep.
 
-For rhel6, use ```start cjdns``` instead of systemctl - ditto for restart
-and stop.
-
 ## Security
 
 By default, Fedora Workstation will treat the tun device created by cjdroute as
@@ -103,7 +101,8 @@ are more cumbersome.
 The Distributed Hash Table algorithm is a core component of cjdns - which is
 vulnerable to a Denial of Service attack known as "Sybil".  This attack can
 block specific updates to the DHT - to prevent your node from joining a mesh,
-for instance.
+for instance.  The Sybil attack is less effective because Cjdns uses
+chosen peers.  Simply cut off abusive peers.
 
 On the positive side, you can safely use telnet to cjdns IPs and the http
 protocol is automatically encrypted (but you need a secure DNS or raw ip to be
@@ -150,7 +149,7 @@ http_access allow adultpcs
 
 You may install a network service that depends on cjdns, for instance you might
 install thttpd to serve up
-[nodeinfo.json](https://docs.meshwith.me/en/cjdns/nodeinfo.json.html).  If
+[nodeinfo.json](https://github.com/hyperboria/docs/blob/master/cjdns/nodeinfo-json.md).  If
 thttpd is configured to listen only on your cjdns IP, then it will not start
 until cjdns is up and running.  Add ```After=cjdns-wait-online.service``` to
 ```thttpd.service``` to hold off starting the service until cjdns has the
