@@ -20,7 +20,7 @@ diff -up ./util/test/Seccomp_test.c.fuzz ./util/test/Seccomp_test.c
      pipe->userData = alloc;
  
 -    Timeout_setTimeout(timeout, eb, 2000, eb, alloc);
-+    Timeout_setTimeout(timeout, eb, 3000, eb, alloc);
++    Timeout_setTimeout(timeout, eb, 4000, eb, alloc);
      EventBase_beginLoop(eb);
  
      return 0;
@@ -29,7 +29,7 @@ diff -up ./util/test/Seccomp_test.c.fuzz ./util/test/Seccomp_test.c
      Assert_true(!Process_spawn(path, args, eb, alloc, NULL));
  
 -    Timeout_setTimeout(timeout, NULL, 2000, eb, alloc);
-+    Timeout_setTimeout(timeout, NULL, 3000, eb, alloc);
++    Timeout_setTimeout(timeout, NULL, 4000, eb, alloc);
  
      EventBase_beginLoop(eb);
      return 0;
