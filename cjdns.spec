@@ -14,7 +14,11 @@
 %bcond_with libsodium
 # Option to disable SECCOMP: confusing backward logic
 # Needed to run on openvz and other container systems
+%ifarch armv7hl
+%bcond_with seccomp
+%else
 %bcond_without seccomp
+%endif
 # Option to use system libuv instead of bundled libuv-0.11.19
 %bcond_with libuv
 # When with_python3 is set, this replaces tools in bin and libexec
@@ -81,7 +85,7 @@
 Name:           cjdns
 # major version is cjdns protocol version:
 Version:        20.6
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        The privacy-friendly network without borders
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
 # cnacl is unused except when use_embedded is true
@@ -193,7 +197,7 @@ Provides: bundled(nacl) = 20110221
 # build system requires nodejs, unfortunately
 ExclusiveArch: %{nodejs_arches}
 # Seccomp_test is too slow on koji for this arch
-ExcludeArch: armv7hl
+#ExcludeArch: armv7hl
 
 %description
 Cjdns implements an encrypted IPv6 network using public-key cryptography for
@@ -332,7 +336,11 @@ fi
 rm -rf node_build/dependencies/libuv
 %else
 rm -rf node_build/dependencies/libuv/build/gyp # use system gyp
+%ifarch armv7hl
 sed -i -e '/optimizeLevel:/ s/-O0/-O3/' node_build/make.js
+%else
+sed -i -e '/optimizeLevel:/ s/-O0/-O3/' node_build/make.js
+%endif
 %endif
 %patch19 -p1 -b .fuzz
 #patch20 -p1 -b .sysctl
@@ -746,6 +754,9 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Wed Apr 29 2020 Stuart Gathman <stuart@gathman.org> - 20.6-2
+- Disable SECCOMP by default for armv7hl instead of excluding arch
+
 * Mon Mar 16 2020 Stuart Gathman <stuart@gathman.org> - 20.6-1
 - New upstream release
 
