@@ -157,7 +157,7 @@ Patch19: cjdns.fuzz.patch
 # patch to use /proc/sys/kernel/random/uuid instead of sysctl before 20.4
 Patch20: cjdns.sysctl.patch
 # Patch ronn to stop using deprecated util.puts and util.debug
-Patch21: cjdns.puts.patch
+#Patch21: cjdns.puts.patch
 # gcc-10 no longer allows duplicate globals
 Patch22: cjdns.gcc10.patch
 
@@ -400,7 +400,7 @@ rm node_build/dependencies/cnacl/node_build/plans/*_AVX_plan.json
 
 %if !%{use_marked}
 cp -r /usr/lib/node_modules/ronn node_modules
-%patch21 -p1 -b .puts
+#patch21 -p1 -b .puts
 ln -s node_modules/ronn/bin/ronn.js ronn
 %endif
 
@@ -756,6 +756,7 @@ fi
 %changelog
 * Tue May 26 2020 Miro Hrončok <mhroncok@redhat.com> - 20.6-3
 - Rebuilt for Python 3.9
+- disable patch for nodejs-ronn, now included in Fedora
 
 * Wed Apr 29 2020 Stuart Gathman <stuart@gathman.org> - 20.6-2
 - Disable SECCOMP by default for armv7hl instead of excluding arch
