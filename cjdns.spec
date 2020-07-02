@@ -348,6 +348,7 @@ sed -i -e '/optimizeLevel:/ s/-O0/-O3/' node_build/make.js
 %else
 sed -i -e '/optimizeLevel:/ s/-O0/-O3/' node_build/make.js
 %endif
+sed -i -e '/var PYTHONS =/ s/python3.7/python2.7/' node_build/FindPython.js
 %endif
 #patch19 -p1 -b .fuzz
 #patch20 -p1 -b .sysctl
