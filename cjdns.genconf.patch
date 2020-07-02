@@ -1,16 +1,16 @@
 diff -up ./client/cjdroute2.c.genconf ./client/cjdroute2.c
---- ./client/cjdroute2.c.genconf	2019-05-02 04:02:32.000000000 -0400
-+++ ./client/cjdroute2.c	2019-05-08 12:14:53.146838389 -0400
-@@ -336,7 +336,7 @@ static int genconf(struct Random* rand,
-            "        // and ETHInterface will be unable to hot-add new interfaces\n"
-            "        // Use { \"setuser\": 0 } to disable.\n"
-            "        // Default: enabled with keepNetAdmin\n"
--           "        { \"setuser\": \"nobody\", \"keepNetAdmin\": 1 },\n"
-+           "        { \"setuser\": \"cjdns\", \"keepNetAdmin\": 1 },\n"
-            "\n"
+--- ./client/cjdroute2.c.genconf	2020-06-23 08:37:44.000000000 -0400
++++ ./client/cjdroute2.c	2020-07-01 13:48:09.041257042 -0400
+@@ -359,7 +359,7 @@ static int genconf(struct Allocator* all
+            if (Defined(android) || Defined(darwin)) {
+     printf("        { \"setuser\": 0 },\n");
+            } else {
+-    printf("        { \"setuser\": \"nobody\", \"keepNetAdmin\": 1 },\n");
++    printf("        { \"setuser\": \"cjdns\", \"keepNetAdmin\": 1 },\n");
+            }
+     printf("\n"
             "        // Chroot changes the filesystem root directory which cjdns sees, blocking it\n"
-            "        // from accessing files outside of the chroot sandbox, if the user does not\n"
-@@ -348,7 +348,7 @@ static int genconf(struct Random* rand,
+@@ -372,7 +372,7 @@ static int genconf(struct Allocator* all
            }
            else {
      printf("        // Default: enabled (using \"/var/run\")\n"
