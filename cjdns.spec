@@ -169,13 +169,14 @@ BuildRequires:	python34
 %else
 %if 0%{?rhel} == 7
 BuildRequires:	python36
+BuildRequires: devtoolset-7-toolchain, devtoolset-7-libatomic-devel
 %else
 BuildRequires:	python3
 %endif
 %endif
 
 # Automated package review hates explicit BR on make, but it *is* needed
-BuildRequires:  make gcc
+BuildRequires:  make 
 
 %if !0%{use_embedded}
 # x86_64 and ARM libnacl are not compiled with -fPIC before Fedora release 11.
@@ -434,6 +435,10 @@ ln -s /usr/share/selinux/devel/Makefile .
 make 
 cd -
 
+%if 0%{?rhel} == 7
+. /opt/rh/devtoolset-7/enable
+%endif
+
 %if 0 && %{with python3}
 cd python-cjdns
 python3 setup.py build 
@@ -458,9 +463,6 @@ NO_TEST=1 CJDNS_RELEASE_VERSION="%{name}-%{version}-%{release}" ./do
 build_linux/test_testcjdroute_c all >test.out
 
 %install
-%if 0%{?rhel} == 5
- rm -rf %{buildroot}  # needed on RHEL5
-%endif
 
 # the main switch process
 mkdir -p %{buildroot}%{_sbindir}
