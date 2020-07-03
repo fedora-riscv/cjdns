@@ -743,9 +743,9 @@ fi
 %{_bindir}/graphStats
 
 %changelog
-* Wed Jul  1 2020 Stuart Gathman <stuart@gathman.org> - 20.7-1
+* Thu Jul  2 2020 Stuart Gathman <stuart@gathman.org> - 20.7-1
 - New upstream release
-- Use pandoc for manpages
+- Use rubygem-ronn for manpages
 
 * Tue May 26 2020 Miro Hrončok <mhroncok@redhat.com> - 20.6-3
 - Rebuilt for Python 3.9
