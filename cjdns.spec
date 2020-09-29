@@ -124,8 +124,6 @@ Patch5:  cjdns.sbin.patch
 Patch6:  cjdns.dyn.patch
 # Patch to use _LINUX_CAPABILITY_3 (cjdns < 18)
 #Patch7:  cjdns.cap3.patch
-# Patch some source files to ignore selected warnings that break gcc6 builds
-#Patch8:  cjdns.warnings.patch
 # Man pages
 Patch9:  cjdns.man.patch
 # Patch some bugs in nodejs tools
@@ -154,6 +152,8 @@ Patch18: cjdns.libuv.patch
 Patch20: cjdns.sysctl.patch
 # gcc-10 no longer allows duplicate globals
 Patch22: cjdns.gcc10.patch
+# Patches for 32-bit builds
+Patch23: cjdns.32bit.patch
 
 %if %{use_marked}
 BuildRequires:  nodejs, nodejs-marked, python3
@@ -317,10 +317,6 @@ sed -i -e'/^#include / s,[<>],",g' crypto*int*.h
 cd -
 %endif
 
-%if !0%{?rhel} || 0%{?rhel} > 6
-#patch8 -b .warnings
-%endif
-
 %patch9 -b .man
 %patch10 -b .tools
 #patch13 -b .ppc64
@@ -341,6 +337,7 @@ sed -i -e '/optimizeLevel:/ s/-O0/-O3/' node_build/make.js
 #patch19 -p1 -b .fuzz
 #patch20 -p1 -b .sysctl
 #patch22 -b .gcc10
+%patch23 -b .32bit
 
 cp %{SOURCE1} README_Fedora.md
 
