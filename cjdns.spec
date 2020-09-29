@@ -6,12 +6,12 @@
 %bcond_with subnode
 # Option to use the optimized libnacl embedded with cjdns
 # Required since v20 due to use of private cnacl APIs
-%bcond_without embedded
+%bcond_with embedded
 # Option to enable CPU specific optimization
 # Default to generic for distro builds
 %bcond_without generic
-# Option to use libsodium instead of nacl (broken since v20)
-%bcond_with libsodium
+# Option to use libsodium instead of nacl (broken since v20, fixed v21)
+%bcond_without libsodium
 # Option to disable SECCOMP: confusing backward logic
 # Needed to run on openvz and other container systems
 %ifarch armv7hl
@@ -84,7 +84,7 @@
 
 Name:           cjdns
 # major version is cjdns protocol version:
-Version:        20.7
+Version:        21
 Release:        2%{?dist}
 Summary:        The privacy-friendly network without borders
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
@@ -312,6 +312,9 @@ elif test -d %{_includedir}/nacl && test -r %{_libdir}/libnacl.a; then
   cd -
 fi
 %patch12 -b .sign
+cd crypto/sign
+sed -i -e'/^#include / s,[<>],",g' crypto*int*.h
+cd -
 %endif
 
 %if !0%{?rhel} || 0%{?rhel} > 6
@@ -385,7 +388,7 @@ sed -i -e 's/-march=native/-mtune=native/' node_build/make.js
 %else
 sed -i -e 's/-march=native/-mtune=generic/' node_build/make.js
 %endif
-rm node_build/dependencies/cnacl/node_build/plans/*_AVX_plan.json
+#rm node_build/dependencies/cnacl/node_build/plans/*_AVX_plan.json
 # Leaving SSE2 code in since x86 is secondary arch and pretty much everyone
 # is going to have SSE2, except things like XO-1 which needs custom build.
 #rm node_build/dependencies/cnacl/node_build/plans/x86_SSE2_plan.json
@@ -745,6 +748,12 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Mon Sep 28 2020 Stuart Gathman <stuart@gathman.org> - 21-2
+- Enable libsodium
+
+* Sat Sep 26 2020 Stuart Gathman <stuart@gathman.org> - 21-1
+- New upstream release
+
 * Mon Jul 27 2020 Fedora Release Engineering <releng@fedoraproject.org> - 20.7-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_33_Mass_Rebuild
 
