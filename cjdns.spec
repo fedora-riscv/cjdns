@@ -5,12 +5,12 @@
 %bcond_with subnode
 # Option to use the optimized libnacl embedded with cjdns
 # Required since v20 due to use of private cnacl APIs
-%bcond_without embedded
+%bcond_with embedded
 # Option to enable CPU specific optimization
 # Default to generic for distro builds
 %bcond_without generic
-# Option to use libsodium instead of nacl (broken since v20)
-%bcond_with libsodium
+# Option to use libsodium instead of nacl (broken since v20, fixed v21)
+%bcond_without libsodium
 # Option to disable SECCOMP: confusing backward logic
 # Needed to run on openvz and other container systems
 %ifarch armv7hl
@@ -90,8 +90,8 @@
 
 Name:           cjdns
 # major version is cjdns protocol version:
-Version:        20.7
-Release:        1%{?dist}
+Version:        21
+Release:        2%{?dist}
 Summary:        The privacy-friendly network without borders
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
 # cnacl is unused except when use_embedded is true
@@ -130,8 +130,6 @@ Patch5:  cjdns.sbin.patch
 Patch6:  cjdns.dyn.patch
 # Patch to use _LINUX_CAPABILITY_3 (cjdns < 18)
 #Patch7:  cjdns.cap3.patch
-# Patch some source files to ignore selected warnings that break gcc6 builds
-#Patch8:  cjdns.warnings.patch
 # Man pages
 Patch9:  cjdns.man.patch
 # Patch some bugs in nodejs tools
@@ -160,6 +158,8 @@ Patch18: cjdns.libuv.patch
 Patch20: cjdns.sysctl.patch
 # gcc-10 no longer allows duplicate globals
 Patch22: cjdns.gcc10.patch
+# Patches for 32-bit builds
+Patch23: cjdns.32bit.patch
 
 %if %{use_marked}
 BuildRequires:  nodejs, nodejs-marked, python3
@@ -321,10 +321,9 @@ elif test -d %{_includedir}/nacl && test -r %{_libdir}/libnacl.a; then
   cd -
 fi
 %patch12 -b .sign
-%endif
-
-%if !0%{?rhel} || 0%{?rhel} > 6
-#patch8 -b .warnings
+cd crypto/sign
+sed -i -e'/^#include / s,[<>],",g' crypto*int*.h
+cd -
 %endif
 
 %patch9 -b .man
@@ -336,6 +335,10 @@ rm -rf node_build/dependencies/libuv
 rm -rf node_build/dependencies/libuv/build/gyp # use system gyp
 sed -i -e '/optimizeLevel:/ s/-O0/-O3/' node_build/make.js
 %endif
+#patch19 -p1 -b .fuzz
+#patch20 -p1 -b .sysctl
+#patch22 -b .gcc10
+%patch23 -b .32bit
 
 cp %{SOURCE1} README_Fedora.md
 
@@ -383,7 +386,7 @@ sed -i -e 's/-march=native/-mtune=native/' node_build/make.js
 %else
 sed -i -e 's/-march=native/-mtune=generic/' node_build/make.js
 %endif
-rm node_build/dependencies/cnacl/node_build/plans/*_AVX_plan.json
+#rm node_build/dependencies/cnacl/node_build/plans/*_AVX_plan.json
 # Leaving SSE2 code in since x86 is secondary arch and pretty much everyone
 # is going to have SSE2, except things like XO-1 which needs custom build.
 #rm node_build/dependencies/cnacl/node_build/plans/x86_SSE2_plan.json
@@ -743,6 +746,15 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Mon Sep 28 2020 Stuart Gathman <stuart@gathman.org> - 21-2
+- Enable libsodium
+
+* Sat Sep 26 2020 Stuart Gathman <stuart@gathman.org> - 21-1
+- New upstream release
+
+* Mon Jul 27 2020 Fedora Release Engineering <releng@fedoraproject.org> - 20.7-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_33_Mass_Rebuild
+
 * Thu Jul  2 2020 Stuart Gathman <stuart@gathman.org> - 20.7-1
 - New upstream release
 - Use rubygem-ronn for manpages
