@@ -85,7 +85,7 @@
 Name:           cjdns
 # major version is cjdns protocol version:
 Version:        21
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        The privacy-friendly network without borders
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
 # cnacl is unused except when use_embedded is true
@@ -99,7 +99,7 @@ Source2: cjdns.service
 Source3: https://github.com/kapouer/marked-man/archive/0.7.0.tar.gz#/marked-man-0.7.0.tar.gz
 %endif
 # Contributed python API hacked for python3
-Source4: python-cjdns-0.1.tar.gz
+Source4: python-cjdns-0.2.tar.gz
 # Add targeted selinux policy
 Patch0: cjdns.selinux.patch
 # Allow python2.6 for build.  Python is not used during the build
@@ -745,6 +745,9 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Fri Nov 27 2020 Stuart Gathman <stuart@gathman.org> - 21-3
+- New python-cjdns release
+
 * Mon Sep 28 2020 Stuart Gathman <stuart@gathman.org> - 21-2
 - Enable libsodium
 
