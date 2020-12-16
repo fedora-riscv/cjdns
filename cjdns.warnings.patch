@@ -1,109 +1,88 @@
-diff -up ./crypto/CryptoAuth.c.warnings ./crypto/CryptoAuth.c
---- ./crypto/CryptoAuth.c.warnings	2018-01-30 19:04:59.000000000 -0500
-+++ ./crypto/CryptoAuth.c	2018-03-14 14:38:20.689851389 -0400
-@@ -85,6 +85,8 @@ static inline void getSharedSecret(uint8
-                                    uint8_t passwordHash[32],
-                                    struct Log* logger)
+diff -up ./tunnel/IpTunnel.c.warn ./tunnel/IpTunnel.c
+--- ./tunnel/IpTunnel.c.warn	2020-09-18 14:24:44.000000000 -0400
++++ ./tunnel/IpTunnel.c	2020-12-16 12:41:53.284105519 -0500
+@@ -622,7 +622,7 @@ static Iface_DEFUN incomingControlMessag
+         Endian_bigEndianToHost32(x);                                \
+     }))
+ 
+-static bool prefixMatches6(uint8_t* addressA, uint8_t* refAddr, uint8_t prefixLen)
++static bool prefixMatches6(const uint8_t* addressA, const uint8_t* refAddr, uint8_t prefixLen)
  {
-+#pragma GCC diagnostic push
-+#pragma GCC diagnostic ignored "-Wunused-result"
-     if (passwordHash == NULL) {
-         crypto_box_curve25519xsalsa20poly1305_beforenm(outputSecret, herPublicKey, myPrivateKey);
-     } else {
-@@ -100,6 +102,7 @@ static inline void getSharedSecret(uint8
-         Bits_memcpy(buff.components.passwd, passwordHash, 32);
-         crypto_hash_sha256(outputSecret, buff.bytes, 64);
+     if (!prefixLen) {
+         Assert_true(Bits_isZero(refAddr, 16));
+@@ -661,7 +661,7 @@ static bool isValidAddress4(uint8_t sour
+     return prefixMatches4(compareAddr, conn->connectionIp4, conn->connectionIp4Alloc);
+ }
+ 
+-static bool isValidAddress6(uint8_t sourceAndDestIp6[32],
++static bool isValidAddress6(const uint8_t* sourceAndDestIp6,
+                             bool isFromTun,
+                             struct IpTunnel_Connection* conn)
+ {
+@@ -669,7 +669,7 @@ static bool isValidAddress6(uint8_t sour
+         || AddressCalc_validAddress(&sourceAndDestIp6[16])) {
+         return false;
      }
-+#pragma GCC diagnostic pop
-     if (Defined(Log_KEYS)) {
-         uint8_t myPublicKeyHex[65];
-         printHexPubKey(myPublicKeyHex, myPrivateKey);
-diff -up ./dht/CJDHTConstants.h.warnings ./dht/CJDHTConstants.h
---- ./dht/CJDHTConstants.h.warnings	2018-01-30 19:04:59.000000000 -0500
-+++ ./dht/CJDHTConstants.h	2018-03-14 14:38:20.689851389 -0400
-@@ -17,7 +17,9 @@
- 
- #include "benc/String.h"
- #include "util/version/Version.h"
--
-+#pragma GCC diagnostic push
-+#pragma GCC diagnostic ignored "-Wpragmas"
-+#pragma GCC diagnostic ignored "-Wunused-const-variable"
- // Signifying that this message is a query and defining the query type.
- static String* const CJDHTConstants_QUERY = String_CONST_SO("q");
- 
-@@ -61,5 +63,5 @@ static String* const CJDHTConstants_ENC_
- // Encoding scheme and index for the closest peer along the path.
- static String* const CJDHTConstants_PEER_ENC_SCHEME = String_CONST_SO("pes");
- static String* const CJDHTConstants_PEER_ENC_INDEX = String_CONST_SO("pei");
--
-+#pragma GCC diagnostic pop
- #endif
-diff -up ./node_build/dependencies/libuv/test/test-getsockname.c.warnings ./node_build/dependencies/libuv/test/test-getsockname.c
---- ./node_build/dependencies/libuv/test/test-getsockname.c.warnings	2018-01-30 19:04:59.000000000 -0500
-+++ ./node_build/dependencies/libuv/test/test-getsockname.c	2018-03-14 14:38:20.690851402 -0400
-@@ -18,7 +18,7 @@
-  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-  * IN THE SOFTWARE.
+-    uint8_t* compareAddr = (isFromTun)
++    const uint8_t* compareAddr = (isFromTun)
+         ? ((conn->isOutgoing) ? sourceAndDestIp6 : &sourceAndDestIp6[16])
+         : ((conn->isOutgoing) ? &sourceAndDestIp6[16] : sourceAndDestIp6);
+     return prefixMatches6(compareAddr, conn->connectionIp6, conn->connectionIp6Alloc);
+diff -up ./util/AddrTools.c.warn ./util/AddrTools.c
+--- ./util/AddrTools.c.warn	2020-12-15 22:01:15.611690648 -0500
++++ ./util/AddrTools.c	2020-12-16 12:44:11.013175227 -0500
+@@ -187,7 +187,7 @@ void AddrTools_printShortIp(uint8_t outp
+  *                "fc4f:630d:e499:8f5b:c49f:6e6b:01ae:3120".
+  * @return 0 if successful, -1 if the hexAddr is malformed.
   */
--
-+#pragma GCC diagnostic ignored "-Wstrict-aliasing"
- #include "uv.h"
- #include "task.h"
- 
-diff -up ./util/Gcc.h.warnings ./util/Gcc.h
---- ./util/Gcc.h.warnings	2018-01-30 19:04:59.000000000 -0500
-+++ ./util/Gcc.h	2018-03-14 14:38:20.690851402 -0400
-@@ -52,6 +52,11 @@
- #define Gcc_USE_RET \
-     __attribute__ ((warn_unused_result))
- 
-+#if __GNUC__ >= 7
-+#define Gcc_FALLTHROUGH \
-+    __attribute__ ((fallthrough))
-+#endif
-+
- #elif defined(__clang__)
- 
- #define Gcc_NORETURN \
-@@ -62,6 +67,9 @@
- 
- #endif
- 
-+#ifndef Gcc_FALLTHROUGH
-+    #define Gcc_FALLTHROUGH (void)0
-+#endif
- #ifndef Gcc_PRINTF
-     #define Gcc_PRINTF( format_idx, arg_idx )
- #endif
-diff -up ./util/platform/netdev/NetPlatform_linux.c.warnings ./util/platform/netdev/NetPlatform_linux.c
---- ./util/platform/netdev/NetPlatform_linux.c.warnings	2018-01-30 19:04:59.000000000 -0500
-+++ ./util/platform/netdev/NetPlatform_linux.c	2018-03-14 14:42:14.668850488 -0400
-@@ -36,6 +36,7 @@
- #include <linux/route.h>
- #if ! defined(android)
-     #include <linux/ipv6_route.h>
-+    #include <linux/ipv6.h>
- #endif
- #include <linux/netlink.h>
- #include <linux/rtnetlink.h>
-@@ -167,7 +168,7 @@ void NetPlatform_addAddress(const char*
-             Except_throw(eh, "ioctl(SIOCSIFADDR) failed: [%s]", strerror(err));
-         }
- 
--        uint32_t x = (uint32_t)~0 << (32 - prefixLen);
-+        uint32_t x = ~0U << (32 - prefixLen);
-         x = Endian_hostToBigEndian32(x);
-         memcpy(&sin.sin_addr, &x, 4);
-         memcpy(&ifRequest.ifr_addr, &sin, sizeof(struct sockaddr_in));
-diff -up ./util/platform/Sockaddr.c.warnings ./util/platform/Sockaddr.c
---- ./util/platform/Sockaddr.c.warnings	2018-01-30 19:04:59.000000000 -0500
-+++ ./util/platform/Sockaddr.c	2018-03-14 14:38:20.691851415 -0400
-@@ -12,6 +12,7 @@
-  * You should have received a copy of the GNU General Public License
-  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+-int AddrTools_parseIp(uint8_t out[16], const uint8_t hexAddr[40])
++int AddrTools_parseIp(uint8_t out[16], const uint8_t* hexAddr)
+ {
+     struct Sockaddr_storage ss;
+     if (Sockaddr_parse((const char*) hexAddr, &ss)
+diff -up ./util/AddrTools.h.warn ./util/AddrTools.h
+--- ./util/AddrTools.h.warn	2020-12-15 22:03:56.036099586 -0500
++++ ./util/AddrTools.h	2020-12-16 12:44:18.772291827 -0500
+@@ -44,7 +44,7 @@ void AddrTools_printShortIp(uint8_t outp
+  *                "fc4f:630d:e499:8f5b:c49f:6e6b:01ae:3120".
+  * @return 0 if successful, -1 if the hexAddr is malformed.
   */
-+#pragma GCC diagnostic ignored "-Wstrict-aliasing"
- #include "util/events/libuv/UvWrapper.h"
- #include "benc/String.h"
- #include "memory/Allocator.h"
+-int AddrTools_parseIp(uint8_t out[16], const uint8_t hexAddr[40]);
++int AddrTools_parseIp(uint8_t out[16], const uint8_t* hexAddr);
+ 
+ /**
+  * Parse out an ethernet MAC address.
+diff -up ./util/Bits.h.warn ./util/Bits.h
+--- ./util/Bits.h.warn	2020-12-15 21:52:43.800005230 -0500
++++ ./util/Bits.h	2020-12-15 21:52:57.496210893 -0500
+@@ -98,7 +98,7 @@ static inline uint64_t Bits_bitReverse64
+  * @length the nuber of bytes to check for zero'd-ness.
+  * @return true if all bytes checked are zero.
+  */
+-static inline int Bits_isZero(void* buffer, size_t length)
++static inline int Bits_isZero(const void* buffer, size_t length)
+ {
+     uint8_t* buff = (uint8_t*) buffer;
+     for (size_t i = 0; i < length; i++) {
+diff -up ./util/platform/Sockaddr.c.warn ./util/platform/Sockaddr.c
+--- ./util/platform/Sockaddr.c.warn	2020-12-15 21:37:34.152353751 -0500
++++ ./util/platform/Sockaddr.c	2020-12-16 12:43:27.035514362 -0500
+@@ -306,8 +306,9 @@ struct Sockaddr* Sockaddr_fromBytes(cons
+ 
+     struct Sockaddr_pvt* out = Allocator_calloc(alloc, addrLen + Sockaddr_OVERHEAD, 1);
+     Bits_memcpy(&out->ss, &ss, addrLen);
+-    out->pub.addrLen = addrLen + Sockaddr_OVERHEAD;
+-    return &out->pub;
++    struct Sockaddr* pub = &out->pub;
++    pub->addrLen = addrLen + Sockaddr_OVERHEAD;
++    return pub;
+ }
+ 
+ void Sockaddr_normalizeNative(void* nativeSockaddr)
+@@ -344,4 +345,4 @@ void Sockaddr_addrFromHandle(struct Sock
+     addr->type = Sockaddr_HANDLE;
+     addr->addrLen = sizeof(struct Sockaddr);
+     Bits_memcpy(&((uint8_t*)addr)[4], &handle, 4);
+-}
+\ No newline at end of file
++}
