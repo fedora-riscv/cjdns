@@ -75,8 +75,8 @@
 
 Name:           cjdns
 # major version is cjdns protocol version:
-Version:        21
-Release:        4%{?dist}
+Version:        21.1
+Release:        1%{?dist}
 Summary:        The privacy-friendly network without borders
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
 # cnacl is unused except when use_embedded is true
@@ -141,8 +141,6 @@ Patch18: cjdns.libuv.patch
 Patch20: cjdns.sysctl.patch
 # gcc-10 no longer allows duplicate globals
 Patch22: cjdns.gcc10.patch
-# Patches for 32-bit builds
-Patch23: cjdns.32bit.patch
 
 %if %{use_marked}
 BuildRequires:  nodejs, nodejs-marked, python3
@@ -323,7 +321,6 @@ sed -i -e '/optimizeLevel:/ s/-O0/-O3/' node_build/make.js
 #patch19 -p1 -b .fuzz
 #patch20 -p1 -b .sysctl
 #patch22 -b .gcc10
-%patch23 -b .32bit
 %patch2 -b .warn
 
 cp %{SOURCE1} README_Fedora.md
@@ -727,6 +724,9 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Wed Dec 16 2020 Stuart Gathman <stuart@gathman.org> - 21.1-1
+- New upstream release
+
 * Wed Dec 16 2020 Stuart Gathman <stuart@gathman.org> - 21-4
 - Support gcc-11, drop el6 support.
 
