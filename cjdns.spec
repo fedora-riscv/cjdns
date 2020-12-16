@@ -15,7 +15,7 @@
 # Option to disable SECCOMP: confusing backward logic
 # Needed to run on openvz and other container systems
 %ifarch armv7hl
-%bcond_with seccomp
+%bcond_without seccomp
 %else
 %bcond_without seccomp
 %endif
