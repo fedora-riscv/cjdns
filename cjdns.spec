@@ -14,11 +14,7 @@
 %bcond_without libsodium
 # Option to disable SECCOMP: confusing backward logic
 # Needed to run on openvz and other container systems
-%ifarch armv7hl
-%bcond_with seccomp
-%else
 %bcond_without seccomp
-%endif
 # Option to use system libuv instead of bundled libuv-0.11.19
 %bcond_with libuv
 # When with_python3 is set, this replaces tools in bin and libexec
@@ -76,7 +72,7 @@
 Name:           cjdns
 # major version is cjdns protocol version:
 Version:        21.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        The privacy-friendly network without borders
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
 # cnacl is unused except when use_embedded is true
@@ -724,6 +720,9 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Wed Dec 16 2020 Stuart Gathman <stuart@gathman.org> - 21.1-2
+- Reenable seccomp for armv7hl
+
 * Wed Dec 16 2020 Stuart Gathman <stuart@gathman.org> - 21.1-1
 - New upstream release
 
