@@ -14,11 +14,7 @@
 %bcond_without libsodium
 # Option to disable SECCOMP: confusing backward logic
 # Needed to run on openvz and other container systems
-%ifarch armv7hl
-%bcond_with seccomp
-%else
 %bcond_without seccomp
-%endif
 # Option to use system libuv instead of bundled libuv-0.11.19
 %bcond_with libuv
 # When with_python3 is set, this replaces tools in bin and libexec
@@ -56,17 +52,8 @@
 %global nacl_lib %{_libdir}/libnacl.so
 %endif
 
-%if 0%{?rhel} >= 5 && 0%{?rhel} < 7
-%global use_systemd 0
-%else
 %global use_systemd 1
-%endif
-
-%if 0%{?rhel} == 6
-%global use_upstart 1
-%else
 %global use_upstart 0
-%endif
 
 %if 0 && 0%{?fedora} > 30
 %global use_marked 1
@@ -87,7 +74,7 @@
 
 Name:           cjdns
 # major version is cjdns protocol version:
-Version:        21
+Version:        21.1
 Release:        2%{?dist}
 Summary:        The privacy-friendly network without borders
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
@@ -102,13 +89,11 @@ Source2: cjdns.service
 Source3: https://github.com/kapouer/marked-man/archive/0.7.0.tar.gz#/marked-man-0.7.0.tar.gz
 %endif
 # Contributed python API hacked for python3
-Source4: python-cjdns-0.1.tar.gz
+Source4: python-cjdns-0.2.tar.gz
 # Add targeted selinux policy
 Patch0: cjdns.selinux.patch
-# Allow python2.6 for build.  Python is not used during the build
-# process.  The python tools allegedly depend on python2.7, but that can
-# be in Requires for the subpackage.
-Patch1: cjdns.el6.patch
+# Patch warnings detected by gcc-11
+Patch2: cjdns.warnings.patch
 # Fix RLIMIT_NPROC - setuid() bug.   In its low priv process, cjdroute calls 
 #
 #   setrlimit(RLIMIT_NPROC, &(struct rlimit){ 0, 0 })
@@ -155,8 +140,6 @@ Patch18: cjdns.libuv.patch
 Patch20: cjdns.sysctl.patch
 # gcc-10 no longer allows duplicate globals
 Patch22: cjdns.gcc10.patch
-# Patches for 32-bit builds
-Patch23: cjdns.32bit.patch
 
 %if %{use_marked}
 BuildRequires:  nodejs, nodejs-marked
@@ -282,6 +265,10 @@ Requires: python3-%{name} = %{version}-%{release}
 Requires: python3-networkx
 %else
 Requires: python2-%{name} = %{version}-%{release}
+%if 0%{?rhel} == 7
+Requires: python-networkx
+Requires: python2-matplotlib
+%else
 Requires: python2-networkx
 %endif
 %endif
@@ -293,9 +280,6 @@ Python peer graph tools for cjdns.
 %prep
 %setup -qn cjdns-%{name}-v%{version}
 %patch0 -b .selinux
-%if 0%{?rhel} == 6
-%patch1 -b .el6
-%endif
 
 %patch4 -b .genconf
 %patch5 -b .sbin
@@ -353,7 +337,7 @@ sed -i -e '/var PYTHONS =/ s/python3.7/python2.7/' node_build/FindPython.js
 #patch19 -p1 -b .fuzz
 #patch20 -p1 -b .sysctl
 #patch22 -b .gcc10
-%patch23 -b .32bit
+%patch2 -b .warn
 
 cp %{SOURCE1} README_Fedora.md
 
@@ -370,10 +354,8 @@ find tools -type f | xargs grep -l '^#!\/usr\/bin\/env ' |
         xargs sed -e '1 s,^#!/usr/bin/env ,#!/usr/bin/,' -i
 
 # Fix deprecated Buffer ctor except on EL6
-%if 0%{?rhel} != 6 
 sed -e '1,$ s/new Buffer/Buffer.from/' -i \
         tools/lib/publicToIp6.js tools/lib/cjdnsadmin/cjdnsadmin.js
-%endif
 
 # Remove unpackaged code with undeclared licenses
 %if !%{with_admin}
@@ -770,6 +752,18 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Wed Dec 16 2020 Stuart Gathman <stuart@gathman.org> - 21.1-2
+- Reenable seccomp for armv7hl
+
+* Wed Dec 16 2020 Stuart Gathman <stuart@gathman.org> - 21.1-1
+- New upstream release
+
+* Wed Dec 16 2020 Stuart Gathman <stuart@gathman.org> - 21-4
+- Support gcc-11, drop el6 support.
+
+* Fri Nov 27 2020 Stuart Gathman <stuart@gathman.org> - 21-3
+- New python-cjdns release
+
 * Mon Sep 28 2020 Stuart Gathman <stuart@gathman.org> - 21-2
 - Enable libsodium
 
