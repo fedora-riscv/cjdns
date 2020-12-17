@@ -1,6 +1,6 @@
 diff -up ./client/cjdroute2.c.sodium ./client/cjdroute2.c
---- ./client/cjdroute2.c.sodium	2020-09-28 22:33:15.839316844 -0400
-+++ ./client/cjdroute2.c	2020-09-28 22:34:40.219680315 -0400
+--- ./client/cjdroute2.c.sodium	2020-12-16 14:14:51.140783237 -0500
++++ ./client/cjdroute2.c	2020-12-16 14:14:51.146783327 -0500
 @@ -64,6 +64,7 @@
  #include <string.h>
  #include <time.h>
@@ -9,7 +9,7 @@ diff -up ./client/cjdroute2.c.sodium ./client/cjdroute2.c
  
  #define DEFAULT_TUN_DEV "tun0"
  
-@@ -598,6 +599,9 @@ static String* getPipePath(Dict* config,
+@@ -597,6 +598,9 @@ static String* getPipePath(Dict* config,
  
  int main(int argc, char** argv)
  {
@@ -20,8 +20,8 @@ diff -up ./client/cjdroute2.c.sodium ./client/cjdroute2.c
          fprintf(stderr, "Log_LEVEL = KEYS, EXPECT TO SEE PRIVATE KEYS IN YOUR LOGS!\n");
      #endif
 diff -up ./contrib/c/makekeys.c.sodium ./contrib/c/makekeys.c
---- ./contrib/c/makekeys.c.sodium	2020-09-18 14:24:44.000000000 -0400
-+++ ./contrib/c/makekeys.c	2020-09-28 22:33:15.853317070 -0400
+--- ./contrib/c/makekeys.c.sodium	2020-10-05 17:46:19.000000000 -0400
++++ ./contrib/c/makekeys.c	2020-12-16 14:14:51.147783342 -0500
 @@ -22,9 +22,13 @@
  
  #include <signal.h>
@@ -37,8 +37,8 @@ diff -up ./contrib/c/makekeys.c.sodium ./contrib/c/makekeys.c
      struct Random* rand = Random_new(alloc, NULL, NULL);
  
 diff -up ./contrib/c/mkpasswd.c.sodium ./contrib/c/mkpasswd.c
---- ./contrib/c/mkpasswd.c.sodium	2020-09-18 14:24:44.000000000 -0400
-+++ ./contrib/c/mkpasswd.c	2020-09-28 22:33:15.853317070 -0400
+--- ./contrib/c/mkpasswd.c.sodium	2020-10-05 17:46:19.000000000 -0400
++++ ./contrib/c/mkpasswd.c	2020-12-16 14:14:51.147783342 -0500
 @@ -18,9 +18,13 @@
  
  #include <stdio.h>
@@ -54,8 +54,8 @@ diff -up ./contrib/c/mkpasswd.c.sodium ./contrib/c/mkpasswd.c
      struct Random* rand = Random_new(alloc, NULL, NULL);
  
 diff -up ./contrib/c/privatetopublic.c.sodium ./contrib/c/privatetopublic.c
---- ./contrib/c/privatetopublic.c.sodium	2020-09-18 14:24:44.000000000 -0400
-+++ ./contrib/c/privatetopublic.c	2020-09-28 22:33:15.853317070 -0400
+--- ./contrib/c/privatetopublic.c.sodium	2020-10-05 17:46:19.000000000 -0400
++++ ./contrib/c/privatetopublic.c	2020-12-16 14:14:51.147783342 -0500
 @@ -23,6 +23,7 @@
  #include <stdio.h>
  #include <errno.h>
@@ -75,8 +75,8 @@ diff -up ./contrib/c/privatetopublic.c.sodium ./contrib/c/privatetopublic.c
      Hex_decode(privateKey, 32, privateKeyHexIn, 64);
      crypto_scalarmult_curve25519_base(address.key, privateKey);
 diff -up ./contrib/c/publictoip6.c.sodium ./contrib/c/publictoip6.c
---- ./contrib/c/publictoip6.c.sodium	2020-09-18 14:24:44.000000000 -0400
-+++ ./contrib/c/publictoip6.c	2020-09-28 22:33:15.853317070 -0400
+--- ./contrib/c/publictoip6.c.sodium	2020-10-05 17:46:19.000000000 -0400
++++ ./contrib/c/publictoip6.c	2020-12-16 14:14:51.147783342 -0500
 @@ -16,6 +16,7 @@
  #include "util/AddrTools.h"
  #include "util/CString.h"
@@ -96,8 +96,8 @@ diff -up ./contrib/c/publictoip6.c.sodium ./contrib/c/publictoip6.c
      int ret = Key_parse(&key, keyBytes, ip6Bytes);
      switch (ret) {
 diff -up ./contrib/c/sybilsim.c.sodium ./contrib/c/sybilsim.c
---- ./contrib/c/sybilsim.c.sodium	2020-09-18 14:24:44.000000000 -0400
-+++ ./contrib/c/sybilsim.c	2020-09-28 22:33:15.853317070 -0400
+--- ./contrib/c/sybilsim.c.sodium	2020-10-05 17:46:19.000000000 -0400
++++ ./contrib/c/sybilsim.c	2020-12-16 14:14:51.148783357 -0500
 @@ -42,6 +42,7 @@
  #include "crypto_scalarmult_curve25519.h"
  
@@ -117,8 +117,8 @@ diff -up ./contrib/c/sybilsim.c.sodium ./contrib/c/sybilsim.c
      struct Allocator* alloc = MallocAllocator_new(1LL<<31);
  
 diff -up ./crypto/random/randombytes.c.sodium ./crypto/random/randombytes.c
---- ./crypto/random/randombytes.c.sodium	2020-09-18 14:24:44.000000000 -0400
-+++ ./crypto/random/randombytes.c	2020-09-28 22:33:15.853317070 -0400
+--- ./crypto/random/randombytes.c.sodium	2020-10-05 17:46:19.000000000 -0400
++++ ./crypto/random/randombytes.c	2020-12-16 14:14:51.148783357 -0500
 @@ -17,6 +17,7 @@
  #include "memory/MallocAllocator.h"
  
@@ -138,9 +138,9 @@ diff -up ./crypto/random/randombytes.c.sodium ./crypto/random/randombytes.c
          Random_bytes(rand, str.buff, 4096);
          out = write(STDOUT_FILENO, str.buff, 4096);
 diff -up ./node_build/make.js.sodium ./node_build/make.js
---- ./node_build/make.js.sodium	2020-09-18 14:24:44.000000000 -0400
-+++ ./node_build/make.js	2020-09-28 22:33:15.853317070 -0400
-@@ -264,48 +264,8 @@ Builder.configure({
+--- ./node_build/make.js.sodium	2020-10-05 17:46:19.000000000 -0400
++++ ./node_build/make.js	2020-12-16 14:15:59.646810621 -0500
+@@ -251,49 +251,8 @@ Builder.configure({
  
      }).nThen(function (waitFor) {
  
@@ -157,15 +157,16 @@ diff -up ./node_build/make.js.sodium ./node_build/make.js
 -            var cwd = process.cwd();
 -            process.chdir(dependencyDir + '/cnacl/');
 -
+-            // $FlowFixMe non-static require
 -            var NaCl = require(process.cwd() + '/node_build/make.js');
 -            NaCl.build(function (args, callback) {
 -                if (builder.config.systemName !== 'win32') {
 -                    args.unshift('-fPIC');
 -                }
 -
--                args.unshift(builder.config.optimizeLevel, '-fomit-frame-pointer');
+-                args.unshift(optimizeLevel, '-fomit-frame-pointer');
 -
--                if (!/^\-O0$/.test(builder.config.optimizeLevel)) {
+-                if (!/^\-O0$/.test(optimizeLevel)) {
 -                    args.unshift('-D_FORTIFY_SOURCE=2');
 -                }
 -
@@ -191,7 +192,7 @@ diff -up ./node_build/make.js.sodium ./node_build/make.js
  
      }).nThen(function (waitFor) {
  
-@@ -452,7 +412,7 @@ Builder.configure({
+@@ -440,7 +399,7 @@ Builder.configure({
      builder.buildExecutable('crypto/random/randombytes.c');
  
      builder.lintFiles(function (fileName, file, callback) {
@@ -200,9 +201,16 @@ diff -up ./node_build/make.js.sodium ./node_build/make.js
              callback('', false);
              return;
          }
+@@ -471,4 +430,4 @@ Builder.configure({
+     console.log('\x1b[1;31mFailed to build cjdns.\x1b[0m');
+     process.exit(1);
+ 
+-});
+\ No newline at end of file
++});
 diff -up ./test/testcjdroute.c.sodium ./test/testcjdroute.c
---- ./test/testcjdroute.c.sodium	2020-09-28 22:33:15.854317087 -0400
-+++ ./test/testcjdroute.c	2020-09-28 22:36:34.386525092 -0400
+--- ./test/testcjdroute.c.sodium	2020-10-05 17:46:19.000000000 -0400
++++ ./test/testcjdroute.c	2020-12-16 14:14:51.148783357 -0500
 @@ -26,6 +26,7 @@
  #include <stdio.h>
  #include <unistd.h>
@@ -211,7 +219,7 @@ diff -up ./test/testcjdroute.c.sodium ./test/testcjdroute.c
  
  #ifdef SUBNODE
      #define testcjdroute_SUBNODE 1
-@@ -272,6 +273,9 @@ static int main2(int argc, char** argv,
+@@ -269,6 +270,9 @@ static int main2(int argc, char** argv,
  
  int main(int argc, char** argv)
  {
