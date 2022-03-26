@@ -72,7 +72,7 @@
 Name:           cjdns
 # major version is cjdns protocol version:
 Version:        21.1
-Release:        6%{?dist}
+Release:        7%{?dist}
 Summary:        The privacy-friendly network without borders
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
 # cnacl is unused except when use_embedded is true
@@ -350,6 +350,7 @@ cjdev="$(cjdns-online -i)" || exit 1
 
 for s in %{_sysconfdir}/cjdns/up.d/*.sh; do
   if test -x "$s"; then
+    echo "$s" up $cjdev
     "$s" up $cjdev
   fi
 done
@@ -720,6 +721,10 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Fri Mar 25 2022 Stuart D. Gathman <stuart@gathman.org> - 21.1-7
+- Log scripts run by cjdns-up 
+- Very helpful when one gets RTNETLINK answers: File exists running one ...
+
 * Wed Jul 21 2021 Fedora Release Engineering <releng@fedoraproject.org> - 21.1-6
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_35_Mass_Rebuild
 
