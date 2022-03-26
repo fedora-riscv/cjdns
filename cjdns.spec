@@ -82,7 +82,7 @@
 Name:           cjdns
 # major version is cjdns protocol version:
 Version:        21.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        The privacy-friendly network without borders
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
 # cnacl is unused except when use_embedded is true
@@ -355,6 +355,7 @@ cjdev="$(cjdns-online -i)" || exit 1
 
 for s in %{_sysconfdir}/cjdns/up.d/*.sh; do
   if test -x "$s"; then
+    echo "$s" up $cjdev
     "$s" up $cjdev
   fi
 done
@@ -725,6 +726,9 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Fri Mar 25 2022 Stuart Gathman <stuart@gathman.org> - 21.1-2
+- Log scripts run by cjdns-up 
+
 * Wed Dec 16 2020 Stuart Gathman <stuart@gathman.org> - 21.1-1
 - New upstream release
 
