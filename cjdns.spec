@@ -145,7 +145,7 @@ BuildRequires:  nodejs, pandoc, python3
 %endif
 
 # Automated package review hates explicit BR on make, but it *is* needed
-BuildRequires:  make gcc
+BuildRequires:  make gcc gcc-c++
 
 %if !0%{use_embedded}
 # x86_64 and ARM libnacl are not compiled with -fPIC before Fedora release 11.
