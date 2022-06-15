@@ -72,7 +72,7 @@
 Name:           cjdns
 # major version is cjdns protocol version:
 Version:        21.1
-Release:        7%{?dist}
+Release:        8%{?dist}
 Summary:        The privacy-friendly network without borders
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
 # cnacl is unused except when use_embedded is true
@@ -720,6 +720,9 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Wed Jun 15 2022 Python Maint <python-maint@redhat.com> - 21.1-8
+- Rebuilt for Python 3.11
+
 * Wed Jan 19 2022 Fedora Release Engineering <releng@fedoraproject.org> - 21.1-7
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_36_Mass_Rebuild
 
