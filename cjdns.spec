@@ -1,6 +1,8 @@
 
 # Fedora review: http://bugzilla.redhat.com/1268716
 
+# Option to use clang
+%bcond_with clang
 # Option to enable SUBNODE mode (WIP)
 # Fedora generally runs on systems that easily support a full node
 %bcond_with subnode
@@ -146,6 +148,9 @@ BuildRequires:  nodejs, pandoc, python3
 
 # Automated package review hates explicit BR on make, but it *is* needed
 BuildRequires:  make gcc
+%if %{with clang}
+BuildRequires:  clang
+%endif
 
 %if !0%{use_embedded}
 # x86_64 and ARM libnacl are not compiled with -fPIC before Fedora release 11.
@@ -410,6 +415,9 @@ export Seccomp_NO=1
 %endif
 %if %{with subnode}
 export SUBNODE=1
+%endif
+%if %{with clang}
+export CC=clang
 %endif
 NO_TEST=1 CJDNS_RELEASE_VERSION="%{name}-%{version}-%{release}" ./do
 
