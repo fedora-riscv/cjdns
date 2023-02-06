@@ -71,7 +71,6 @@
 
 Name:           cjdns
 # major version is cjdns protocol version:
-<<<<<<< HEAD
 Version:        21.1
 Release:        7%{?dist}
 Summary:        The privacy-friendly network without borders
