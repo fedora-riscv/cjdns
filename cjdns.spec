@@ -71,6 +71,7 @@
 
 Name:           cjdns
 # major version is cjdns protocol version:
+<<<<<<< HEAD
 Version:        21.1
 Release:        7%{?dist}
 Summary:        The privacy-friendly network without borders
@@ -728,6 +729,15 @@ fi
 - Log scripts run by cjdns-up
 - Very helpful when one gets RTNETLINK answers: File exists running one ...
 - Unset CFLAGS, LDFLAGS to work around incompatibility with current nodejs
+
+* Wed Jan 18 2023 Fedora Release Engineering <releng@fedoraproject.org> - 21.2-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_38_Mass_Rebuild
+
+* Fri Mar 25 2022 Stuart D. Gathman <stuart@gathman.org> - 21.2-1
+- New upstream release
+
+* Fri Mar 25 2022 Stuart D. Gathman <stuart@gathman.org> - 21.1-7
+- Log scripts run by cjdns-up 
 
 * Wed Jul 21 2021 Fedora Release Engineering <releng@fedoraproject.org> - 21.1-6
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_35_Mass_Rebuild
