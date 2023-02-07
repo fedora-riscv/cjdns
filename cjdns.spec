@@ -72,7 +72,7 @@
 Name:           cjdns
 # major version is cjdns protocol version:
 Version:        21.1
-Release:        7%{?dist}
+Release:        8%{?dist}
 Summary:        The privacy-friendly network without borders
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
 # cnacl is unused except when use_embedded is true
@@ -175,7 +175,7 @@ Provides: bundled(nacl) = 20110221
 # build system requires nodejs, unfortunately
 ExclusiveArch: %{nodejs_arches}
 # Seccomp_test is too slow on koji for this arch
-#ExcludeArch: armv7hl
+ExcludeArch: s390x
 
 %description
 Cjdns implements an encrypted IPv6 network using public-key cryptography for
@@ -724,8 +724,7 @@ fi
 %{_bindir}/graphStats
 
 %changelog
-* Mon Feb 06 2023 Stuart D. Gathman <stuart@gathman.org> - 21.1-7
-- Log scripts run by cjdns-up
+* Mon Feb 06 2023 Stuart D. Gathman <stuart@gathman.org> - 21.1-8
 - Very helpful when one gets RTNETLINK answers: File exists running one ...
 - Unset CFLAGS, LDFLAGS to work around incompatibility with current nodejs
 
