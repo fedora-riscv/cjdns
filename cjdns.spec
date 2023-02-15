@@ -74,7 +74,7 @@
 Name:           cjdns
 # major version is cjdns protocol version:
 Version:        21.1
-Release:        10%{?dist}
+Release:        8%{?dist}
 Summary:        The privacy-friendly network without borders
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
 # cnacl is unused except when use_embedded is true
@@ -139,6 +139,7 @@ Patch18: cjdns.libuv.patch
 Patch20: cjdns.sysctl.patch
 # gcc-10 no longer allows duplicate globals
 Patch22: cjdns.gcc10.patch
+Patch23: cjdns.flagdup.patch
 
 %if %{use_marked}
 BuildRequires:  nodejs, nodejs-marked, python3
@@ -147,13 +148,14 @@ BuildRequires:  nodejs, pandoc, python3
 %endif
 
 # Automated package review hates explicit BR on make, but it *is* needed
-BuildRequires:  make gcc
+BuildRequires:  make gcc gcc-c++
 %if %{with clang}
 BuildRequires:  clang
 %endif
+BuildRequires:  make gcc gcc-c++
 
 %if !0%{use_embedded}
-# x86_64 and ARM libnacl are not compiled with -fPIC before Fedora release 11.
+# x84_64 and ARM libnacl are not compiled with -fPIC before Fedora release 11.
 BuildRequires:  %{nacl_name}-devel >= %{nacl_version}
 %endif
 %if %{use_systemd}
@@ -179,7 +181,7 @@ Provides: bundled(nacl) = 20110221
 # build system requires nodejs, unfortunately
 ExclusiveArch: %{nodejs_arches}
 # Seccomp_test is too slow on koji for this arch
-#ExcludeArch: armv7hl
+ExcludeArch: s390x
 
 %description
 Cjdns implements an encrypted IPv6 network using public-key cryptography for
@@ -322,6 +324,7 @@ sed -i -e '/optimizeLevel:/ s/-O0/-O3/' node_build/make.js
 #patch19 -p1 -b .fuzz
 #patch20 -p1 -b .sysctl
 #patch22 -b .gcc10
+%patch23 -b .flagdup
 %patch2 -b .warn
 
 cp %{SOURCE1} README_Fedora.md
@@ -355,7 +358,6 @@ cjdev="$(cjdns-online -i)" || exit 1
 
 for s in %{_sysconfdir}/cjdns/up.d/*.sh; do
   if test -x "$s"; then
-    echo "$s" up $cjdev
     "$s" up $cjdev
   fi
 done
@@ -419,6 +421,7 @@ export SUBNODE=1
 %if %{with clang}
 export CC=clang
 %endif
+unset CFLAGS LDFLAGS # FIXME: which of these is breaking make.js?
 NO_TEST=1 CJDNS_RELEASE_VERSION="%{name}-%{version}-%{release}" ./do
 
 # FIXME: use system libuv on compatible systems
@@ -729,18 +732,12 @@ fi
 %{_bindir}/graphStats
 
 %changelog
-* Tue Sep  6 2022 Stuart D. Gathman <stuart@gathman.org> - 21.1-10
-- Log scripts run by cjdns-up 
+* Mon Feb 06 2023 Stuart D. Gathman <stuart@gathman.org> - 21.1-8
 - Very helpful when one gets RTNETLINK answers: File exists running one ...
+- Unset CFLAGS, LDFLAGS to work around incompatibility with current nodejs
 
-* Wed Jul 20 2022 Fedora Release Engineering <releng@fedoraproject.org> - 21.1-9
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_37_Mass_Rebuild
-
-* Wed Jun 15 2022 Python Maint <python-maint@redhat.com> - 21.1-8
-- Rebuilt for Python 3.11
-
-* Wed Jan 19 2022 Fedora Release Engineering <releng@fedoraproject.org> - 21.1-7
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_36_Mass_Rebuild
+* Fri Mar 25 2022 Stuart D. Gathman <stuart@gathman.org> - 21.1-7
+- Log scripts run by cjdns-up 
 
 * Wed Jul 21 2021 Fedora Release Engineering <releng@fedoraproject.org> - 21.1-6
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_35_Mass_Rebuild
