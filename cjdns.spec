@@ -180,7 +180,7 @@ Provides: bundled(nacl) = 20110221
 # build system requires nodejs, unfortunately
 ExclusiveArch: %{nodejs_arches}
 # Seccomp_test is too slow on koji for this arch
-#ExcludeArch: s390x
+ExcludeArch: s390x
 
 %description
 Cjdns implements an encrypted IPv6 network using public-key cryptography for
