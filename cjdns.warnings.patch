@@ -1,6 +1,6 @@
 diff -up ./tunnel/IpTunnel.c.warn ./tunnel/IpTunnel.c
---- ./tunnel/IpTunnel.c.warn	2020-09-18 14:24:44.000000000 -0400
-+++ ./tunnel/IpTunnel.c	2020-12-16 12:41:53.284105519 -0500
+--- ./tunnel/IpTunnel.c.warn	2020-10-05 17:46:19.000000000 -0400
++++ ./tunnel/IpTunnel.c	2022-10-11 19:32:11.293285713 -0400
 @@ -622,7 +622,7 @@ static Iface_DEFUN incomingControlMessag
          Endian_bigEndianToHost32(x);                                \
      }))
@@ -29,8 +29,8 @@ diff -up ./tunnel/IpTunnel.c.warn ./tunnel/IpTunnel.c
          : ((conn->isOutgoing) ? &sourceAndDestIp6[16] : sourceAndDestIp6);
      return prefixMatches6(compareAddr, conn->connectionIp6, conn->connectionIp6Alloc);
 diff -up ./util/AddrTools.c.warn ./util/AddrTools.c
---- ./util/AddrTools.c.warn	2020-12-15 22:01:15.611690648 -0500
-+++ ./util/AddrTools.c	2020-12-16 12:44:11.013175227 -0500
+--- ./util/AddrTools.c.warn	2020-10-05 17:46:19.000000000 -0400
++++ ./util/AddrTools.c	2022-10-11 19:32:11.294285728 -0400
 @@ -187,7 +187,7 @@ void AddrTools_printShortIp(uint8_t outp
   *                "fc4f:630d:e499:8f5b:c49f:6e6b:01ae:3120".
   * @return 0 if successful, -1 if the hexAddr is malformed.
@@ -41,8 +41,8 @@ diff -up ./util/AddrTools.c.warn ./util/AddrTools.c
      struct Sockaddr_storage ss;
      if (Sockaddr_parse((const char*) hexAddr, &ss)
 diff -up ./util/AddrTools.h.warn ./util/AddrTools.h
---- ./util/AddrTools.h.warn	2020-12-15 22:03:56.036099586 -0500
-+++ ./util/AddrTools.h	2020-12-16 12:44:18.772291827 -0500
+--- ./util/AddrTools.h.warn	2020-10-05 17:46:19.000000000 -0400
++++ ./util/AddrTools.h	2022-10-11 19:32:11.294285728 -0400
 @@ -44,7 +44,7 @@ void AddrTools_printShortIp(uint8_t outp
   *                "fc4f:630d:e499:8f5b:c49f:6e6b:01ae:3120".
   * @return 0 if successful, -1 if the hexAddr is malformed.
@@ -53,8 +53,8 @@ diff -up ./util/AddrTools.h.warn ./util/AddrTools.h
  /**
   * Parse out an ethernet MAC address.
 diff -up ./util/Bits.h.warn ./util/Bits.h
---- ./util/Bits.h.warn	2020-12-15 21:52:43.800005230 -0500
-+++ ./util/Bits.h	2020-12-15 21:52:57.496210893 -0500
+--- ./util/Bits.h.warn	2020-10-05 17:46:19.000000000 -0400
++++ ./util/Bits.h	2022-10-11 19:32:11.294285728 -0400
 @@ -98,7 +98,7 @@ static inline uint64_t Bits_bitReverse64
   * @length the nuber of bytes to check for zero'd-ness.
   * @return true if all bytes checked are zero.
@@ -65,8 +65,8 @@ diff -up ./util/Bits.h.warn ./util/Bits.h
      uint8_t* buff = (uint8_t*) buffer;
      for (size_t i = 0; i < length; i++) {
 diff -up ./util/platform/Sockaddr.c.warn ./util/platform/Sockaddr.c
---- ./util/platform/Sockaddr.c.warn	2020-12-15 21:37:34.152353751 -0500
-+++ ./util/platform/Sockaddr.c	2020-12-16 12:43:27.035514362 -0500
+--- ./util/platform/Sockaddr.c.warn	2020-10-05 17:46:19.000000000 -0400
++++ ./util/platform/Sockaddr.c	2022-10-11 19:32:11.294285728 -0400
 @@ -306,8 +306,9 @@ struct Sockaddr* Sockaddr_fromBytes(cons
  
      struct Sockaddr_pvt* out = Allocator_calloc(alloc, addrLen + Sockaddr_OVERHEAD, 1);

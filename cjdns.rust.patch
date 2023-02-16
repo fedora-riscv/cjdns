@@ -1,0 +1,64 @@
+diff -up ./do.rust ./do
+--- ./do.rust	2020-12-16 13:31:23.000000000 -0500
++++ ./do	2022-09-21 06:50:01.049995426 -0400
+@@ -7,7 +7,7 @@ if test "x$CARGO" = "x"; then
+     printf "See https://rustup.rs/ for install instructions\n"
+     exit 1
+ fi
+-$CARGO build --release
++$CARGO build --offline --release
+ ./target/release/testcjdroute all >/dev/null
+ mv ./target/release/cjdroute ./
+ mv ./target/release/makekeys ./
+diff -up ./node_build/make.js.rust ./node_build/make.js
+--- ./node_build/make.js.rust	2022-09-21 06:56:53.965596649 -0400
++++ ./node_build/make.js	2022-09-21 09:43:15.585812097 -0400
+@@ -41,7 +41,6 @@ Builder.configure({
+         '-std=c99',
+         '-Wall',
+         '-Wextra',
+-        '-Werror',
+         '-Wno-pointer-sign',
+         '-Wmissing-prototypes',
+         '-pedantic',
+@@ -273,7 +272,7 @@ Builder.configure({
+     }).nThen(function (waitFor) {
+ 
+         if (!foundSodium) {
+-            throw new Error("Unable to find a path to libsodium headers");
++            builder.config.includeDirs.push('/usr/include/sodium');
+         }
+ 
+         builder.config.libs.push(libuvLib);
+@@ -447,4 +446,4 @@ Builder.configure({
+     console.log('\x1b[1;31mFailed to build cjdns.\x1b[0m');
+     process.exit(1);
+ 
+-});
+\ No newline at end of file
++});
+diff -up ./rust/cjdns_sys/Cargo.toml.rust ./rust/cjdns_sys/Cargo.toml
+--- ./rust/cjdns_sys/Cargo.toml.rust	2020-12-16 13:31:23.000000000 -0500
++++ ./rust/cjdns_sys/Cargo.toml	2022-09-21 10:58:29.763774705 -0400
+@@ -6,16 +6,16 @@ edition = "2018"
+ build = "build.rs"
+ 
+ [dependencies]
+-sodiumoxide = { git = "https://github.com/cjdelisle/sodiumoxide", rev = "3aa7e8e21b9cd61ad64f4a0ed125d5b1af2cf38d", version = "0.2", default-features = false, features = ["std"] }
++sodiumoxide = { version = "0.2", default-features = false, features = ["std"] }
+ thiserror = "1.0"
+ anyhow = "1.0"
+ 
+ [build_dependencies]
+ cc = "1.0"
+ anyhow = "1.0"
+-cbindgen = { version = "0.15", optional = true }
+-bindgen = { version = "0.55", optional = true }
++cbindgen = { version = "0.24", optional = true }
++bindgen = { version = "0.59", optional = true }
+ 
+ [features]
+ generate-rffi = ["cbindgen"]
+-generate-cffi = ["bindgen"]
+\ No newline at end of file
++generate-cffi = ["bindgen"]
