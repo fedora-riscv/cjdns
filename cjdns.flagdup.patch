@@ -1,6 +1,6 @@
 diff -up ./node_build/builder.js.flagdup ./node_build/builder.js
 --- ./node_build/builder.js.flagdup	2020-10-05 17:46:19.000000000 -0400
-+++ ./node_build/builder.js	2023-01-30 08:53:34.523601463 -0500
++++ ./node_build/builder.js	2023-05-02 15:01:37.727870212 -0400
 @@ -182,7 +182,7 @@ const cc = function (
  ) {
      compiler(ctx, args, function (ret, out, err) {
@@ -20,8 +20,8 @@ diff -up ./node_build/builder.js.flagdup ./node_build/builder.js
      const pctx /*:Builder_PreCtx_t*/ = {
          buildStage: (_x,_y)=>{},
 diff -up ./node_build/make.js.flagdup ./node_build/make.js
---- ./node_build/make.js.flagdup	2023-01-30 08:52:38.366691391 -0500
-+++ ./node_build/make.js	2023-01-30 08:52:38.539694195 -0500
+--- ./node_build/make.js.flagdup	2023-05-02 15:01:37.725870177 -0400
++++ ./node_build/make.js	2023-05-02 15:07:44.560178596 -0400
 @@ -41,7 +41,6 @@ Builder.configure({
          '-std=c99',
          '-Wall',
@@ -39,7 +39,15 @@ diff -up ./node_build/make.js.flagdup ./node_build/make.js
          }
      }
  
-@@ -151,7 +150,7 @@ Builder.configure({
+@@ -144,14 +143,14 @@ Builder.configure({
+     // with NEON on the BBB, or want to set -Os (OpenWrt)
+     // Allow -O0 so while debugging all variables are present.
+     if (CFLAGS) {
+-        var cflags = CFLAGS.split(' ');
++        var cflags = CFLAGS.trim().split(/\s+/);
+         cflags.forEach(function(flag) {
+              if (/^\-O[^02s]$/.test(flag)) {
+                 console.log("Skipping " + flag + ", assuming " + optimizeLevel + " instead.");
              } else if (/^\-O[02s]$/.test(flag)) {
                  optimizeLevel = flag;
              } else {
@@ -48,3 +56,12 @@ diff -up ./node_build/make.js.flagdup ./node_build/make.js
              }
          });
      }
+@@ -164,7 +163,7 @@ Builder.configure({
+     // We also need to pass various architecture/floating point flags to GCC when invoked as
+     // a linker.
+     if (LDFLAGS) {
+-        [].push.apply(builder.config.ldflags, LDFLAGS.split(' '));
++        [].push.apply(builder.config.ldflags, LDFLAGS.trim().split(/\s+/));
+     }
+ 
+     if (android) {
