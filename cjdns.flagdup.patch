@@ -1,6 +1,6 @@
 diff -up ./node_build/builder.js.flagdup ./node_build/builder.js
 --- ./node_build/builder.js.flagdup	2020-10-05 17:46:19.000000000 -0400
-+++ ./node_build/builder.js	2023-05-02 15:01:37.727870212 -0400
++++ ./node_build/builder.js	2023-05-02 15:09:09.595641374 -0400
 @@ -182,7 +182,7 @@ const cc = function (
  ) {
      compiler(ctx, args, function (ret, out, err) {
@@ -20,8 +20,8 @@ diff -up ./node_build/builder.js.flagdup ./node_build/builder.js
      const pctx /*:Builder_PreCtx_t*/ = {
          buildStage: (_x,_y)=>{},
 diff -up ./node_build/make.js.flagdup ./node_build/make.js
---- ./node_build/make.js.flagdup	2023-05-02 15:01:37.725870177 -0400
-+++ ./node_build/make.js	2023-05-02 15:07:44.560178596 -0400
+--- ./node_build/make.js.flagdup	2023-05-02 15:09:09.592641323 -0400
++++ ./node_build/make.js	2023-05-02 16:02:34.242809808 -0400
 @@ -41,7 +41,6 @@ Builder.configure({
          '-std=c99',
          '-Wall',
@@ -30,16 +30,20 @@ diff -up ./node_build/make.js.flagdup ./node_build/make.js
          '-Wno-pointer-sign',
          '-Wmissing-prototypes',
          '-pedantic',
-@@ -91,7 +90,7 @@ Builder.configure({
- 
-     if (!builder.config.crossCompiling) {
-         if (NO_MARCH_FLAG.indexOf(process.arch) == -1) {
--            builder.config.cflags.push('-march=native');
-+            builder.config.cflags.push('-mtune=generic');
-         }
+@@ -89,12 +88,6 @@ Builder.configure({
+         builder.config.cflags.push('-D', 'ADDRESS_PREFIX_BITS=' + process.env['ADDRESS_PREFIX_BITS']);
      }
  
-@@ -144,14 +143,14 @@ Builder.configure({
+-    if (!builder.config.crossCompiling) {
+-        if (NO_MARCH_FLAG.indexOf(process.arch) == -1) {
+-            builder.config.cflags.push('-march=native');
+-        }
+-    }
+-
+     if (builder.config.systemName === 'win32') {
+         builder.config.cflags.push('-Wno-format');
+     } else if (builder.config.systemName === 'linux') {
+@@ -144,14 +137,14 @@ Builder.configure({
      // with NEON on the BBB, or want to set -Os (OpenWrt)
      // Allow -O0 so while debugging all variables are present.
      if (CFLAGS) {
@@ -56,7 +60,7 @@ diff -up ./node_build/make.js.flagdup ./node_build/make.js
              }
          });
      }
-@@ -164,7 +163,7 @@ Builder.configure({
+@@ -164,7 +157,7 @@ Builder.configure({
      // We also need to pass various architecture/floating point flags to GCC when invoked as
      // a linker.
      if (LDFLAGS) {
