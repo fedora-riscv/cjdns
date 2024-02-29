@@ -72,7 +72,7 @@
 Name:           cjdns
 # major version is cjdns protocol version:
 Version:        21.1
-Release:        11%{?dist}
+Release:        11.rv64%{?dist}
 Summary:        The privacy-friendly network without borders
 # cjdns is all GPLv3 except libuv which is MIT and BSD and ISC
 # cnacl is unused except when use_embedded is true
@@ -138,6 +138,9 @@ Patch20: cjdns.sysctl.patch
 # gcc-10 no longer allows duplicate globals
 Patch22: cjdns.gcc10.patch
 Patch23: cjdns.flagdup.patch
+
+# riscv64 support
+Patch100:   cjdns-add-riscv64-support.patch
 
 %if %{use_marked}
 BuildRequires:  nodejs, nodejs-marked, python3
@@ -320,6 +323,10 @@ sed -i -e '/optimizeLevel:/ s/-O0/-O3/' node_build/make.js
 #patch22 -b .gcc10
 %patch23 -b .flagdup
 %patch2 -b .warn
+
+%ifarch riscv64
+%patch -P 100 -p1 -b .riscv64
+%endif
 
 cp %{SOURCE1} README_Fedora.md
 
@@ -723,6 +730,9 @@ fi
 %{_bindir}/graphStats
 
 %changelog
+* Sun Aug 20 2023 Liu Yang <Yang.Liu.sn@gmail.com> - 21.1-11.rv64
+- Add riscv64 patch from Arch.
+
 * Wed Jul 19 2023 Fedora Release Engineering <releng@fedoraproject.org> - 21.1-11
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_39_Mass_Rebuild
 
